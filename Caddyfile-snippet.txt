@@ -1,0 +1,7 @@
+# Add this to your Caddyfile (C:\RepairHub\caddy\Caddyfile), then reload Caddy.
+# Replace the domain if you're testing on a subdomain first, e.g. duc.saltwaydigital.co.uk
+
+droitwichunitedcharities.org.uk, www.droitwichunitedcharities.org.uk {
+    encode gzip
+    reverse_proxy 127.0.0.1:8112
+}
