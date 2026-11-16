@@ -1,0 +1,25 @@
+DROITWICH UNITED CHARITIES – WEBSITE (cPanel edition)   Built by Saltway Digital
+
+INSTALL (about 5 minutes)
+1. cPanel > File Manager > open public_html (or the folder for the domain you're using).
+   Move or delete any old website files there (e.g. a default index.html).
+2. Upload DUC-Website-cPanel.zip, right-click it > Extract, then delete the zip.
+   (Tick "Show Hidden Files" in File Manager Settings to see the .htaccess file.)
+3. Visit the website. The setup page opens and asks for a setup code.
+4. In File Manager, go up one level from public_html – a new folder "duc-data"
+   has appeared. Open duc-data/setup-code.txt and copy the code into the setup page.
+5. Create your Global Admin account. Done – the code file deletes itself.
+
+NEEDS: PHP 7.4 or newer (cPanel > Select PHP Version / MultiPHP Manager) and an
+Apache server with .htaccess (standard on cPanel). Install it at the top of a
+domain or subdomain, not in a sub-folder.
+
+HTTPS: turn on AutoSSL (cPanel > SSL/TLS Status), then remove the two # marks in
+.htaccess to force HTTPS.
+
+YOUR DATA lives in the duc-data folder next to public_html (not reachable from the web):
+users, content, enquiries, settings, sessions and audit.log. Back it up with the
+rest of your hosting (cPanel > Backup).
+
+LOCKED OUT OF THE ONLY ADMIN ACCOUNT? Delete duc-data/users.json in File Manager
+and visit the site – setup runs again with a new code (website content is kept).
