@@ -46,14 +46,15 @@ Build the upload zip with `build-cpanel.bat` (Windows) or `./build-cpanel.sh`, t
 | Path | What it is |
 |---|---|
 | `cpanel/index.php` | Website server (sign-in, users, maintenance, audit log) – loads the portal |
-| `cpanel/app/portal_api.php` | Portal API: meetings, recording, actions, papers, voting, calendar, settings |
-| `cpanel/app/partners.php` | Partner sign-up, logins, referrals, evidence, messages |
-| `cpanel/app/letters.php`, `docx.php`, `templates.php` | Letters on the letterhead, templates, calendar files |
-| `cpanel/app/gemini.php` | Gemini transcription and AI drafts |
-| `cpanel/app/gdpr.php` | GDPR tools |
-| `cpanel/app/cron.php` | Scheduled jobs (`php index.php cron`) |
-| `cpanel/app/smtp.php` | SMTP email |
-| `cpanel/app/portal.html` | Portal front end |
+| `cpanel/app/trustee_duc_lib.php` | Shared helpers: roles, encryption, uploads, email queue |
+| `cpanel/app/trustee_duc_portal_api.php` | Portal API: meetings, recording, actions, papers, voting, calendar, settings |
+| `cpanel/app/trustee_duc_partners.php` | Partner sign-up, logins, referrals, evidence, messages |
+| `cpanel/app/trustee_duc_letters.php`, `trustee_duc_docx.php`, `trustee_duc_templates.php` | Letters on the letterhead, templates, calendar files |
+| `cpanel/app/trustee_duc_gemini.php` | Gemini transcription and AI drafts |
+| `cpanel/app/trustee_duc_gdpr.php` | GDPR tools |
+| `cpanel/app/trustee_duc_cron.php` | Scheduled jobs (`php index.php cron`) |
+| `cpanel/app/trustee_duc_smtp.php` | SMTP email |
+| `cpanel/app/trustee_duc_portal.html` | Portal front end |
 
 ## Security
 

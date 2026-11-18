@@ -8,7 +8,7 @@ declare(strict_types=1);
 
 const APP_VERSION = '2.0.0-php';
 const APP_DIR = __DIR__ . '/app';
-require_once APP_DIR . '/portal_api.php';
+require_once APP_DIR . '/trustee_duc_portal_api.php';
 
 // ---------- data folder (outside public_html when possible) ----------
 /**
@@ -642,6 +642,15 @@ if (version_compare(PHP_VERSION, '7.4.0', '<')) { http_response_code(500); exit(
 if (!is_writable(data_dir())) { http_response_code(500); exit('The website cannot write to its data folder: ' . h(data_dir())); }
 
 $path = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+
+// Installed in a sub-folder of public_html (e.g. public_html/trustee_duc) for a subdomain:
+// don't let it be used through the main site's address – send people to the subdomain.
+$sub = '/' . basename(__DIR__);
+if (basename(__DIR__) !== 'public_html' && ($path === $sub || strpos($path, $sub . '/') === 0)) {
+    $home = rtrim((string)portal_settings()['siteUrl'], '/');
+    if ($home === '') { http_response_code(404); exit('Not found'); }
+    header('Location: ' . $home . (substr($path, strlen($sub)) ?: '/'), true, 301); exit;
+}
 $path = '/' . ltrim(rawurldecode($path), '/');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 

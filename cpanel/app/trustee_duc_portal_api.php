@@ -5,14 +5,14 @@
  */
 declare(strict_types=1);
 
-require_once __DIR__ . '/lib.php';
-require_once __DIR__ . '/docx.php';
-require_once __DIR__ . '/templates.php';
-require_once __DIR__ . '/gemini.php';
-require_once __DIR__ . '/partners.php';
-require_once __DIR__ . '/letters.php';
-require_once __DIR__ . '/gdpr.php';
-require_once __DIR__ . '/cron.php';
+require_once __DIR__ . '/trustee_duc_lib.php';
+require_once __DIR__ . '/trustee_duc_docx.php';
+require_once __DIR__ . '/trustee_duc_templates.php';
+require_once __DIR__ . '/trustee_duc_gemini.php';
+require_once __DIR__ . '/trustee_duc_partners.php';
+require_once __DIR__ . '/trustee_duc_letters.php';
+require_once __DIR__ . '/trustee_duc_gdpr.php';
+require_once __DIR__ . '/trustee_duc_cron.php';
 
 // ---------- guards ----------
 /** need: any (board or partner) | board | clerk | chair | gdpr | admin | partner */
@@ -831,7 +831,7 @@ function api_p_test_email(): void {
     $u = pguard('admin');
     $to = clip(body_json()['to'] ?? '', 200);
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) api_err(400, 'Enter an email address');
-    require_once __DIR__ . '/smtp.php';
+    require_once __DIR__ . '/trustee_duc_smtp.php';
     $err = smtp_send($to, 'Test email from the D.U.C. portal', email_wrap('<p>This is a test email from the Droitwich United Charities portal. If you can read this, email is working.</p>'));
     audit($u['username'], 'email.test', $to . ': ' . ($err ?? 'sent'));
     if ($err) api_err(502, $err);
@@ -866,7 +866,7 @@ function handle_portal_page(): void {
     if (!is_board($u) && !is_partner($u)) render_page(403, 'No access', '<h1>No portal access</h1><p>Your account can see the website but not the Trustee or Partner portal. Ask the Clerk if you need access.</p><p><a href="/">Back to the website</a></p>');
     if (settings()['maintenance'] && !has_role($u, ['admin', 'editor', 'clerk'])) maintenance_page($u);
     header('Content-Type: text/html; charset=utf-8'); header('Cache-Control: no-store');
-    readfile(APP_DIR . '/portal.html');
+    readfile(APP_DIR . '/trustee_duc_portal.html');
     exit;
 }
 

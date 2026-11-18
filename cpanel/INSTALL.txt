@@ -41,19 +41,24 @@ SET UP THE TRUSTEE PORTAL (once, as Global Admin)
 8. Share https://YOUR-SITE/partners/apply with schools, GPs, food banks etc.
 
 TRUSTEES SUBDOMAIN IN ITS OWN FOLDER (trustees.droitwichunitedcharities.org.uk)
-  1. cPanel > Domains > Create A New Domain > trustees.droitwichunitedcharities.org.uk
-     UNTICK "Share document root". Leave the suggested folder, e.g.
-     /home/USER/trustees.droitwichunitedcharities.org.uk  > Submit.
-  2. File Manager > open that new folder > upload DUC-Website-cPanel.zip > Extract.
-  3. Visit https://trustees.droitwichunitedcharities.org.uk – setup asks for a code.
-     It is in File Manager in your home folder:
-       duc-data-trustees.droitwichunitedcharities.org.uk/setup-code.txt
-  4. Create the Global Admin, then follow "SET UP THE TRUSTEE PORTAL" below, with
+  The folder can be inside public_html or in your home folder – both work:
+     /home/USER/public_html/trustee_duc     or     /home/USER/trustee_duc
+  Either way its data is kept OUTSIDE public_html, in /home/USER/duc-data-trustee_duc.
+  1. File Manager > open public_html (or Home) > + Folder > trustee_duc
+  2. cPanel > Domains > Create A New Domain > trustees.droitwichunitedcharities.org.uk
+     UNTICK "Share document root" and set Document Root to  public_html/trustee_duc
+     (or  trustee_duc  if you made it in Home) > Submit.
+  3. File Manager > open trustee_duc > upload DUC-Website-cPanel.zip > Extract.
+     index.php, .htaccess, app and assets must sit directly inside trustee_duc.
+  4. Visit https://trustees.droitwichunitedcharities.org.uk – setup asks for a code.
+     It is in File Manager at  /home/USER/duc-data-trustee_duc/setup-code.txt
+  5. Create the Global Admin, then follow "SET UP THE TRUSTEE PORTAL" below, with
      Website address https://trustees.droitwichunitedcharities.org.uk and the cron job:
-       /usr/local/bin/php /home/USER/trustees.droitwichunitedcharities.org.uk/index.php cron
-  This install has its OWN users and data (duc-data-trustees...), separate from the
-  main website. The home page opens the portal. If the domain's DNS is not in cPanel,
-  add an A record  trustees -> 46.252.76.135  where the DNS is managed.
+       /usr/local/bin/php /home/USER/public_html/trustee_duc/index.php cron
+  This install has its OWN users and data, separate from the main website. Its home
+  page opens the portal. Visiting droitwichunitedcharities.org.uk/trustee_duc sends
+  people to the subdomain. If the domain's DNS is not in cPanel, add an A record
+  trustees -> 46.252.76.135 where the DNS is managed.
 
 HTTPS: turn on AutoSSL (cPanel > SSL/TLS Status), then remove the two # marks in
 .htaccess to force HTTPS. The meeting recorder needs HTTPS to use the microphone.

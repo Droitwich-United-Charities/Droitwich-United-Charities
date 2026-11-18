@@ -277,7 +277,7 @@ function send_email(string $to, string $subject, string $html, array $att = [], 
 }
 /** Try queued emails (one id, or all due). Returns true if the requested one was sent. */
 function flush_outbox(?string $only = null): bool {
-    require_once __DIR__ . '/smtp.php';
+    require_once __DIR__ . '/trustee_duc_smtp.php';
     $sent = false;
     $q = read_json('outbox.json', []);
     foreach ($q as $item) {
