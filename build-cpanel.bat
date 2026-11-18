@@ -12,5 +12,9 @@ xcopy /e /i /y /q cpanel\assets dist\cpanel\assets >nul
 copy /y web\duc-logo.webp dist\cpanel\assets\duc-logo.webp >nul
 if exist DUC-Website-cPanel.zip del DUC-Website-cPanel.zip
 powershell -NoProfile -Command "Compress-Archive -Path 'dist\cpanel\*' -DestinationPath 'DUC-Website-cPanel.zip' -Force"
-echo Built DUC-Website-cPanel.zip
+if exist dist\trustee_duc rmdir /s /q dist\trustee_duc
+xcopy /e /i /y /q /h dist\cpanel dist\trustee_duc >nul
+if exist trustee_duc.zip del trustee_duc.zip
+powershell -NoProfile -Command "Compress-Archive -Path 'dist\trustee_duc' -DestinationPath 'trustee_duc.zip' -Force"
+echo Built DUC-Website-cPanel.zip and trustee_duc.zip
 pause

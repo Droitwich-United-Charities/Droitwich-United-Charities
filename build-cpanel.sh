@@ -10,4 +10,7 @@ cp cpanel/assets/* dist/cpanel/assets/
 cp web/duc-logo.webp dist/cpanel/assets/duc-logo.webp
 rm -f DUC-Website-cPanel.zip
 (cd dist/cpanel && zip -qr ../../DUC-Website-cPanel.zip . -x '.DS_Store')
-echo "Built DUC-Website-cPanel.zip"
+# Same files inside a trustee_duc folder – upload to public_html and Extract
+rm -rf dist/trustee_duc trustee_duc.zip && mkdir -p dist/trustee_duc && cp -R dist/cpanel/. dist/trustee_duc/
+(cd dist && zip -qr ../trustee_duc.zip trustee_duc -x '*.DS_Store')
+echo "Built DUC-Website-cPanel.zip and trustee_duc.zip"
