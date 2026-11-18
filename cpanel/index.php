@@ -11,12 +11,27 @@ const APP_DIR = __DIR__ . '/app';
 require_once APP_DIR . '/portal_api.php';
 
 // ---------- data folder (outside public_html when possible) ----------
+/**
+ * Each install keeps its own data folder outside the web folder:
+ *   public_html                              -> duc-data
+ *   trustees.droitwichunitedcharities.org.uk -> duc-data-trustees.droitwichunitedcharities.org.uk
+ * If the install folder is inside public_html, the data goes next to public_html (never under it).
+ */
+function data_folder_name(): string {
+    $n = basename(__DIR__);
+    return $n === 'public_html' ? 'duc-data' : 'duc-data-' . preg_replace('/[^A-Za-z0-9._-]/', '_', $n);
+}
+function data_parent(): string {
+    $p = dirname(__DIR__);
+    while (strpos($p . '/', '/public_html/') !== false && dirname($p) !== $p) $p = dirname($p);
+    return $p;
+}
 function data_dir(): string {
     static $dir = null;
     if ($dir !== null) return $dir;
-    $outside = dirname(__DIR__) . '/duc-data';
+    $outside = data_parent() . '/' . data_folder_name();
     $inside  = __DIR__ . '/duc-data';
-    if (is_dir($outside) || (is_writable(dirname(__DIR__)) && @mkdir($outside, 0700, true))) {
+    if (is_dir($outside) || (is_writable(data_parent()) && @mkdir($outside, 0700, true))) {
         $dir = $outside;
     } else {
         if (!is_dir($inside)) @mkdir($inside, 0700, true);
@@ -223,7 +238,8 @@ function setup_code(): string {
 function handle_setup(): void {
     if (count(users()) > 0) redirect('/');
     $code = setup_code();
-    $where = (strpos(data_dir(), dirname(__DIR__) . '/duc-data') === 0) ? 'duc-data/setup-code.txt (next to public_html)' : 'public_html/duc-data/setup-code.txt';
+    $outside = data_parent() . '/' . data_folder_name();
+    $where = (strpos(data_dir(), $outside) === 0) ? data_folder_name() . '/setup-code.txt (in your home folder, next to public_html)' : basename(__DIR__) . '/duc-data/setup-code.txt';
     $form = function (string $msg = '') use ($where) {
         $b = '<h1>Welcome – first-time setup</h1><p>Create the <b>Global Admin</b> account. This account can add users, turn on maintenance mode and see the audit log.</p>'
             . '<p style="text-align:left;background:#e8eef8;border-radius:10px;padding:10px 12px;font-size:14px">To prove you own this website, open cPanel <b>File Manager</b> and copy the code from <b>' . h($where) . '</b>.</p>';

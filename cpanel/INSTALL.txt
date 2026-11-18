@@ -12,7 +12,7 @@ NEW INSTALL (about 5 minutes)
    (Tick "Show Hidden Files" in File Manager Settings to see the .htaccess file.)
 3. Visit the website. The setup page asks for a setup code.
 4. In File Manager, go up one level from public_html – a new folder "duc-data"
-   has appeared. Open duc-data/setup-code.txt and copy the code into the setup page.
+   has appeared (for an install in another folder it is "duc-data-FOLDERNAME"). Open duc-data/setup-code.txt and copy the code into the setup page.
 5. Create your Global Admin account. Done – the code file deletes itself.
 
 UPGRADING FROM VERSION 1 (keeps all your users, content and enquiries)
@@ -40,14 +40,20 @@ SET UP THE TRUSTEE PORTAL (once, as Global Admin)
    portal (Trustees & officers > Invite).
 8. Share https://YOUR-SITE/partners/apply with schools, GPs, food banks etc.
 
-TRUSTEES SUBDOMAIN (trustees.droitwichunitedcharities.org.uk)
-  cPanel > Domains > Create A New Domain > trustees.droitwichunitedcharities.org.uk
-  and TICK "Share document root" so it uses the same public_html folder.
-  (Older cPanel: Subdomains > set Document Root to public_html.)
-  The home page on any trustees. address opens the portal; same logins and data.
-  Then set Portal settings > Website address to https://trustees.droitwichunitedcharities.org.uk
-  so links in emails go there. If DNS is not managed in cPanel, add an A record
-  trustees -> 46.252.76.135 where the domain's DNS is.
+TRUSTEES SUBDOMAIN IN ITS OWN FOLDER (trustees.droitwichunitedcharities.org.uk)
+  1. cPanel > Domains > Create A New Domain > trustees.droitwichunitedcharities.org.uk
+     UNTICK "Share document root". Leave the suggested folder, e.g.
+     /home/USER/trustees.droitwichunitedcharities.org.uk  > Submit.
+  2. File Manager > open that new folder > upload DUC-Website-cPanel.zip > Extract.
+  3. Visit https://trustees.droitwichunitedcharities.org.uk – setup asks for a code.
+     It is in File Manager in your home folder:
+       duc-data-trustees.droitwichunitedcharities.org.uk/setup-code.txt
+  4. Create the Global Admin, then follow "SET UP THE TRUSTEE PORTAL" below, with
+     Website address https://trustees.droitwichunitedcharities.org.uk and the cron job:
+       /usr/local/bin/php /home/USER/trustees.droitwichunitedcharities.org.uk/index.php cron
+  This install has its OWN users and data (duc-data-trustees...), separate from the
+  main website. The home page opens the portal. If the domain's DNS is not in cPanel,
+  add an A record  trustees -> 46.252.76.135  where the DNS is managed.
 
 HTTPS: turn on AutoSSL (cPanel > SSL/TLS Status), then remove the two # marks in
 .htaccess to force HTTPS. The meeting recorder needs HTTPS to use the microphone.
