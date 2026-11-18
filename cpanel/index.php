@@ -12,14 +12,32 @@ require_once APP_DIR . '/trustee_duc_portal_api.php';
 
 // ---------- data folder (outside public_html when possible) ----------
 /**
- * Each install keeps its own data folder outside the web folder, inside duc-data:
+ * Each install keeps its own data folder next to public_html (never under it):
  *   public_html                                          -> duc-data
- *   public_html/trustees.droitwichunitedcharities.org.uk -> duc-data/duc-data-trustees.droitwichunitedcharities.org.uk
- * The data always goes next to public_html (never under it).
+ *   public_html/trustees.droitwichunitedcharities.org.uk -> duc-data.trustees.droitwichunitedcharities.org.uk
+ * An existing folder is used if it is named duc-data.NAME, duc-data-NAME or
+ * duc-data/duc-data-NAME (any capitals). Otherwise duc-data.NAME is created.
  */
 function data_folder_name(): string {
+    static $name = null;
+    if ($name !== null) return $name;
     $n = basename(__DIR__);
-    return $n === 'public_html' ? 'duc-data' : 'duc-data/duc-data-' . preg_replace('/[^A-Za-z0-9._-]/', '_', $n);
+    if ($n === 'public_html') return $name = 'duc-data';
+    $n = preg_replace('/[^A-Za-z0-9._-]/', '_', $n);
+    $want = ['duc-data.' . $n, 'duc-data-' . $n, 'duc-data/duc-data-' . $n, 'duc-data/duc-data.' . $n];
+    $parent = data_parent();
+    foreach ($want as $w) {
+        $found = '';
+        foreach (explode('/', $w) as $part) {
+            $dir = $parent . ($found === '' ? '' : '/' . $found);
+            $hit = null;
+            foreach ((@scandir($dir) ?: []) as $e) if (strtolower($e) === strtolower($part) && is_dir($dir . '/' . $e)) { $hit = $e; break; }
+            if ($hit === null) { $found = null; break; }
+            $found = $found === '' ? $hit : $found . '/' . $hit;
+        }
+        if ($found) return $name = $found;
+    }
+    return $name = $want[0];
 }
 function data_parent(): string {
     $p = dirname(__DIR__);

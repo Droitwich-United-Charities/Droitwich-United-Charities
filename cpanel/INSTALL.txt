@@ -42,16 +42,17 @@ SET UP THE TRUSTEE PORTAL (once, as Global Admin)
 
 TRUSTEES SUBDOMAIN IN ITS OWN FOLDER (trustees.droitwichunitedcharities.org.uk)
   Site:  /home/USER/public_html/trustees.droitwichunitedcharities.org.uk
-  Data:  /home/USER/duc-data/duc-data-trustees.droitwichunitedcharities.org.uk
-         (inside duc-data, next to public_html – not reachable from the web)
+  Data:  /home/USER/duc-data.trustees.droitwichunitedcharities.org.uk
+         (next to public_html – not reachable from the web; an existing folder called
+          duc-data-trustees… or duc-data/duc-data-trustees… is used instead if you have one)
   1. File Manager > public_html > upload trustees.droitwichunitedcharities.org.uk.zip
      > Extract. It creates the folder trustees.droitwichunitedcharities.org.uk.
   2. cPanel > Domains > Create A New Domain (or Manage, if it exists) >
      trustees.droitwichunitedcharities.org.uk – UNTICK "Share document root" and set
      Document Root to  public_html/trustees.droitwichunitedcharities.org.uk
   3. SSL/TLS Status > Run AutoSSL.
-  4. Visit https://trustees.droitwichunitedcharities.org.uk – the setup code is in
-     duc-data/duc-data-trustees.droitwichunitedcharities.org.uk/setup-code.txt
+  4. Visit https://trustees.droitwichunitedcharities.org.uk – the setup page shows
+     which folder the setup code (setup-code.txt) is in.
   5. Create the Global Admin, then follow "SET UP THE TRUSTEE PORTAL" below, with
      Website address https://trustees.droitwichunitedcharities.org.uk and the cron job:
        /usr/local/bin/php /home/USER/public_html/trustees.droitwichunitedcharities.org.uk/index.php cron
