@@ -12,14 +12,14 @@ require_once APP_DIR . '/trustee_duc_portal_api.php';
 
 // ---------- data folder (outside public_html when possible) ----------
 /**
- * Each install keeps its own data folder outside the web folder:
- *   public_html                              -> duc-data
- *   trustees.droitwichunitedcharities.org.uk -> duc-data-trustees.droitwichunitedcharities.org.uk
- * If the install folder is inside public_html, the data goes next to public_html (never under it).
+ * Each install keeps its own data folder outside the web folder, inside duc-data:
+ *   public_html                                          -> duc-data
+ *   public_html/trustees.droitwichunitedcharities.org.uk -> duc-data/duc-data-trustees.droitwichunitedcharities.org.uk
+ * The data always goes next to public_html (never under it).
  */
 function data_folder_name(): string {
     $n = basename(__DIR__);
-    return $n === 'public_html' ? 'duc-data' : 'duc-data-' . preg_replace('/[^A-Za-z0-9._-]/', '_', $n);
+    return $n === 'public_html' ? 'duc-data' : 'duc-data/duc-data-' . preg_replace('/[^A-Za-z0-9._-]/', '_', $n);
 }
 function data_parent(): string {
     $p = dirname(__DIR__);

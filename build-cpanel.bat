@@ -12,9 +12,9 @@ xcopy /e /i /y /q cpanel\assets dist\cpanel\assets >nul
 copy /y web\duc-logo.webp dist\cpanel\assets\duc-logo.webp >nul
 if exist DUC-Website-cPanel.zip del DUC-Website-cPanel.zip
 powershell -NoProfile -Command "Compress-Archive -Path 'dist\cpanel\*' -DestinationPath 'DUC-Website-cPanel.zip' -Force"
-if exist dist\trustee_duc rmdir /s /q dist\trustee_duc
-xcopy /e /i /y /q /h dist\cpanel dist\trustee_duc >nul
-if exist trustee_duc.zip del trustee_duc.zip
-powershell -NoProfile -Command "Compress-Archive -Path 'dist\trustee_duc' -DestinationPath 'trustee_duc.zip' -Force"
-echo Built DUC-Website-cPanel.zip and trustee_duc.zip
+if exist dist\trustees.droitwichunitedcharities.org.uk rmdir /s /q dist\trustees.droitwichunitedcharities.org.uk
+xcopy /e /i /y /q /h dist\cpanel dist\trustees.droitwichunitedcharities.org.uk >nul
+if exist trustees.droitwichunitedcharities.org.uk.zip del trustees.droitwichunitedcharities.org.uk.zip
+powershell -NoProfile -Command "Compress-Archive -Path 'dist\trustees.droitwichunitedcharities.org.uk' -DestinationPath 'trustees.droitwichunitedcharities.org.uk.zip' -Force"
+echo Built DUC-Website-cPanel.zip and trustees.droitwichunitedcharities.org.uk.zip
 pause
