@@ -136,6 +136,10 @@ function handle_oauth_authorize(): void {
     if ($q['code_challenge_method'] !== 'S256' || !preg_match('/^[A-Za-z0-9_-]{43,128}$/', $q['code_challenge'])) $back(['error' => 'invalid_request', 'error_description' => 'PKCE S256 is required']);
     if ($q['resource'] !== '' && rtrim($q['resource'], '/') !== mcp_resource()) $back(['error' => 'invalid_target', 'error_description' => 'Unknown resource']);
 
+    // The Allow/Cancel form redirects back to Claude, so this page's security policy must allow that address
+    $rp = parse_url($q['redirect_uri']);
+    $dest = $rp['scheme'] . '://' . $rp['host'] . (isset($rp['port']) ? ':' . $rp['port'] : (in_array($rp['host'], ['localhost', '127.0.0.1'], true) ? ':*' : ''));
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'self' $dest; frame-ancestors 'none'; base-uri 'none'", true);
     $u = current_user();
     if (!$u) redirect('/login?next=' . rawurlencode('/oauth/authorize?' . http_build_query($q)));
     if (!empty($u['mustChange'])) redirect('/change-password');
