@@ -32,7 +32,7 @@ function run_cron(bool $heavy): array {
         }
 
         // 3) Gemini jobs (only from a real cron run – they can take several minutes)
-        if ($heavy && portal_settings()['gemini']['key'] !== '') {
+        if ($heavy && ai_ready()) {
             foreach (read_json('meetings.json', []) as $m) {
                 $r = $m['recording'] ?? [];
                 $st = $r['status'] ?? '';

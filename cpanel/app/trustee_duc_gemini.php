@@ -116,10 +116,9 @@ function process_meeting_recording(string $meetingId): void {
     $usage = ['in' => 0, 'out' => 0];
     $addUsage = function ($u) use (&$usage) { $usage['in'] += (int)($u['promptTokenCount'] ?? 0); $usage['out'] += (int)($u['candidatesTokenCount'] ?? 0); };
     $setRec = function (array $patch) use ($meetingId) { update_meeting($meetingId, function (&$m) use ($patch) { $m['recording'] = array_merge($m['recording'], $patch); }); };
+    $ai = ai_settings();
     try {
-        $setRec(['status' => 'processing', 'step' => 'Uploading audio to Gemini', 'error' => '', 'startedAt' => now_iso()]);
-        $file = gemini_upload($path, $rec['mime'], 'DUC meeting ' . $m['id']);
-        $fileName = $file['name'];
+        $setRec(['status' => 'processing', 'step' => $ai['stt'] === 'whisper' ? 'Preparing audio for Whisper' : 'Uploading audio to Gemini', 'error' => '', 'startedAt' => now_iso(), 'provider' => ai_label()]);
         $people = [];
         foreach ($m['attendance'] ?? [] as $uid => $st) if ($st === 'attending') $people[] = user_name($uid);
         $agenda = implode("\n", array_map(function ($a, $i) { return ($i + 1) . '. ' . $a['title'] . (!empty($a['confidential']) ? ' (confidential – not recorded)' : ''); }, $m['agenda'], array_keys($m['agenda'])));
@@ -134,6 +133,12 @@ function process_meeting_recording(string $meetingId): void {
             'required' => ['start', 'speaker', 'text']]]], 'required' => ['segments']];
         $segments = [];
         $dur = (int)($rec['duration'] ?? 0);
+        if ($ai['stt'] === 'whisper') {
+            $hint = 'D.U.C. trustees meeting, Droitwich Spa. ' . ($people ? 'People: ' . implode(', ', $people) . '. ' : '') . 'Agenda: ' . implode('; ', array_column($m['agenda'], 'title')) . '.';
+            $segments = whisper_transcribe($path, $rec['mime'], $hint, $setRec, $dur);
+        } else {
+        $file = gemini_upload($path, $rec['mime'], 'DUC meeting ' . $m['id']);
+        $fileName = $file['name'];
         $from = 0; $win = 2400;
         for ($pass = 0; $pass < 16; $pass++) {
             $to = $dur > 0 ? min($dur, $from + $win) : 0;
@@ -153,7 +158,8 @@ function process_meeting_recording(string $meetingId): void {
             if ($dur > 0 && $to < $dur) { $from = $to; continue; }
             break;
         }
-        if (!$segments) throw new RuntimeException('Gemini found no speech in the recording');
+        }
+        if (!$segments) throw new RuntimeException('No speech was found in the recording');
         usort($segments, function ($a, $b) { return $a['t'] <=> $b['t']; });
         update_meeting($meetingId, function (&$m) use ($segments) {
             $old = $m['transcript']['speakers'] ?? [];
@@ -161,7 +167,7 @@ function process_meeting_recording(string $meetingId): void {
         });
 
         // 2) drafts: per-item summaries, decisions, actions, questions, minutes
-        $setRec(['step' => 'Writing summary, decisions and actions']);
+        $setRec(['step' => 'Writing summary, decisions and actions' . ($ai['notes'] === 'ollama' ? ' with Saltway AI (this can take several minutes)' : '')]);
         $m = find_meeting($meetingId);
         $map = $m['transcript']['speakers'] ?? [];
         $tx = implode("\n", array_map(function ($s) use ($map) { $who = isset($map[$s['speaker']]) ? user_name($map[$s['speaker']]) : $s['speaker']; return '[' . hms($s['t']) . '] ' . $who . ': ' . $s['text']; }, $segments));
@@ -184,8 +190,15 @@ function process_meeting_recording(string $meetingId): void {
             . "\n\nToday's date is " . date('Y-m-d') . ". Turn relative dates like 'by next meeting' into YYYY-MM-DD only if the date is clear; otherwise leave due empty."
             . "\n\nWrite: a short summary for each agenda item; every decision made; every action agreed (what, who, by when, and when it was agreed); any open questions; and draft formal minutes."
             . "\n\nTRANSCRIPT:\n$tx";
-        [$d, , $u] = gemini_json($g['proModel'], [['text' => $prompt]], $draftSchema, AI_SYSTEM, 0.2);
-        $addUsage($u);
+        if ($ai['notes'] === 'ollama') {
+            if ($ai['stt'] === 'whisper') $prompt .= "\n\nNote: the transcript does not say who is speaking. Only name a person where the transcript makes it clear (for example someone is addressed by name or volunteers). Otherwise leave the action owner empty.";
+            [$d, $ou] = ollama_json($prompt, $draftSchema, AI_SYSTEM);
+            $usage['in'] += $ou['in']; $usage['out'] += $ou['out'];
+        } else {
+            if ($ai['stt'] === 'whisper') $prompt .= "\n\nNote: the transcript does not say who is speaking. Only name a person where the transcript makes it clear. Otherwise leave the action owner empty.";
+            [$d, , $u] = gemini_json($g['proModel'], [['text' => $prompt]], $draftSchema, AI_SYSTEM, 0.2);
+            $addUsage($u);
+        }
         $validUsers = array_column(users_with_roles(BOARD_ROLES), 'id');
         $drafts = [
             'items' => array_map(function ($i) { return ['itemId' => (string)($i['itemId'] ?? ''), 'summary' => clip($i['summary'] ?? '', 4000)]; }, $d['items'] ?? []),
@@ -197,7 +210,7 @@ function process_meeting_recording(string $meetingId): void {
             }, $d['actions'] ?? []),
             'questions' => array_map(function ($q) { return clip($q, 1000); }, $d['questions'] ?? []),
             'minutes' => clip($d['minutes'] ?? '', 60000),
-            'at' => now_iso(), 'model' => $g['proModel'],
+            'at' => now_iso(), 'model' => $ai['notes'] === 'ollama' ? 'Saltway AI (' . $ai['ollama']['model'] . ')' : $g['proModel'],
         ];
         update_meeting($meetingId, function (&$m) use ($drafts, $usage) {
             $m['drafts'] = $drafts;

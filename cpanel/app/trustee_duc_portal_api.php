@@ -9,6 +9,7 @@ require_once __DIR__ . '/trustee_duc_lib.php';
 require_once __DIR__ . '/trustee_duc_docx.php';
 require_once __DIR__ . '/trustee_duc_templates.php';
 require_once __DIR__ . '/trustee_duc_gemini.php';
+require_once __DIR__ . '/trustee_duc_ai.php';
 require_once __DIR__ . '/trustee_duc_partners.php';
 require_once __DIR__ . '/trustee_duc_letters.php';
 require_once __DIR__ . '/trustee_duc_gdpr.php';
@@ -80,7 +81,7 @@ function api_p_me(): void {
 }
 function setup_status(): array {
     $s = portal_settings();
-    return ['email' => $s['smtp']['host'] !== '' && $s['smtp']['from'] !== '', 'gemini' => $s['gemini']['key'] !== '', 'siteUrl' => $s['siteUrl'] !== '',
+    return ['email' => $s['smtp']['host'] !== '' && $s['smtp']['from'] !== '', 'gemini' => ai_ready(), 'ai' => ai_label(), 'siteUrl' => $s['siteUrl'] !== '',
         'cron' => (time() - (int)(read_json('cron.json', [])['lastRun'] ?? 0)) < 2 * 86400];
 }
 
@@ -332,7 +333,8 @@ function api_p_rec_finish(string $id): void {
         $m['recording']['status'] = 'uploaded'; $m['recording']['file'] = $file; $m['recording']['duration'] = $duration; $m['recording']['bytes'] = $size; $m['recording']['finishedAt'] = now_iso();
     });
     audit($u['username'], 'recording.saved', $m['title'] . ' – ' . hms($duration) . ', ' . round($size / 1048576, 1) . ' MB');
-    if (portal_settings()['gemini']['key'] === '') json_out(200, ['ok' => true, 'processing' => false, 'message' => 'Saved. Add a Gemini API key in Portal settings to create the transcript.']);
+    if (!ai_ready()) json_out(200, ['ok' => true, 'processing' => false, 'message' => 'Saved. Set up the AI in Portal settings to create the transcript.']);
+    if (ai_settings()['notes'] === 'ollama') json_out(200, ['ok' => true, 'processing' => false, 'message' => 'Saved. Saltway AI will write the notes in the background – usually within the next 15–30 minutes. The Clerk gets an email when they are ready.']);
     respond_then(200, ['ok' => true, 'processing' => true], function () use ($id) { process_meeting_recording($id); });
 }
 function api_p_rec_process(string $id): void {
@@ -341,6 +343,12 @@ function api_p_rec_process(string $id): void {
     if (empty($m['recording']['file'])) api_err(400, 'There is no recording for this meeting');
     if (($m['recording']['status'] ?? '') === 'processing' && strtotime($m['recording']['startedAt'] ?? '') > time() - 1800) api_err(409, 'Already working on it');
     audit($u['username'], 'meeting.ai_requested', $m['title']);
+    if (!ai_ready()) api_err(400, 'Set up the AI in Portal settings first');
+    if (ai_settings()['notes'] === 'ollama') {
+        // Saltway AI can take a while on the VPS, so the background job (cron) does it rather than this web request
+        update_meeting($id, function (&$m) { $m['recording']['status'] = 'uploaded'; $m['recording']['step'] = 'Waiting for Saltway AI'; $m['recording']['error'] = ''; $m['recording']['tries'] = 0; });
+        json_out(200, ['ok' => true, 'queued' => true]);
+    }
     respond_then(200, ['ok' => true], function () use ($id) { process_meeting_recording($id); });
 }
 function api_p_rec_audio(string $id): void {
@@ -777,7 +785,7 @@ function api_p_ask(): void {
     foreach (array_slice($ms, 0, 40) as $m) $ctx .= "\n\n=== Minutes of {$m['title']}, " . uk_date($m['date']) . " ===\n" . $m['minutes']['text'];
     if ($ctx === '') api_err(400, 'There are no approved minutes to search yet');
     try {
-        $a = gemini_text(portal_settings()['gemini']['fastModel'], "Using only the approved minutes below, answer this question from a trustee. Say which meeting each fact comes from. If the minutes don't say, say so.\n\nQuestion: $q$ctx", AI_SYSTEM);
+        $a = ai_text("Using only the approved minutes below, answer this question from a trustee. Say which meeting each fact comes from. If the minutes don't say, say so.\n\nQuestion: $q$ctx", AI_SYSTEM);
     } catch (Throwable $e) { api_err(502, $e->getMessage()); }
     audit($u['username'], 'minutes.asked', mb_substr($q, 0, 120));
     json_out(200, ['answer' => $a]);
@@ -790,6 +798,8 @@ function api_p_settings(): void {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $s['smtp']['pass'] = $s['smtp']['pass'] !== '' ? '••••••••' : '';
         $s['gemini']['key'] = $s['gemini']['key'] !== '' ? '••••' . substr($s['gemini']['key'], -4) : '';
+        $s['ai'] = ai_settings();
+        foreach (['whisper', 'ollama'] as $k) $s['ai'][$k]['key'] = $s['ai'][$k]['key'] !== '' ? '••••' . substr($s['ai'][$k]['key'], -4) : '';
         $s['agreement'] = agreement();
         $s['cronCommand'] = '/usr/local/bin/php ' . dirname(__DIR__) . '/index.php cron';
         $s['cronUrl'] = site_url() . '/cron?key=' . $s['cronKey'];
@@ -814,6 +824,17 @@ function api_p_settings(): void {
         $s['gemini'] = ['key' => ($key === '' || strpos($key, '••') === 0) ? $o['key'] : trim($key), 'fastModel' => clip($g['fastModel'] ?? '', 80) ?: 'gemini-flash-latest', 'proModel' => clip($g['proModel'] ?? '', 80) ?: 'gemini-pro-latest'];
         if (!empty($g['clearKey'])) $s['gemini']['key'] = '';
         if (json_encode($o) !== json_encode($s['gemini'])) $ch[] = 'Gemini settings';
+    }
+    if (isset($b['ai']) && is_array($b['ai'])) {
+        $o = ai_settings(); $n = $b['ai'];
+        $keep = function ($new, $old) { $new = (string)$new; return ($new === '' || strpos($new, '••') === 0) ? $old : trim($new); };
+        $url = function ($v, $old) { $v = rtrim(clip($v, 200), '/'); if ($v !== '' && !preg_match('#^https?://[^\s]+$#', $v)) api_err(400, 'AI addresses must start with https://'); return $v !== '' ? $v : $old; };
+        $a = ['stt' => in_array($n['stt'] ?? '', ['gemini', 'whisper'], true) ? $n['stt'] : $o['stt'], 'notes' => in_array($n['notes'] ?? '', ['gemini', 'ollama'], true) ? $n['notes'] : $o['notes'],
+            'whisper' => ['base' => $url($n['whisper']['base'] ?? '', $o['whisper']['base']), 'key' => $keep($n['whisper']['key'] ?? '', $o['whisper']['key']), 'model' => clip($n['whisper']['model'] ?? '', 80) ?: $o['whisper']['model']],
+            'ollama' => ['base' => $url($n['ollama']['base'] ?? '', $o['ollama']['base']), 'key' => $keep($n['ollama']['key'] ?? '', $o['ollama']['key']), 'model' => clip($n['ollama']['model'] ?? '', 80) ?: $o['ollama']['model'],
+                'ctx' => max(4096, min(131072, (int)($n['ollama']['ctx'] ?? $o['ollama']['ctx'])))]];
+        if (json_encode($a) !== json_encode($o)) $ch[] = 'AI settings (' . ($a['stt'] === 'whisper' ? 'Whisper' : 'Gemini') . ' + ' . ($a['notes'] === 'ollama' ? 'Saltway AI' : 'Gemini') . ')';
+        $s['ai'] = $a;
     }
     if (isset($b['votes'])) { $s['votes'] = ['quorum' => max(1, min(30, (int)($b['votes']['quorum'] ?? 4))), 'majority' => 'simple']; $ch[] = 'quorum ' . $s['votes']['quorum']; }
     if (isset($b['postcodes'])) { $s['postcodes'] = array_values(array_filter(array_map(function ($p) { return strtoupper(clip($p, 8)); }, (array)$b['postcodes']))); $ch[] = 'postcode areas'; }
@@ -840,10 +861,11 @@ function api_p_test_email(): void {
 }
 function api_p_test_gemini(): void {
     $u = pguard('admin');
-    try { $t = gemini_text(portal_settings()['gemini']['fastModel'], 'Reply with exactly: Gemini is working for D.U.C.'); }
-    catch (Throwable $e) { audit($u['username'], 'gemini.test', 'failed: ' . $e->getMessage()); api_err(502, $e->getMessage()); }
-    audit($u['username'], 'gemini.test', 'ok');
-    json_out(200, ['ok' => true, 'reply' => $t]);
+    $r = ai_test();
+    $okAll = !in_array(false, array_column($r, 1), true);
+    audit($u['username'], 'ai.test', implode('; ', array_map(function ($x) { return $x[0] . ': ' . ($x[1] ? 'ok' : $x[2]); }, $r)));
+    if (!$okAll) api_err(502, implode(' | ', array_map(function ($x) { return $x[0] . ': ' . ($x[1] ? 'OK' : $x[2]); }, $r)));
+    json_out(200, ['ok' => true, 'reply' => implode(' | ', array_map(function ($x) { return $x[0] . ': ' . $x[2]; }, $r))]);
 }
 function api_p_board_users(): void {
     $u = pguard('board');

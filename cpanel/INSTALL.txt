@@ -81,3 +81,55 @@ back up the whole duc-data folder (cPanel > Backup) and never lose secret.key.
 LOCKED OUT OF THE ONLY ADMIN ACCOUNT? Delete duc-data/users.json in File Manager
 and visit the site – setup runs again with a new code (website content is kept;
 portal users will need adding again).
+
+============================================================
+SALTWAY AI (OLLAMA) AND FREE WHISPER – instead of Gemini
+============================================================
+Portal settings > AI for meeting notes has two choices:
+  Transcription:  Gemini, or Whisper (Groq free, or your own server)
+  Notes/minutes:  Gemini, or Saltway AI (Ollama on the Saltway VPS)
+
+A) Give Ollama a secure web address with an API key (on the VPS)
+   Ollama has no password of its own, so Caddy checks a key first.
+   1. Remote Desktop to the VPS. Open PowerShell and make a key:
+        -join ((48..57)+(97..122) | Get-Random -Count 40 | % {[char]$_})
+      Copy it somewhere safe.
+   2. Open C:\RepairHub\caddy\Caddyfile. Inside the existing
+      ai.saltwaydigital.co.uk { ... } block, add this ABOVE the
+      line that sends traffic to the website (put YOURKEY in):
+
+        handle_path /ollama/* {
+            @nokey not header Authorization "Bearer YOURKEY"
+            respond @nokey "Unauthorized" 401
+            reverse_proxy 127.0.0.1:11434 {
+                header_up Host localhost:11434
+            }
+        }
+
+      and wrap the existing website line in  handle { ... }  so it
+      looks like:   handle { reverse_proxy 127.0.0.1:8105 }
+      (use whatever port the website already uses).
+   3. Reload Caddy:  caddy reload --config C:\RepairHub\caddy\Caddyfile
+   4. Pull a model if you haven't:  ollama pull llama3.1:8b
+      (qwen2.5:14b writes better minutes if the VPS has 16 GB+ RAM.)
+   5. Check from any computer (should say "Unauthorized"):
+        https://ai.saltwaydigital.co.uk/ollama/api/tags
+   6. Make sure Ollama does NOT listen publicly: it should only be
+      on 127.0.0.1:11434 (the default). Don't open port 11434 in
+      the firewall.
+
+B) Free Whisper for transcription (Groq)
+   console.groq.com > sign in > API Keys > Create API Key.
+   Free allowance: about 2 hours of audio per hour, 2,000 requests a
+   day – plenty for trustee meetings. The portal waits and retries
+   if it hits the limit. Whisper doesn't say who is speaking, so the
+   Clerk should check who each action belongs to.
+
+C) In the portal: Portal settings > AI for meeting notes
+   Transcription: Whisper. Address https://api.groq.com/openai/v1,
+     your gsk_ key, model whisper-large-v3-turbo.
+   Notes: Saltway AI. Address https://ai.saltwaydigital.co.uk/ollama,
+     the key from step A1, model llama3.1:8b.
+   Press "Save & test AI". Both lines should show a tick.
+   Saltway AI jobs run in the background (cron) – make sure the cron
+   job from the main instructions is set up.
