@@ -48,6 +48,7 @@ function default_portal_settings(): array {
             'chairman' => ['name' => 'Richard Morris', 'role' => 'Chairman, Droitwich United Charities', 'contact' => '07860 733460  •  richmoz@hotmail.com'],
             'clerk' => ['name' => 'Mrs Janet Clarke', 'role' => 'Clerk to the Charity', 'contact' => '01905 775226  •  26 Blackfriars Avenue, Droitwich Spa WR9 8RQ'],
         ],
+        'claude' => ['enabled' => false],
         'agreementVersion' => 1,
         'cronKey' => '',
     ];

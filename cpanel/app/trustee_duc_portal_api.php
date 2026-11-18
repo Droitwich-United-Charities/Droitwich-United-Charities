@@ -13,6 +13,7 @@ require_once __DIR__ . '/trustee_duc_partners.php';
 require_once __DIR__ . '/trustee_duc_letters.php';
 require_once __DIR__ . '/trustee_duc_gdpr.php';
 require_once __DIR__ . '/trustee_duc_cron.php';
+require_once __DIR__ . '/trustee_duc_mcp.php';
 
 // ---------- guards ----------
 /** need: any (board or partner) | board | clerk | chair | gdpr | admin | partner */
@@ -874,6 +875,7 @@ function handle_portal_page(): void {
 function portal_route(string $path, string $method): bool {
     $m = [];
     $r = function ($re) use ($path, &$m) { return (bool)preg_match('#^' . $re . '$#', $path, $m); };
+    if (mcp_routes($path)) return true;
     if (strpos($path, '/api/p/') !== 0) {
         if ($path === '/portal') { handle_portal_page(); return true; }
         if ($path === '/partners/apply') { handle_partner_apply(); return true; }
@@ -898,7 +900,7 @@ function portal_route(string $path, string $method): bool {
         ['*', '/api/p/cases', 'api_p_cases'], ['POST', "/api/p/cases/$id/vote", 'api_p_case_vote'], ['POST', "/api/p/cases/$id/close", 'api_p_case_close'],
         ['*', '/api/p/calendar', 'api_p_calendar'], ['GET', '/api/p/search', 'api_p_search'], ['POST', '/api/p/ask', 'api_p_ask'],
         ['*', '/api/p/settings', 'api_p_settings'], ['POST', '/api/p/settings/test-email', 'api_p_test_email'], ['POST', '/api/p/settings/test-gemini', 'api_p_test_gemini'],
-        ['*', '/api/p/board-users', 'api_p_board_users'],
+        ['*', '/api/p/board-users', 'api_p_board_users'], ['*', '/api/p/claude', 'api_p_claude'],
     ];
     $routes = array_merge($routes, partner_routes($id), letter_routes($id), gdpr_routes($id));
     foreach ($routes as [$verb, $re, $fn]) {

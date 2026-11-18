@@ -2,17 +2,29 @@
 Options -Indexes
 DirectoryIndex index.php
 
+<IfModule mod_setenvif.c>
+  # Pass "Authorization: Bearer …" through to PHP (needed by the Claude connector)
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
   # Force HTTPS once you have an SSL certificate (cPanel > SSL/TLS Status > AutoSSL). Remove the # on the next 2 lines.
   # RewriteCond %{HTTPS} !=on
   # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  # Let AutoSSL prove you own the domain (it uses these two folders)
+  RewriteRule ^\.well-known/(acme-challenge|pki-validation)/ - [L]
   RewriteRule ^(app|duc-data)(/|$) - [F,L]
+  # Block hidden files, except /.well-known/ (Claude connector discovery)
+  RewriteCond %{REQUEST_URI} !^/\.well-known/
   RewriteRule (^|/)\. - [F,L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
-<FilesMatch "\.(json|log|txt|lock|md)$">
+# Data files are never served (.txt is allowed so AutoSSL's pki-validation check works)
+<FilesMatch "\.(json|log|lock|md)$">
   Require all denied
 </FilesMatch>

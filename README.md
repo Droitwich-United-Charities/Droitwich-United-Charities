@@ -41,6 +41,8 @@ The cPanel/PHP edition (`cpanel/`) adds a private portal at **/portal**:
 - **Letters** – every letter is built on the D.U.C. letterhead (`cpanel/app/templates/letterhead.docx`) from editable templates, downloadable as Word or sent by email over SMTP, and logged against the case.
 - **GDPR tools** – retention schedule run nightly with legal holds and 14-day warnings, subject access requests (deadline tracking, "find my data", redaction, AES-encrypted export), erasure, consent register, privacy notice versions, breach log with a 72-hour ICO countdown, record of processing (ROPA) and a yearly report.
 
+- **Claude connector** – a remote MCP server at **/mcp** with its own OAuth 2.1 sign-in (dynamic client registration, PKCE, rotating refresh tokens). Trustees add it in Claude as a custom connector and sign in with their portal account; tools follow their role (dashboard, meetings, minutes search, actions, attendance, decisions by reference only, calendar, papers; plus referrals summary, add action and notices for the Clerk, and GDPR deadlines for the Data Protection Lead). Applicants' personal details are never sent to Claude, and every tool call is audited. Off until the Global Admin switches it on.
+
 Build the upload zip with `build-cpanel.bat` (Windows) or `./build-cpanel.sh`, then follow `cpanel/INSTALL.txt`. The Go/.exe edition runs the website and admin panel only.
 
 | Path | What it is |
@@ -51,6 +53,7 @@ Build the upload zip with `build-cpanel.bat` (Windows) or `./build-cpanel.sh`, t
 | `cpanel/app/trustee_duc_partners.php` | Partner sign-up, logins, referrals, evidence, messages |
 | `cpanel/app/trustee_duc_letters.php`, `trustee_duc_docx.php`, `trustee_duc_templates.php` | Letters on the letterhead, templates, calendar files |
 | `cpanel/app/trustee_duc_gemini.php` | Gemini transcription and AI drafts |
+| `cpanel/app/trustee_duc_mcp.php` | Claude connector: MCP server and OAuth sign-in |
 | `cpanel/app/trustee_duc_gdpr.php` | GDPR tools |
 | `cpanel/app/trustee_duc_cron.php` | Scheduled jobs (`php index.php cron`) |
 | `cpanel/app/trustee_duc_smtp.php` | SMTP email |

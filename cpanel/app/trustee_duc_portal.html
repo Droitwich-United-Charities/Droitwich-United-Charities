@@ -164,6 +164,7 @@ function navItems(){
   n.push(["sep","",PERMS.admin?"Admin":"You"]);
   if(PERMS.admin)n.push(["settings","⚙️","Portal settings"]);
   n.push(["team","👥","Trustees & officers"]);
+  n.push(["claude","✳️","Claude connector"]);
   return n;
 }
 function renderNav(){
@@ -840,6 +841,23 @@ PAGES.team=async()=>{
 };
 function inviteBoard(){const m=modal(`<h2>Invite to the Trustee Portal</h2><label class="l">Name</label><input id="ibN"><label class="l">Email</label><input id="ibE" type="email"><label class="l">Role</label><select id="ibR"><option value="trustee">Trustee</option>${PERMS.admin?`<option value="chairman">Chairman</option><option value="clerk">Clerk</option><option value="dplead">Data Protection Lead</option>`:""}</select><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="ibGo">Send invitation</button></div>`);
   m.querySelector("#ibGo").onclick=async()=>{try{const r=await api("POST","/api/p/board-users",{name:$("#ibN").value,email:$("#ibE").value,role:$("#ibR").value});closeModal();if(r.link)modal(`<h2>Email not sent</h2><p>Send this set-password link yourself:</p><input readonly value="${esc(r.link)}" onclick="this.select()"><div style="text-align:right;margin-top:10px"><button class="btn" onclick="closeModal();route()">Done</button></div>`);else{toast("Invitation sent");route();}}catch(e){fail(e);}};}
+
+/* ---------- Claude connector ---------- */
+PAGES.claude=async()=>{
+  const r=await api("GET","/api/p/claude");
+  main().innerHTML=`<div class="head"><h1>Claude connector</h1></div>
+  <div class="card"><p>Connect Claude (claude.ai, the Claude desktop and mobile apps) to the Trustee Portal, then ask things like <i>"What actions do I have?"</i>, <i>"What did we decide about the Christmas hampers?"</i> or <i>"Mark my hampers action as done"</i>.</p>
+   ${r.enabled?`<div class="ok">The connector is <b>on</b>.</div>`:`<div class="warn">The connector is <b>off</b>.${PERMS.admin?"":" Ask the Global Admin to switch it on."}</div>`}
+   ${PERMS.admin?`<button class="btn ${r.enabled?"sec":""}" onclick="claudeToggle(${!r.enabled})">${r.enabled?"Switch off (disconnects everyone)":"Switch the connector on"}</button>`:""}</div>
+  <div class="card"><h2>How to connect</h2><ol>
+   <li>In Claude, open <b>Settings → Connectors</b> (claude.ai/customize/connectors) and choose <b>Add custom connector</b>.<br><span class="hint">On a Team or Enterprise plan, an owner adds it once under Organisation settings → Connectors.</span></li>
+   <li>Name: <b>D.U.C. Trustee Portal</b>. Remote MCP server URL:<br><input readonly value="${esc(r.url)}" onclick="this.select()" style="max-width:520px"><br><span class="hint">Leave the advanced OAuth settings empty.</span></li>
+   <li>Press <b>Connect</b>, sign in with your portal username and password, and press <b>Allow</b>.</li></ol>
+   <p class="hint">Claude sees only what your role allows. Names, addresses and other personal details of people referred for help are never sent to Claude – only reference numbers and initials. Claude can't vote, approve minutes or send letters. Everything it does is recorded in the audit log.</p></div>
+  <div class="card"><h2>${PERMS.admin?"Everyone's connections":"Your connections"}</h2>${r.connections.length?`<table class="t"><tr><th>Person</th><th>App</th><th>Since</th><th></th></tr>${r.connections.map(c=>`<tr><td>${esc(c.user)}</td><td>${esc(c.app)}</td><td>${fmtD(c.since)}</td><td><button class="btn sm ghost" onclick="claudeOff('${c.userId}','${c.client}')">Disconnect</button></td></tr>`).join("")}</table>`:`<p class="empty">No connections.</p>`}</div>`;
+};
+async function claudeToggle(on){if(!on&&!confirm("Switch off the Claude connector? Everyone will be disconnected."))return;try{await api("POST","/api/p/claude",{enabled:on});route();}catch(e){fail(e);}}
+async function claudeOff(uid,cid){try{await api("POST","/api/p/claude",{disconnect:cid,userId:uid});toast("Disconnected");route();}catch(e){fail(e);}}
 
 /* ---------- start ---------- */
 async function boot(){
