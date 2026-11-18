@@ -313,7 +313,7 @@ function mcp_self_check(): array {
         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_CUSTOMREQUEST => $method, CURLOPT_HTTPHEADER => array_merge(['User-Agent: Claude-User (DUC self-check)'], $h)]);
         if ($body !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         $out = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $err = curl_error($ch); curl_close($ch);
-        return [$code, $out === false ? 'Error: ' . $err : mb_substr((string)$out, 0, 200)];
+        return [$code, $out === false ? 'Error: ' . $err : (string)$out];
     };
     $b = oauth_base();
     $set = rtrim((string)portal_settings()['siteUrl'], '/');
@@ -328,6 +328,7 @@ function mcp_self_check(): array {
     [$c, $t] = $get('POST', "$b/oauth/register", json_encode(['client_name' => 'DUC self-check', 'redirect_uris' => CLAUDE_CALLBACKS, 'grant_types' => ['authorization_code', 'refresh_token'], 'token_endpoint_auth_method' => 'none']), ['Content-Type: application/json']);
     $res[] = ['step' => 'Claude registers itself (expect 201)', 'url' => "$b/oauth/register", 'status' => $c, 'ok' => $c === 201, 'body' => $t];
     if ($c === 201 && preg_match('/"client_id":"([^"]+)"/', $t, $m)) with_lock('oauth.json', [], function (&$o) use ($m) { unset($o['clients'][$m[1]]); });
+    foreach ($res as &$r) $r['body'] = mb_substr((string)$r['body'], 0, 200); // keep the page short
     return $res;
 }
 
