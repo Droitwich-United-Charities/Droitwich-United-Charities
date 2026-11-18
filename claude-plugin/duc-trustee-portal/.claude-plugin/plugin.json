@@ -1,0 +1,9 @@
+{
+  "name": "duc-trustee-portal",
+  "version": "0.1.0",
+  "description": "Droitwich United Charities Trustee Portal for Claude: meetings, minutes, actions, decisions and calendar, plus meeting briefings and setup help.",
+  "author": { "name": "Matthew Kenny – Saltway Digital" },
+  "homepage": "https://trustees.droitwichunitedcharities.org.uk",
+  "repository": "https://github.com/Droitwich-United-Charities/Droitwich-United-Charities",
+  "keywords": ["charity", "trustees", "meetings", "minutes", "actions", "governance", "droitwich"]
+}
