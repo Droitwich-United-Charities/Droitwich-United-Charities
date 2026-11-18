@@ -1,25 +1,53 @@
-DROITWICH UNITED CHARITIES – WEBSITE (cPanel edition)   Built by Saltway Digital
+DROITWICH UNITED CHARITIES – WEBSITE + TRUSTEE PORTAL (cPanel edition)   Built by Saltway Digital
 
-INSTALL (about 5 minutes)
-1. cPanel > File Manager > open public_html (or the folder for the domain you're using).
+NEEDS
+  PHP 7.4 or newer (8.1+ recommended) with the openssl, curl, zip and mbstring extensions
+  (cPanel > Select PHP Version / MultiPHP Manager > Extensions). Apache with .htaccess.
+  Install at the top of a domain or subdomain, not in a sub-folder.
+
+NEW INSTALL (about 5 minutes)
+1. cPanel > File Manager > open public_html (or the folder for your domain).
    Move or delete any old website files there (e.g. a default index.html).
 2. Upload DUC-Website-cPanel.zip, right-click it > Extract, then delete the zip.
    (Tick "Show Hidden Files" in File Manager Settings to see the .htaccess file.)
-3. Visit the website. The setup page opens and asks for a setup code.
+3. Visit the website. The setup page asks for a setup code.
 4. In File Manager, go up one level from public_html – a new folder "duc-data"
    has appeared. Open duc-data/setup-code.txt and copy the code into the setup page.
 5. Create your Global Admin account. Done – the code file deletes itself.
 
-NEEDS: PHP 7.4 or newer (cPanel > Select PHP Version / MultiPHP Manager) and an
-Apache server with .htaccess (standard on cPanel). Install it at the top of a
-domain or subdomain, not in a sub-folder.
+UPGRADING FROM VERSION 1 (keeps all your users, content and enquiries)
+  Upload DUC-Website-cPanel.zip to public_html and Extract, choosing to overwrite.
+  Your data is in duc-data, next to public_html, and is not touched.
+
+SET UP THE TRUSTEE PORTAL (once, as Global Admin)
+1. Sign in, then open https://YOUR-SITE/portal > Portal settings.
+2. Website address – e.g. https://droitwichunitedcharities.org.uk
+3. Email (SMTP) – every letter, invitation and reminder is sent from here.
+     Microsoft 365: smtp.office365.com, port 587, STARTTLS
+                    (turn on "Authenticated SMTP" for the mailbox in Microsoft 365 admin).
+     cPanel email:  mail.YOURDOMAIN, port 465, SSL/TLS.
+   Press "Save & send test".
+4. Gemini – create an API key at aistudio.google.com in a Google Cloud project WITH
+   BILLING TURNED ON (so Google doesn't use the recordings to improve its products).
+   Set a monthly budget in Google Cloud. Press "Save & test".
+5. Cron job – cPanel > Cron Jobs > add ONE job, every 15 minutes (*/15 * * * *):
+     /usr/local/bin/php /home/YOURUSER/public_html/index.php cron
+   (Portal settings shows the exact line.) This sends reminders, retries emails,
+   runs the retention schedule every night and transcribes recordings.
+6. Check who signs letters, the quorum, and the partner data sharing agreement.
+7. Website admin panel > Users: give each person an email and a role –
+   Trustee, Chairman, Clerk or Data Protection Lead. Or invite trustees from the
+   portal (Trustees & officers > Invite).
+8. Share https://YOUR-SITE/partners/apply with schools, GPs, food banks etc.
 
 HTTPS: turn on AutoSSL (cPanel > SSL/TLS Status), then remove the two # marks in
-.htaccess to force HTTPS.
+.htaccess to force HTTPS. The meeting recorder needs HTTPS to use the microphone.
 
 YOUR DATA lives in the duc-data folder next to public_html (not reachable from the web):
-users, content, enquiries, settings, sessions and audit.log. Back it up with the
-rest of your hosting (cPanel > Backup).
+users, content, referrals (personal details encrypted), meetings, recordings, letters,
+GDPR records and audit.log. duc-data/secret.key unlocks the encrypted details –
+back up the whole duc-data folder (cPanel > Backup) and never lose secret.key.
 
 LOCKED OUT OF THE ONLY ADMIN ACCOUNT? Delete duc-data/users.json in File Manager
-and visit the site – setup runs again with a new code (website content is kept).
+and visit the site – setup runs again with a new code (website content is kept;
+portal users will need adding again).

@@ -31,6 +31,30 @@ Install [Go 1.24+](https://go.dev/dl/) and double-click `build.bat` (or run `go 
 | `Install-Startup.bat` / `Remove-Startup.bat` | Start (or stop starting) the site with Windows |
 | `Caddyfile-snippet.txt` | Reverse-proxy config for Caddy |
 
+## Trustee Portal, Referral Partners & GDPR tools (cPanel edition)
+
+The cPanel/PHP edition (`cpanel/`) adds a private portal at **/portal**:
+
+- **Trustee Portal** – dashboard, meetings and agendas (with "Matters arising" pulled in automatically), papers emailed with calendar invitations, attendance, board papers with versions and "read and confirm", voting on requests with conflict-of-interest declarations and quorum, shared calendar with a private iCal link, and search across minutes.
+- **Meeting recording with Gemini** – an in-room recorder in the browser (consent checklist first, confidential agenda items pause it automatically, keeps working through Wi-Fi drop-outs), or upload a recording. Google Gemini writes the transcript, a summary for each item, decisions, actions (who, what, by when) and draft minutes. The Clerk checks everything against the audio, publishes the actions (owners are emailed, reminded 3 days before and chased when overdue), and the Chairman approves and locks the minutes.
+- **Referral partners** – organisations apply at **/partners/apply**; the Clerk approves them; they accept a data sharing agreement, then make and track referrals with evidence uploads, consent records and a secure message thread. Emails to partners never contain personal details. Personal details are encrypted at rest.
+- **Letters** – every letter is built on the D.U.C. letterhead (`cpanel/app/templates/letterhead.docx`) from editable templates, downloadable as Word or sent by email over SMTP, and logged against the case.
+- **GDPR tools** – retention schedule run nightly with legal holds and 14-day warnings, subject access requests (deadline tracking, "find my data", redaction, AES-encrypted export), erasure, consent register, privacy notice versions, breach log with a 72-hour ICO countdown, record of processing (ROPA) and a yearly report.
+
+Build the upload zip with `build-cpanel.bat` (Windows) or `./build-cpanel.sh`, then follow `cpanel/INSTALL.txt`. The Go/.exe edition runs the website and admin panel only.
+
+| Path | What it is |
+|---|---|
+| `cpanel/index.php` | Website server (sign-in, users, maintenance, audit log) – loads the portal |
+| `cpanel/app/portal_api.php` | Portal API: meetings, recording, actions, papers, voting, calendar, settings |
+| `cpanel/app/partners.php` | Partner sign-up, logins, referrals, evidence, messages |
+| `cpanel/app/letters.php`, `docx.php`, `templates.php` | Letters on the letterhead, templates, calendar files |
+| `cpanel/app/gemini.php` | Gemini transcription and AI drafts |
+| `cpanel/app/gdpr.php` | GDPR tools |
+| `cpanel/app/cron.php` | Scheduled jobs (`php index.php cron`) |
+| `cpanel/app/smtp.php` | SMTP email |
+| `cpanel/app/portal.html` | Portal front end |
+
 ## Security
 
 - Passwords are hashed with PBKDF2-SHA256 (210,000 rounds) – never stored in plain text

@@ -6,8 +6,9 @@
  */
 declare(strict_types=1);
 
-const APP_VERSION = '1.0.0-php';
+const APP_VERSION = '2.0.0-php';
 const APP_DIR = __DIR__ . '/app';
+require_once APP_DIR . '/portal_api.php';
 
 // ---------- data folder (outside public_html when possible) ----------
 function data_dir(): string {
@@ -72,12 +73,14 @@ function find_user(array $users, string $key, string $val): ?array {
     return null;
 }
 function public_user(array $u): array {
-    return ['id' => $u['id'], 'username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'],
+    return ['id' => $u['id'], 'username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'email' => $u['email'] ?? '',
+        'orgId' => $u['orgId'] ?? '', 'portal' => is_board($u) || is_partner($u),
         'disabled' => !empty($u['disabled']), 'mustChange' => !empty($u['mustChange']),
         'created' => $u['created'] ?? '', 'lastLogin' => $u['lastLogin'] ?? ''];
 }
-function role_label(string $r): string { return $r === 'admin' ? 'Global Admin' : ($r === 'editor' ? 'Editor' : 'Viewer'); }
-function valid_role($r): bool { return in_array($r, ['admin', 'editor', 'viewer'], true); }
+function role_label(string $r): string { return ROLE_LABELS[$r] ?? 'Viewer'; }
+/** Roles the Users page can give. Referral Partner logins are created from the Partners page in the portal. */
+function valid_role($r): bool { return in_array($r, ['admin', 'editor', 'viewer', 'chairman', 'clerk', 'trustee', 'dplead'], true); }
 function valid_username(string $u): bool { return (bool)preg_match('/^[a-z0-9._@-]{3,64}$/', $u); }
 function password_problem(string $pw): ?string {
     if (mb_strlen($pw) < 10) return 'Password must be at least 10 characters';
@@ -308,7 +311,9 @@ function handle_login(): void {
     });
     audit($un, 'login.success', role_label($u['role']));
     start_session($u);
-    redirect(!empty($u['mustChange']) ? '/change-password' : safe_next($next));
+    $dest = safe_next($next);
+    if ($dest === '/' && $u['role'] === 'partner') $dest = '/portal';
+    redirect(!empty($u['mustChange']) ? '/change-password' : $dest);
 }
 
 function handle_logout(): void {
@@ -482,7 +487,9 @@ function api_users(): void {
     if ($name === '' || !valid_username($un)) api_err(400, 'Enter a name and a username of 3–64 characters (letters, numbers, . _ - @)');
     if (!valid_role($role)) api_err(400, 'Invalid role');
     if ($e = password_problem($pw)) api_err(400, 'Temporary password: ' . $e);
-    $u = ['id' => bin2hex(random_bytes(8)), 'username' => $un, 'name' => $name, 'role' => $role,
+    $email = strtolower(clip($b['email'] ?? '', 200));
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) api_err(400, 'That email address is not valid');
+    $u = ['id' => bin2hex(random_bytes(8)), 'username' => $un, 'name' => $name, 'role' => $role, 'email' => $email,
         'hash' => password_hash($pw, PASSWORD_DEFAULT), 'disabled' => false, 'mustChange' => true, 'created' => now_iso(), 'lastLogin' => ''];
     $ok = with_lock('users.json', [], function (&$list) use ($u) {
         if (find_user($list, 'username', $u['username'])) return false;
@@ -521,6 +528,11 @@ function api_user_item(string $id): void {
                 $notes[] = 'account disabled'; $revoke = true;
             } else $notes[] = 'account enabled';
             $u['disabled'] = (bool)$b['disabled'];
+        }
+        if (isset($b['email']) && strtolower(clip($b['email'], 200)) !== ($u['email'] ?? '')) {
+            $em = strtolower(clip($b['email'], 200));
+            if ($em !== '' && !filter_var($em, FILTER_VALIDATE_EMAIL)) return [400, 'That email address is not valid'];
+            $notes[] = 'email changed'; $u['email'] = $em;
         }
         if (isset($b['name']) && clip($b['name'], 120) !== '' && clip($b['name'], 120) !== $u['name']) {
             $notes[] = "name '{$u['name']}' → '" . clip($b['name'], 120) . "'"; $u['name'] = clip($b['name'], 120);
@@ -598,10 +610,15 @@ function api_audit_csv(): void {
 }
 
 // ---------- router ----------
+if (PHP_SAPI === 'cli') {
+    // cPanel cron:  /usr/local/bin/php /home/USER/public_html/index.php cron
+    if (($argv[1] ?? '') === 'cron') { echo implode("\n", run_cron(true)) . "\n"; exit(0); }
+    fwrite(STDERR, "Usage: php index.php cron\n"); exit(1);
+}
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header('Permissions-Policy: camera=(), microphone=(self), geolocation=()');
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
 if (is_https()) header('Strict-Transport-Security: max-age=31536000');
 
@@ -611,6 +628,9 @@ if (!is_writable(data_dir())) { http_response_code(500); exit('The website canno
 $path = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
 $path = '/' . ltrim(rawurldecode($path), '/');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+pseudo_cron();
+if (portal_route($path, $method)) exit;
 
 switch (true) {
     case $path === '/' || $path === '/index.php' || $path === '/index.html': handle_root(); break;
