@@ -49,7 +49,7 @@ function default_portal_settings(): array {
             'clerk' => ['name' => 'Mrs Janet Clarke', 'role' => 'Clerk to the Charity', 'contact' => '01905 775226  •  26 Blackfriars Avenue, Droitwich Spa WR9 8RQ'],
         ],
         'claude' => ['enabled' => false],
-        'ai' => ['stt' => 'gemini', 'notes' => 'gemini', 'whisper' => ['base' => 'https://api.groq.com/openai/v1', 'key' => '', 'model' => 'whisper-large-v3-turbo'], 'ollama' => ['base' => 'https://ai.saltwaydigital.co.uk/ollama', 'key' => '', 'model' => 'llama3.1:8b', 'ctx' => 32768]],
+        'ai' => ['stt' => 'gemini', 'notes' => 'gemini', 'whisper' => ['base' => 'https://api.groq.com/openai/v1', 'key' => '', 'model' => 'whisper-large-v3-turbo'], 'ollama' => ['base' => 'https://ai.saltwaydigital.co.uk/ollama', 'key' => '', 'model' => 'llama3.2:1b', 'ctx' => 32768, 'mode' => 'auto']],
         'agreementVersion' => 1,
         'cronKey' => '',
     ];

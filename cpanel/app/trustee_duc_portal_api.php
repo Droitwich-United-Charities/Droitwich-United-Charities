@@ -832,7 +832,8 @@ function api_p_settings(): void {
         $a = ['stt' => in_array($n['stt'] ?? '', ['gemini', 'whisper'], true) ? $n['stt'] : $o['stt'], 'notes' => in_array($n['notes'] ?? '', ['gemini', 'ollama'], true) ? $n['notes'] : $o['notes'],
             'whisper' => ['base' => $url($n['whisper']['base'] ?? '', $o['whisper']['base']), 'key' => $keep($n['whisper']['key'] ?? '', $o['whisper']['key']), 'model' => clip($n['whisper']['model'] ?? '', 80) ?: $o['whisper']['model']],
             'ollama' => ['base' => $url($n['ollama']['base'] ?? '', $o['ollama']['base']), 'key' => $keep($n['ollama']['key'] ?? '', $o['ollama']['key']), 'model' => clip($n['ollama']['model'] ?? '', 80) ?: $o['ollama']['model'],
-                'ctx' => max(4096, min(131072, (int)($n['ollama']['ctx'] ?? $o['ollama']['ctx'])))]];
+                'ctx' => max(4096, min(131072, (int)($n['ollama']['ctx'] ?? $o['ollama']['ctx']))),
+                'mode' => in_array($n['ollama']['mode'] ?? '', ['auto', 'sections', 'whole'], true) ? $n['ollama']['mode'] : $o['ollama']['mode']]];
         if (json_encode($a) !== json_encode($o)) $ch[] = 'AI settings (' . ($a['stt'] === 'whisper' ? 'Whisper' : 'Gemini') . ' + ' . ($a['notes'] === 'ollama' ? 'Saltway AI' : 'Gemini') . ')';
         $s['ai'] = $a;
     }

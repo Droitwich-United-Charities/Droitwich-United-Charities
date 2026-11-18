@@ -192,8 +192,15 @@ function process_meeting_recording(string $meetingId): void {
             . "\n\nTRANSCRIPT:\n$tx";
         if ($ai['notes'] === 'ollama') {
             if ($ai['stt'] === 'whisper') $prompt .= "\n\nNote: the transcript does not say who is speaking. Only name a person where the transcript makes it clear (for example someone is addressed by name or volunteers). Otherwise leave the action owner empty.";
-            [$d, $ou] = ollama_json($prompt, $draftSchema, AI_SYSTEM);
-            $usage['in'] += $ou['in']; $usage['out'] += $ou['out'];
+            if (ollama_use_sections($tx)) {
+                $lines = array_map(function ($s) use ($map) { $who = isset($map[$s['speaker']]) ? user_name($map[$s['speaker']]) : $s['speaker']; return [$s['t'], '[' . hms($s['t']) . '] ' . $who . ': ' . $s['text']]; }, $segments);
+                $ctxt = "A D.U.C. trustee meeting: {$m['title']}, " . uk_date($m['date']) . '. Present: ' . (implode(', ', $people) ?: 'not recorded') . '. Today is ' . date('Y-m-d') . '.'
+                    . ($ai['stt'] === 'whisper' ? ' The transcript does not say who is speaking, so only give a name for an action when the words make it clear.' : '');
+                $d = ollama_sections_drafts($m, $lines, $m['recording']['markers'] ?? [], $ctxt, $setRec, $usage);
+            } else {
+                [$d, $ou] = ollama_json($prompt, $draftSchema, AI_SYSTEM);
+                $usage['in'] += $ou['in']; $usage['out'] += $ou['out'];
+            }
         } else {
             if ($ai['stt'] === 'whisper') $prompt .= "\n\nNote: the transcript does not say who is speaking. Only name a person where the transcript makes it clear. Otherwise leave the action owner empty.";
             [$d, , $u] = gemini_json($g['proModel'], [['text' => $prompt]], $draftSchema, AI_SYSTEM, 0.2);

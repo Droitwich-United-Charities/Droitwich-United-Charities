@@ -110,8 +110,9 @@ A) Give Ollama a secure web address with an API key (on the VPS)
       looks like:   handle { reverse_proxy 127.0.0.1:8105 }
       (use whatever port the website already uses).
    3. Reload Caddy:  caddy reload --config C:\RepairHub\caddy\Caddyfile
-   4. Pull a model if you haven't:  ollama pull llama3.1:8b
-      (qwen2.5:14b writes better minutes if the VPS has 16 GB+ RAM.)
+   4. Pull a model if you haven't:  ollama pull llama3.2:1b
+      Small models work through the meeting a part at a time. llama3.2:3b
+      or llama3.1:8b write noticeably better minutes if the VPS has the memory.
    5. Check from any computer (should say "Unauthorized"):
         https://ai.saltwaydigital.co.uk/ollama/api/tags
    6. Make sure Ollama does NOT listen publicly: it should only be
@@ -129,7 +130,7 @@ C) In the portal: Portal settings > AI for meeting notes
    Transcription: Whisper. Address https://api.groq.com/openai/v1,
      your gsk_ key, model whisper-large-v3-turbo.
    Notes: Saltway AI. Address https://ai.saltwaydigital.co.uk/ollama,
-     the key from step A1, model llama3.1:8b.
+     the key from step A1, model llama3.2:1b.
    Press "Save & test AI". Both lines should show a tick.
    Saltway AI jobs run in the background (cron) – make sure the cron
    job from the main instructions is set up.
