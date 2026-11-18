@@ -21,7 +21,13 @@ const MCP_REFRESH_TTL = 30 * 86400;   // 30 days
 const MCP_CODE_TTL = 300;             // 5 minutes
 
 function mcp_enabled(): bool { return !empty(portal_settings()['claude']['enabled']); }
-function mcp_resource(): string { return site_url() . '/mcp'; }
+/** The address Claude actually reached us on (so a wrong "Website address" setting can't break sign-in). */
+function oauth_base(): string {
+    $host = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($host === '' || !preg_match('/^[a-z0-9.-]+(:\d+)?$/', $host)) return site_url();
+    return (is_https() ? 'https://' : 'http://') . $host;
+}
+function mcp_resource(): string { return oauth_base() . '/mcp'; }
 
 function oauth_json(int $status, array $v, array $headers = []): void {
     http_response_code($status);
@@ -38,12 +44,12 @@ function oauth_err(int $status, string $code, string $desc = ''): void {
 // ---------- discovery ----------
 function handle_oauth_protected_resource(): void {
     if (!mcp_enabled()) oauth_err(404, 'not_found', 'The Claude connector is switched off');
-    oauth_json(200, ['resource' => mcp_resource(), 'authorization_servers' => [site_url()], 'scopes_supported' => ['portal'],
+    oauth_json(200, ['resource' => mcp_resource(), 'authorization_servers' => [oauth_base()], 'scopes_supported' => ['portal'],
         'bearer_methods_supported' => ['header'], 'resource_name' => 'Droitwich United Charities – Trustee Portal']);
 }
 function handle_oauth_as_metadata(): void {
     if (!mcp_enabled()) oauth_err(404, 'not_found', 'The Claude connector is switched off');
-    $b = site_url();
+    $b = oauth_base();
     oauth_json(200, ['issuer' => $b, 'authorization_endpoint' => "$b/oauth/authorize", 'token_endpoint' => "$b/oauth/token",
         'registration_endpoint' => "$b/oauth/register", 'revocation_endpoint' => "$b/oauth/revoke",
         'response_types_supported' => ['code'], 'grant_types_supported' => ['authorization_code', 'refresh_token'],
@@ -122,7 +128,7 @@ function handle_oauth_authorize(): void {
     if (!$client) render_page(400, 'Connection failed', '<h1>Unknown connection</h1><p>Please remove the connector in Claude and add it again.</p>');
     if (!oauth_redirect_matches($q['redirect_uri'], $client['redirect_uris'])) render_page(400, 'Connection failed', '<h1>Redirect address not allowed</h1>');
     $back = function (array $params) use ($q) {
-        $params = array_merge($params, ['state' => $q['state'], 'iss' => site_url()]);
+        $params = array_merge($params, ['state' => $q['state'], 'iss' => oauth_base()]);
         if ($params['state'] === '') unset($params['state']);
         header('Location: ' . $q['redirect_uri'] . (strpos($q['redirect_uri'], '?') === false ? '?' : '&') . http_build_query($params), true, 302); exit;
     };
@@ -235,7 +241,7 @@ function mcp_bearer_user(): ?array {
 }
 function mcp_unauthorized(string $why = ''): void {
     oauth_json(401, ['error' => 'invalid_token', 'error_description' => $why ?: 'Sign in to the Trustee Portal'],
-        ['WWW-Authenticate: Bearer resource_metadata="' . site_url() . '/.well-known/oauth-protected-resource", scope="portal"' . ($why ? ', error="invalid_token"' : '')]);
+        ['WWW-Authenticate: Bearer resource_metadata="' . oauth_base() . '/.well-known/oauth-protected-resource", scope="portal"' . ($why ? ', error="invalid_token"' : '')]);
 }
 
 /** Connected Claude sessions (for Portal settings) and revoking them. */
@@ -305,7 +311,10 @@ function mcp_self_check(): array {
         $out = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $err = curl_error($ch); curl_close($ch);
         return [$code, $out === false ? 'Error: ' . $err : mb_substr((string)$out, 0, 200)];
     };
-    $b = site_url();
+    $b = oauth_base();
+    $set = rtrim((string)portal_settings()['siteUrl'], '/');
+    if ($set !== '' && strtolower($set) !== strtolower($b))
+        $res[] = ['step' => 'Website address in Portal settings matches this site', 'url' => $set, 'status' => 0, 'ok' => false, 'body' => "Portal settings say $set but this site is $b – change the Website address to $b"];
     [$c, $t] = $get('POST', "$b/mcp", '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}', ['Content-Type: application/json']);
     $res[] = ['step' => 'MCP endpoint asks Claude to sign in (expect 401)', 'url' => "$b/mcp", 'status' => $c, 'ok' => $c === 401, 'body' => $t];
     [$c, $t] = $get('GET', "$b/.well-known/oauth-protected-resource");
@@ -325,7 +334,7 @@ function handle_mcp(): void {
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { header('Access-Control-Allow-Headers: Authorization, Content-Type, Mcp-Session-Id, Mcp-Protocol-Version'); header('Access-Control-Allow-Methods: POST, GET, DELETE, OPTIONS'); http_response_code(204); exit; }
     if (!mcp_enabled()) oauth_err(404, 'not_found', 'The Claude connector is switched off');
     $u = mcp_bearer_user();
-    if (!$u) mcp_unauthorized(isset($_SERVER['HTTP_AUTHORIZATION']) ? 'Token expired or revoked' : '');
+    if (!$u) mcp_unauthorized(trim((string)($_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '')) !== '' ? 'Token expired or revoked' : '');
     if ($_SERVER['REQUEST_METHOD'] === 'GET') { http_response_code(405); header('Allow: POST, DELETE'); exit; }
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') { http_response_code(200); exit; }
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }

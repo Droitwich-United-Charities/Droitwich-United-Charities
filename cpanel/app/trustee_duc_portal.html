@@ -865,6 +865,7 @@ async function claudeCheck(){$("#ccRes").innerHTML="<p>Checking…</p>";try{cons
 function claudeAdvice(c){const f=c.find(x=>!x.ok);if(!f)return"";const s=f.status;
   if(s===404&&/switched off/.test(f.body))return"The connector is switched off – press the button at the top of this page.";
   if(s===403||s===406||s===501)return"Your server's firewall (ModSecurity) is blocking this. In cPanel open <b>ModSecurity</b> and switch it <b>Off</b> for trustees.droitwichunitedcharities.org.uk, then run the check again. Or use a Client ID below.";
+  if(/Website address/.test(f.step))return"Go to ⚙️ Portal settings and change <b>Website address</b> to "+esc(location.origin)+", then save and run the check again.";
   if(s===0)return"The server couldn't call its own address – check the Website address in Portal settings is https://trustees.droitwichunitedcharities.org.uk.";
   if(s===200&&/<html/i.test(f.body))return"A web page came back instead of data – the latest files may not be in place. Upload and extract the newest zip again.";
   return"Send this result to your developer.";}
