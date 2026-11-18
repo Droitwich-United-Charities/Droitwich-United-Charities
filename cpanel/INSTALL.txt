@@ -40,6 +40,15 @@ SET UP THE TRUSTEE PORTAL (once, as Global Admin)
    portal (Trustees & officers > Invite).
 8. Share https://YOUR-SITE/partners/apply with schools, GPs, food banks etc.
 
+TRUSTEES SUBDOMAIN (trustees.droitwichunitedcharities.org.uk)
+  cPanel > Domains > Create A New Domain > trustees.droitwichunitedcharities.org.uk
+  and TICK "Share document root" so it uses the same public_html folder.
+  (Older cPanel: Subdomains > set Document Root to public_html.)
+  The home page on any trustees. address opens the portal; same logins and data.
+  Then set Portal settings > Website address to https://trustees.droitwichunitedcharities.org.uk
+  so links in emails go there. If DNS is not managed in cPanel, add an A record
+  trustees -> 46.252.76.135 where the domain's DNS is.
+
 HTTPS: turn on AutoSSL (cPanel > SSL/TLS Status), then remove the two # marks in
 .htaccess to force HTTPS. The meeting recorder needs HTTPS to use the microphone.
 

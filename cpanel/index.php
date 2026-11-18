@@ -312,7 +312,7 @@ function handle_login(): void {
     audit($un, 'login.success', role_label($u['role']));
     start_session($u);
     $dest = safe_next($next);
-    if ($dest === '/' && $u['role'] === 'partner') $dest = '/portal';
+    if ($dest === '/' && ($u['role'] === 'partner' || is_portal_host())) $dest = '/portal';
     redirect(!empty($u['mustChange']) ? '/change-password' : $dest);
 }
 
@@ -630,6 +630,8 @@ $path = '/' . ltrim(rawurldecode($path), '/');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 pseudo_cron();
+// trustees.droitwichunitedcharities.org.uk (or any host starting "trustees." / "portal.") opens the portal
+if ($path === '/' && is_portal_host()) redirect('/portal');
 if (portal_route($path, $method)) exit;
 
 switch (true) {

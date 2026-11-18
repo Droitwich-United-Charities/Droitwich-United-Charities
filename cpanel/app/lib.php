@@ -21,6 +21,12 @@ function is_partner(?array $u): bool { return has_role($u, ['partner']); }
 function is_clerkish(?array $u): bool { return has_role($u, ['admin', 'clerk', 'chairman']); }
 function is_gdpr(?array $u): bool { return has_role($u, ['admin', 'dplead', 'clerk']); }
 
+/** True when the site is reached on a trustees./portal. subdomain – the home page then opens the portal. */
+function is_portal_host(): bool {
+    $h = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));
+    return strpos($h, 'trustees.') === 0 || strpos($h, 'portal.') === 0;
+}
+
 // ---------- portal settings ----------
 function default_portal_settings(): array {
     return [
