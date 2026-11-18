@@ -854,8 +854,22 @@ PAGES.claude=async()=>{
    <li>Name: <b>D.U.C. Trustee Portal</b>. Remote MCP server URL:<br><input readonly value="${esc(r.url)}" onclick="this.select()" style="max-width:520px"><br><span class="hint">Leave the advanced OAuth settings empty.</span></li>
    <li>Press <b>Connect</b>, sign in with your portal username and password, and press <b>Allow</b>.</li></ol>
    <p class="hint">Claude sees only what your role allows. Names, addresses and other personal details of people referred for help are never sent to Claude – only reference numbers and initials. Claude can't vote, approve minutes or send letters. Everything it does is recorded in the audit log.</p></div>
+  ${PERMS.admin?`<div class="card"><h2>Check the connector</h2><p class="hint">Runs the same steps Claude does when you press Connect, and shows any that fail.</p><button class="btn sec" onclick="claudeCheck()">Run the check</button><div id="ccRes"></div>
+   ${r.failures&&r.failures.length?`<h3 style="margin-top:14px">Recent failed attempts from Claude</h3><table class="t">${r.failures.map(f=>`<tr><td style="white-space:nowrap">${fmtDT(f.time)}</td><td>${esc(f.details)}</td></tr>`).join("")}</table>`:""}</div>
+  <div class="card"><h2>Client ID (if Claude says "Couldn't register")</h2><p>Create a Client ID, then in Claude open the connector's <b>Advanced settings</b>, paste it into <b>OAuth Client ID</b> and leave <b>OAuth Client Secret</b> empty.</p>
+   ${r.clients.length?`<table class="t">${r.clients.map(c=>`<tr><td><input readonly value="${esc(c.id)}" onclick="this.select()" style="max-width:340px"></td><td class="hint">created ${fmtD(c.created)}</td><td><button class="btn sm ghost" onclick="claudeDelClient('${c.id}')">Delete</button></td></tr>`).join("")}</table>`:""}
+   <button class="btn sec" onclick="claudeNewClient()">Create a Client ID</button></div>`:""}
   <div class="card"><h2>${PERMS.admin?"Everyone's connections":"Your connections"}</h2>${r.connections.length?`<table class="t"><tr><th>Person</th><th>App</th><th>Since</th><th></th></tr>${r.connections.map(c=>`<tr><td>${esc(c.user)}</td><td>${esc(c.app)}</td><td>${fmtD(c.since)}</td><td><button class="btn sm ghost" onclick="claudeOff('${c.userId}','${c.client}')">Disconnect</button></td></tr>`).join("")}</table>`:`<p class="empty">No connections.</p>`}</div>`;
 };
+async function claudeCheck(){$("#ccRes").innerHTML="<p>Checking…</p>";try{const r=await api("POST","/api/p/claude",{selfCheck:true});const c=r.check;$("#ccRes").innerHTML=`<table class="t" style="margin-top:10px">${c.map(x=>`<tr><td>${x.ok?"✅":"❌"}</td><td><b>${esc(x.step)}</b><br><span class="hint">${esc(x.url)} → ${x.status||"no answer"}</span>${x.ok?"":`<br><code style="font-size:12px">${esc(x.body)}</code>`}</td></tr>`).join("")}</table>${c.every(x=>x.ok)?`<div class="ok" style="margin-top:8px">All good – Claude should be able to connect.</div>`:`<div class="warn" style="margin-top:8px">${claudeAdvice(c)}</div>`}`;}catch(e){$("#ccRes").innerHTML="";fail(e);}}
+function claudeAdvice(c){const f=c.find(x=>!x.ok);if(!f)return"";const s=f.status;
+  if(s===404&&/switched off/.test(f.body))return"The connector is switched off – press the button at the top of this page.";
+  if(s===403||s===406||s===501)return"Your server's firewall (ModSecurity) is blocking this. In cPanel open <b>ModSecurity</b> and switch it <b>Off</b> for trustees.droitwichunitedcharities.org.uk, then run the check again. Or use a Client ID below.";
+  if(s===0)return"The server couldn't call its own address – check the Website address in Portal settings is https://trustees.droitwichunitedcharities.org.uk.";
+  if(s===200&&/<html/i.test(f.body))return"A web page came back instead of data – the latest files may not be in place. Upload and extract the newest zip again.";
+  return"Send this result to your developer.";}
+async function claudeNewClient(){try{await api("POST","/api/p/claude",{createClient:true});toast("Client ID created");route();}catch(e){fail(e);}}
+async function claudeDelClient(id){if(!confirm("Delete this Client ID? Anyone connected with it will be disconnected."))return;try{await api("POST","/api/p/claude",{deleteClient:id});route();}catch(e){fail(e);}}
 async function claudeToggle(on){if(!on&&!confirm("Switch off the Claude connector? Everyone will be disconnected."))return;try{await api("POST","/api/p/claude",{enabled:on});route();}catch(e){fail(e);}}
 async function claudeOff(uid,cid){try{await api("POST","/api/p/claude",{disconnect:cid,userId:uid});toast("Disconnected");route();}catch(e){fail(e);}}
 

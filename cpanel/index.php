@@ -7,6 +7,9 @@
 declare(strict_types=1);
 
 const APP_VERSION = '2.0.0-php';
+// Never print PHP warnings into pages or JSON (they break the Claude connector); log them instead.
+@ini_set('display_errors', '0');
+@ini_set('log_errors', '1');
 const APP_DIR = __DIR__ . '/app';
 require_once APP_DIR . '/trustee_duc_portal_api.php';
 

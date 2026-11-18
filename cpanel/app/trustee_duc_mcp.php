@@ -47,16 +47,26 @@ function handle_oauth_as_metadata(): void {
     oauth_json(200, ['issuer' => $b, 'authorization_endpoint' => "$b/oauth/authorize", 'token_endpoint' => "$b/oauth/token",
         'registration_endpoint' => "$b/oauth/register", 'revocation_endpoint' => "$b/oauth/revoke",
         'response_types_supported' => ['code'], 'grant_types_supported' => ['authorization_code', 'refresh_token'],
-        'code_challenge_methods_supported' => ['S256'], 'token_endpoint_auth_methods_supported' => ['none'],
+        'code_challenge_methods_supported' => ['S256'], 'token_endpoint_auth_methods_supported' => ['none', 'client_secret_post', 'client_secret_basic'],
         'scopes_supported' => ['portal', 'offline_access'], 'service_documentation' => "$b/portal"]);
 }
 
 // ---------- clients (dynamic registration) ----------
 /** Claude's hosted callback, or a loopback address (Claude Code) on any port. */
 function oauth_redirect_allowed(string $uri): bool {
-    if (in_array($uri, ['https://claude.ai/api/mcp/auth_callback', 'https://claude.com/api/mcp/auth_callback'], true)) return true;
     $p = parse_url($uri);
-    return $p && ($p['scheme'] ?? '') === 'http' && in_array($p['host'] ?? '', ['localhost', '127.0.0.1'], true) && empty($p['user']) && empty($p['fragment']);
+    if (!$p || !empty($p['user']) || !empty($p['fragment'])) return false;
+    $host = strtolower($p['host'] ?? '');
+    // Claude's hosted callbacks (claude.ai / claude.com / anthropic.com and their subdomains)
+    if (($p['scheme'] ?? '') === 'https' && preg_match('/(^|\.)(claude\.ai|claude\.com|anthropic\.com)$/', $host)) return true;
+    // Claude Code: loopback on any port
+    return ($p['scheme'] ?? '') === 'http' && in_array($host, ['localhost', '127.0.0.1'], true);
+}
+const CLAUDE_CALLBACKS = ['https://claude.ai/api/mcp/auth_callback', 'https://claude.com/api/mcp/auth_callback'];
+/** Record why Claude couldn't register, so the Global Admin can see it in the audit log. */
+function oauth_reg_fail(int $status, string $code, string $desc, $body = null): void {
+    audit('(Claude)', 'claude.register_failed', $desc . ($body !== null ? ' | sent: ' . mb_substr(is_string($body) ? $body : json_encode($body), 0, 300) : '') . ' | from ' . client_ip());
+    oauth_err($status, $code, $desc);
 }
 function oauth_redirect_matches(string $given, array $registered): bool {
     if (in_array($given, $registered, true)) return true;
@@ -69,13 +79,15 @@ function oauth_redirect_matches(string $given, array $registered): bool {
     return false;
 }
 function handle_oauth_register(): void {
-    if (!mcp_enabled()) oauth_err(404, 'not_found', 'The Claude connector is switched off');
+    $raw = (string)file_get_contents('php://input');
+    if (!mcp_enabled()) oauth_reg_fail(404, 'not_found', 'The Claude connector is switched off (Portal > Claude connector)');
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') oauth_err(405, 'invalid_request', 'Use POST');
-    $b = json_decode((string)file_get_contents('php://input'), true);
-    if (!is_array($b)) oauth_err(400, 'invalid_client_metadata', 'Send JSON');
+    $b = json_decode($raw, true);
+    if (!is_array($b)) { parse_str($raw, $b); }
+    if (!is_array($b) || !$b) oauth_reg_fail(400, 'invalid_client_metadata', 'Registration was not JSON', $raw);
     $uris = array_values(array_filter((array)($b['redirect_uris'] ?? []), 'is_string'));
-    if (!$uris) oauth_err(400, 'invalid_redirect_uri', 'redirect_uris is required');
-    foreach ($uris as $u) if (!oauth_redirect_allowed($u)) oauth_err(400, 'invalid_redirect_uri', 'Only Claude can connect to this portal');
+    if (!$uris) $uris = CLAUDE_CALLBACKS;
+    foreach ($uris as $u) if (!oauth_redirect_allowed($u)) oauth_reg_fail(400, 'invalid_redirect_uri', 'Redirect address not allowed: ' . $u, $b);
     $ip = client_ip();
     $id = 'duc_' . bin2hex(random_bytes(16));
     $c = ['client_id' => $id, 'client_name' => clip($b['client_name'] ?? 'Claude', 100), 'redirect_uris' => array_slice($uris, 0, 10), 'created' => time(), 'ip' => $ip];
@@ -164,8 +176,10 @@ function handle_oauth_token(): void {
     $grant = (string)($p['grant_type'] ?? '');
     $clientId = (string)($p['client_id'] ?? '');
     if ($clientId === '' && !empty($_SERVER['PHP_AUTH_USER'])) $clientId = (string)$_SERVER['PHP_AUTH_USER'];
+    $auth = (string)($_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
+    if ($clientId === '' && stripos($auth, 'Basic ') === 0) { $pair = explode(':', (string)base64_decode(substr($auth, 6)), 2); $clientId = urldecode($pair[0]); }
     $client = oauth_client($clientId);
-    if (!$client) oauth_err(401, 'invalid_client', 'Unknown client');
+    if (!$client) { audit('(Claude)', 'claude.token_failed', 'Unknown client ' . mb_substr($clientId, 0, 60) . ' | from ' . client_ip()); oauth_err(401, 'invalid_client', 'Unknown client'); }
 
     if ($grant === 'authorization_code') {
         $code = (string)($p['code'] ?? '');
@@ -260,7 +274,48 @@ function api_p_claude(): void {
         if (!$b['enabled']) with_lock('oauth.json', [], function (&$o) { $o['tokens'] = []; $o['codes'] = []; });
         audit($u['username'], 'claude.' . ($b['enabled'] ? 'enabled' : 'disabled'), 'Claude connector switched ' . ($b['enabled'] ? 'on' : 'off'));
     }
-    json_out(200, ['enabled' => mcp_enabled(), 'url' => mcp_resource(), 'connections' => mcp_connections($admin ? null : $u['id'])]);
+    if (!empty($b['createClient'])) {
+        if (!$admin) api_err(403, 'Only the Global Admin can create a Client ID');
+        $id = 'duc_claude_' . bin2hex(random_bytes(8));
+        with_lock('oauth.json', [], function (&$o) use ($id) { $o['clients'][$id] = ['client_id' => $id, 'client_name' => 'Claude', 'redirect_uris' => CLAUDE_CALLBACKS, 'created' => time(), 'ip' => 'manual', 'used' => true, 'manual' => true]; });
+        audit($u['username'], 'claude.client_created', 'Client ID ' . $id . ' created for Claude');
+    }
+    if (!empty($b['deleteClient']) && $admin) {
+        $cid = (string)$b['deleteClient'];
+        with_lock('oauth.json', [], function (&$o) use ($cid) { unset($o['clients'][$cid]); foreach ($o['tokens'] ?? [] as $k => $t) if ($t['client'] === $cid) unset($o['tokens'][$k]); });
+        audit($u['username'], 'claude.client_deleted', 'Client ID ' . $cid . ' deleted');
+    }
+    $out = ['enabled' => mcp_enabled(), 'url' => mcp_resource(), 'connections' => mcp_connections($admin ? null : $u['id'])];
+    if ($admin) {
+        $out['clients'] = array_values(array_map(function ($c) { return ['id' => $c['client_id'], 'created' => gmdate('Y-m-d\TH:i:s\Z', $c['created'])]; },
+            array_filter(read_json('oauth.json', [])['clients'] ?? [], function ($c) { return !empty($c['manual']); })));
+        $out['failures'] = array_slice(array_values(array_filter(read_audit(), function ($e) { return $e['action'] === 'claude.register_failed'; })), 0, 5);
+        if (!empty($b['selfCheck'])) $out['check'] = mcp_self_check();
+    }
+    json_out(200, $out);
+}
+
+/** Ask our own public address for the discovery and registration endpoints, like Claude does. */
+function mcp_self_check(): array {
+    $res = [];
+    $get = function (string $method, string $url, ?string $body = null, array $h = []) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_CUSTOMREQUEST => $method, CURLOPT_HTTPHEADER => array_merge(['User-Agent: Claude-User (DUC self-check)'], $h)]);
+        if ($body !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        $out = curl_exec($ch); $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); $err = curl_error($ch); curl_close($ch);
+        return [$code, $out === false ? 'Error: ' . $err : mb_substr((string)$out, 0, 200)];
+    };
+    $b = site_url();
+    [$c, $t] = $get('POST', "$b/mcp", '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}', ['Content-Type: application/json']);
+    $res[] = ['step' => 'MCP endpoint asks Claude to sign in (expect 401)', 'url' => "$b/mcp", 'status' => $c, 'ok' => $c === 401, 'body' => $t];
+    [$c, $t] = $get('GET', "$b/.well-known/oauth-protected-resource");
+    $res[] = ['step' => 'Protected resource details (expect 200)', 'url' => "$b/.well-known/oauth-protected-resource", 'status' => $c, 'ok' => $c === 200 && strpos($t, '"resource"') !== false, 'body' => $t];
+    [$c, $t] = $get('GET', "$b/.well-known/oauth-authorization-server");
+    $res[] = ['step' => 'Sign-in service details (expect 200)', 'url' => "$b/.well-known/oauth-authorization-server", 'status' => $c, 'ok' => $c === 200 && strpos($t, 'registration_endpoint') !== false, 'body' => $t];
+    [$c, $t] = $get('POST', "$b/oauth/register", json_encode(['client_name' => 'DUC self-check', 'redirect_uris' => CLAUDE_CALLBACKS, 'grant_types' => ['authorization_code', 'refresh_token'], 'token_endpoint_auth_method' => 'none']), ['Content-Type: application/json']);
+    $res[] = ['step' => 'Claude registers itself (expect 201)', 'url' => "$b/oauth/register", 'status' => $c, 'ok' => $c === 201, 'body' => $t];
+    if ($c === 201 && preg_match('/"client_id":"([^"]+)"/', $t, $m)) with_lock('oauth.json', [], function (&$o) use ($m) { unset($o['clients'][$m[1]]); });
+    return $res;
 }
 
 // ---------- MCP endpoint ----------
