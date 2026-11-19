@@ -208,22 +208,24 @@ function user_email(array $u): string {
 }
 
 // ---------- set-password links (invites) ----------
-function make_setpw_token(string $userId, int $days = 7): string {
+function make_setpw_token(string $userId, int $days = 7, string $purpose = 'invite', int $hours = 0): string {
     $tok = bin2hex(random_bytes(24));
-    with_lock('setpw.json', [], function (&$t) use ($tok, $userId, $days) {
+    $life = $hours > 0 ? $hours * 3600 : $days * 86400;
+    with_lock('setpw.json', [], function (&$t) use ($tok, $userId, $life, $purpose) {
         foreach ($t as $k => $v) if ($v['exp'] < time() || $v['user'] === $userId) unset($t[$k]);
-        $t[hash('sha256', $tok)] = ['user' => $userId, 'exp' => time() + $days * 86400];
+        $t[hash('sha256', $tok)] = ['user' => $userId, 'exp' => time() + $life, 'purpose' => $purpose];
     });
     return site_url() . '/set-password?t=' . $tok;
 }
 function handle_set_password(): void {
     $tok = (string)($_GET['t'] ?? $_POST['t'] ?? '');
     $rec = preg_match('/^[a-f0-9]{48}$/', $tok) ? (read_json('setpw.json', [])[hash('sha256', $tok)] ?? null) : null;
-    if (!$rec || $rec['exp'] < time()) render_page(400, 'Link expired', '<h1>This link has expired</h1><p>Please ask the Clerk or your organisation\'s main contact to send you a new invitation.</p>');
+    if (!$rec || $rec['exp'] < time()) render_page(400, 'Link expired', '<h1>This link has expired</h1><p>Reset links work once and only for 1 hour. <a href="/forgot-password">Ask for a new link</a>, or ask the Clerk or your organisation\'s main contact to send you a new invitation.</p>');
+    $reset = ($rec['purpose'] ?? '') === 'reset';
     $u = user_by_id($rec['user']);
     if (!$u || !empty($u['disabled'])) render_page(400, 'Link expired', '<h1>This account is not active</h1>');
-    $form = function (string $msg = '') use ($tok, $u) {
-        $b = '<h1>Set your password</h1><p>Hello ' . h($u['name']) . '. Your username is <b>' . h($u['username']) . '</b>.</p>';
+    $form = function (string $msg = '') use ($tok, $u, $reset) {
+        $b = '<h1>' . ($reset ? 'Choose a new password' : 'Set your password') . '</h1><p>Hello ' . h($u['name']) . '. Your username is <b>' . h($u['username']) . '</b>.</p>';
         if ($msg) $b .= '<div class="err">' . h($msg) . '</div>';
         $b .= '<form method="post" action="/set-password"><input type="hidden" name="t" value="' . h($tok) . '">'
             . '<label for="p">New password (at least 10 characters)</label><input id="p" name="password" type="password" autocomplete="new-password" required>'
@@ -240,10 +242,50 @@ function handle_set_password(): void {
     });
     with_lock('setpw.json', [], function (&$t) use ($tok) { unset($t[hash('sha256', $tok)]); });
     revoke_sessions($u['id']);
-    audit($u['username'], 'password.set_from_invite', 'Password set using an invitation link');
+    audit($u['username'], $reset ? 'password.reset_self' : 'password.set_from_invite', $reset ? 'Password reset using an emailed link (other sessions signed out)' : 'Password set using an invitation link');
+    if ($reset && user_email($u)) send_email(user_email($u), 'Your password has been changed',
+        '<p>Hello ' . h($u['name']) . ',</p><p>The password for your Droitwich United Charities account (<b>' . h($u['username']) . '</b>) was changed on ' . date('j F Y \a\t H:i') . '.</p>'
+        . '<p>If this wasn\'t you, contact the Clerk or your Global Admin straight away.</p>');
     $u = user_by_id($u['id']);
     start_session($u);
     redirect('/portal');
+}
+
+// ---------- forgotten password ----------
+function reset_allowed(string $key, int $max): bool {
+    return with_lock('resetreq.json', [], function (&$r) use ($key, $max) {
+        $now = time();
+        foreach ($r as $k => $times) { $r[$k] = array_values(array_filter($times, function ($t) use ($now) { return $t > $now - 3600; })); if (!$r[$k]) unset($r[$k]); }
+        if (count($r[$key] ?? []) >= $max) return false;
+        $r[$key][] = $now; return true;
+    });
+}
+function handle_forgot_password(): void {
+    $done = '<h1>Check your email</h1><p>If that matches an active account with an email address, we\'ve sent a link to choose a new password. It works for 1 hour.</p>'
+        . '<p>Nothing arrived after a few minutes? Check your junk folder. Accounts without an email address need the Global Admin or the Clerk to reset the password.</p><p class="small"><a href="/login">Back to sign in</a></p>';
+    $form = function (string $msg = '') {
+        $b = '<h1>Forgotten your password?</h1><p>Enter your username or email address and we\'ll email you a link to choose a new one.</p>';
+        if ($msg) $b .= '<div class="err">' . h($msg) . '</div>';
+        $b .= '<form method="post" action="/forgot-password"><label for="u">Username or email</label><input id="u" name="who" autocomplete="username" required autofocus>'
+            . '<button type="submit">Send reset link</button></form><p class="small"><a href="/login">Back to sign in</a></p>';
+        render_page(200, 'Forgotten password', $b);
+    };
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') $form();
+    $who = strtolower(trim(mb_substr((string)($_POST['who'] ?? ''), 0, 200)));
+    if ($who === '') $form('Enter your username or email address.');
+    if (!reset_allowed('ip:' . client_ip(), 5)) { audit($who, 'password.reset_throttled', 'Too many reset requests from one address'); $form('Too many requests. Please try again in an hour.'); }
+    $u = null;
+    foreach (users() as $x) if (strtolower($x['username']) === $who || strtolower(user_email($x)) === $who) { $u = $x; break; }
+    usleep(random_int(200000, 500000)); // same timing whether or not the account exists
+    if (!$u || !empty($u['disabled']) || !user_email($u)) { audit($who, 'password.reset_unknown', $u ? 'Account has no email address or is disabled' : 'No matching account'); render_page(200, 'Check your email', $done); }
+    if (!reset_allowed('user:' . $u['id'], 3)) { audit($u['username'], 'password.reset_throttled', 'More than 3 reset requests in an hour'); render_page(200, 'Check your email', $done); }
+    $link = make_setpw_token($u['id'], 0, 'reset', 1);
+    send_email(user_email($u), 'Reset your Droitwich United Charities password',
+        '<p>Hello ' . h($u['name']) . ',</p><p>Someone asked to reset the password for your account (<b>' . h($u['username']) . '</b>). Use the button below to choose a new one. The link works once, for 1 hour.</p>'
+        . email_button($link, 'Choose a new password')
+        . '<p>If you didn\'t ask for this, you can ignore this email – your password won\'t change.</p>');
+    audit($u['username'], 'password.reset_requested', 'Reset link emailed');
+    render_page(200, 'Check your email', $done);
 }
 
 /** Create a user (used for partner and trustee invites). Returns [user, setPasswordLink]. */

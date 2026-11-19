@@ -231,7 +231,7 @@ function login_page(string $msg = '', string $next = '/', int $status = 200): vo
     $b .= '<form method="post" action="/login"><input type="hidden" name="next" value="' . h(safe_next($next)) . '">'
         . '<label for="u">Username</label><input id="u" name="username" autocomplete="username" required autofocus>'
         . '<label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required>'
-        . '<button type="submit">Sign in</button></form><p class="small">Forgotten your password? Ask your Global Admin to reset it.</p>';
+        . '<button type="submit">Sign in</button></form><p class="small"><a href="/forgot-password">Forgotten your password?</a></p>';
     render_page($status, 'Sign in', $b);
 }
 
@@ -684,6 +684,7 @@ switch (true) {
     case $path === '/' || $path === '/index.php' || $path === '/index.html': handle_root(); break;
     case $path === '/setup': handle_setup(); break;
     case $path === '/login': handle_login(); break;
+    case $path === '/forgot-password': handle_forgot_password(); break;
     case $path === '/logout': handle_logout(); break;
     case $path === '/change-password': handle_change_password(); break;
     case $path === '/api/me' && $method === 'GET': api_me(); break;
