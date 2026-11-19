@@ -194,8 +194,9 @@ function api_p_meeting(string $id): void {
         if (!in_array($m['status'], ['draft', 'published'], true) && !has_role($u, ['admin'])) api_err(400, 'Only the Global Admin can delete a meeting that has been held');
         with_lock('meetings.json', [], function (&$l) use ($id) { $l = array_values(array_filter($l, function ($m) use ($id) { return $m['id'] !== $id; })); });
         foreach (glob(files_dir('recordings') . '/' . $id . '.*') ?: [] as $f) @unlink($f);
-        audit($u['username'], 'meeting.deleted', $m['title']);
-        json_out(200, ['ok' => true]);
+        $na = with_lock('actions.json', [], function (&$l) use ($id) { $n = count($l); $l = array_values(array_filter($l, function ($a) use ($id) { return ($a['meetingId'] ?? '') !== $id; })); return $n - count($l); });
+        audit($u['username'], 'meeting.deleted', $m['title'] . ', ' . uk_date($m['date']) . ' (status ' . $m['status'] . '; ' . $na . ' action(s) removed)');
+        json_out(200, ['ok' => true, 'actionsRemoved' => $na]);
     }
     $b = body_json();
     $res = update_meeting($id, function (&$m) use ($b) {
