@@ -886,12 +886,37 @@ function api_p_board_users(): void {
     if (!has_role($u, ['admin', 'clerk'])) api_err(403, 'Only the Clerk or Global Admin can invite people');
     $b = body_json();
     $role = (string)($b['role'] ?? 'trustee');
-    if (!in_array($role, ['trustee', 'chairman', 'clerk', 'dplead'], true) || ($role !== 'trustee' && !has_role($u, ['admin']))) api_err(403, 'The Clerk can invite trustees; only the Global Admin can give other roles');
+    if (!in_array($role, ['trustee', 'chairman', 'clerk', 'dplead', 'admin'], true) || ($role !== 'trustee' && !has_role($u, ['admin']))) api_err(403, 'The Clerk can invite trustees; only the Global Admin can give other roles');
     [$nu, $link] = create_invited_user($u, (string)($b['name'] ?? ''), (string)($b['email'] ?? ''), $role);
     $tpl = letter_templates()['trustee_invite'];
     $html = '<p>Dear ' . h($nu['name']) . ',</p>' . str_replace(h('{portal_link}'), email_button($link, 'Set my password'), text_to_html($tpl['body'])) . signoff_html($tpl['sign']);
     $sent = send_email($nu['email'], $tpl['subject'], $html, [], 'trustee invite');
     json_out(200, ['ok' => true, 'emailed' => $sent, 'link' => $sent ? '' : $link]);
+}
+
+/** Global Admin changes someone's role (including making them a Global Admin). */
+function api_p_board_user_role(string $id): void {
+    $me = pguard('admin');
+    $role = (string)(body_json()['role'] ?? '');
+    if (!in_array($role, BOARD_ROLES, true)) api_err(400, 'Choose Trustee, Chairman, Clerk, Data Protection Lead or Global Admin');
+    if ($id === $me['id']) api_err(400, "You can't change your own role – ask another Global Admin");
+    $res = with_lock('users.json', [], function (&$list) use ($id, $role) {
+        $admins = 0; foreach ($list as $x) if ($x['role'] === 'admin' && empty($x['disabled'])) $admins++;
+        foreach ($list as &$x) if ($x['id'] === $id) {
+            if ($x['role'] === 'partner') return 'partner';
+            if ($x['role'] === 'admin' && $role !== 'admin' && empty($x['disabled']) && $admins <= 1) return 'last';
+            $old = $x['role']; $x['role'] = $role; return ['old' => $old, 'name' => $x['name'], 'username' => $x['username']];
+        }
+        return null;
+    });
+    if ($res === null) api_err(404, 'Person not found');
+    if ($res === 'partner') api_err(400, 'Referral partners are managed on the Partners page');
+    if ($res === 'last') api_err(400, 'There must always be at least one Global Admin');
+    if ($res['old'] !== $role) {
+        revoke_sessions($id); // new permissions take effect at their next sign-in
+        audit($me['username'], 'user.role_changed', $res['username'] . ' (' . $res['name'] . '): ' . role_label($res['old']) . ' → ' . role_label($role));
+    }
+    json_out(200, ['ok' => true]);
 }
 
 // ---------- pages ----------
@@ -935,7 +960,7 @@ function portal_route(string $path, string $method): bool {
         ['*', '/api/p/cases', 'api_p_cases'], ['POST', "/api/p/cases/$id/vote", 'api_p_case_vote'], ['POST', "/api/p/cases/$id/close", 'api_p_case_close'],
         ['*', '/api/p/calendar', 'api_p_calendar'], ['GET', '/api/p/search', 'api_p_search'], ['POST', '/api/p/ask', 'api_p_ask'],
         ['*', '/api/p/settings', 'api_p_settings'], ['POST', '/api/p/settings/test-email', 'api_p_test_email'], ['POST', '/api/p/settings/test-gemini', 'api_p_test_gemini'], ['POST', '/api/p/settings/recovery-clear', 'api_p_recovery_clear'],
-        ['*', '/api/p/board-users', 'api_p_board_users'], ['*', '/api/p/claude', 'api_p_claude'],
+        ['*', '/api/p/board-users', 'api_p_board_users'], ['PUT', "/api/p/board-users/$id/role", 'api_p_board_user_role'], ['*', '/api/p/claude', 'api_p_claude'],
     ];
     $routes = array_merge($routes, partner_routes($id), letter_routes($id), gdpr_routes($id));
     foreach ($routes as [$verb, $re, $fn]) {
