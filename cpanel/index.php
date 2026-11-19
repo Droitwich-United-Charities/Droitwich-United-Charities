@@ -6,16 +6,53 @@
  */
 declare(strict_types=1);
 
-const APP_VERSION = '1.0.0-php';
+const APP_VERSION = '2.0.0-php';
+// Never print PHP warnings into pages or JSON (they break the Claude connector); log them instead.
+@ini_set('display_errors', '0');
+@ini_set('log_errors', '1');
 const APP_DIR = __DIR__ . '/app';
+require_once APP_DIR . '/trustee_duc_portal_api.php';
 
 // ---------- data folder (outside public_html when possible) ----------
+/**
+ * Each install keeps its own data folder next to public_html (never under it):
+ *   public_html                                          -> duc-data
+ *   public_html/trustees.droitwichunitedcharities.org.uk -> duc-data.trustees.droitwichunitedcharities.org.uk
+ * An existing folder is used if it is named duc-data.NAME, duc-data-NAME or
+ * duc-data/duc-data-NAME (any capitals). Otherwise duc-data.NAME is created.
+ */
+function data_folder_name(): string {
+    static $name = null;
+    if ($name !== null) return $name;
+    $n = basename(__DIR__);
+    if ($n === 'public_html') return $name = 'duc-data';
+    $n = preg_replace('/[^A-Za-z0-9._-]/', '_', $n);
+    $want = ['duc-data.' . $n, 'duc-data-' . $n, 'duc-data/duc-data-' . $n, 'duc-data/duc-data.' . $n];
+    $parent = data_parent();
+    foreach ($want as $w) {
+        $found = '';
+        foreach (explode('/', $w) as $part) {
+            $dir = $parent . ($found === '' ? '' : '/' . $found);
+            $hit = null;
+            foreach ((@scandir($dir) ?: []) as $e) if (strtolower($e) === strtolower($part) && is_dir($dir . '/' . $e)) { $hit = $e; break; }
+            if ($hit === null) { $found = null; break; }
+            $found = $found === '' ? $hit : $found . '/' . $hit;
+        }
+        if ($found) return $name = $found;
+    }
+    return $name = $want[0];
+}
+function data_parent(): string {
+    $p = dirname(__DIR__);
+    while (strpos($p . '/', '/public_html/') !== false && dirname($p) !== $p) $p = dirname($p);
+    return $p;
+}
 function data_dir(): string {
     static $dir = null;
     if ($dir !== null) return $dir;
-    $outside = dirname(__DIR__) . '/duc-data';
+    $outside = data_parent() . '/' . data_folder_name();
     $inside  = __DIR__ . '/duc-data';
-    if (is_dir($outside) || (is_writable(dirname(__DIR__)) && @mkdir($outside, 0700, true))) {
+    if (is_dir($outside) || (is_writable(data_parent()) && @mkdir($outside, 0700, true))) {
         $dir = $outside;
     } else {
         if (!is_dir($inside)) @mkdir($inside, 0700, true);
@@ -72,12 +109,14 @@ function find_user(array $users, string $key, string $val): ?array {
     return null;
 }
 function public_user(array $u): array {
-    return ['id' => $u['id'], 'username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'],
+    return ['id' => $u['id'], 'username' => $u['username'], 'name' => $u['name'], 'role' => $u['role'], 'email' => $u['email'] ?? '',
+        'orgId' => $u['orgId'] ?? '', 'portal' => is_board($u) || is_partner($u),
         'disabled' => !empty($u['disabled']), 'mustChange' => !empty($u['mustChange']),
         'created' => $u['created'] ?? '', 'lastLogin' => $u['lastLogin'] ?? ''];
 }
-function role_label(string $r): string { return $r === 'admin' ? 'Global Admin' : ($r === 'editor' ? 'Editor' : 'Viewer'); }
-function valid_role($r): bool { return in_array($r, ['admin', 'editor', 'viewer'], true); }
+function role_label(string $r): string { return ROLE_LABELS[$r] ?? 'Viewer'; }
+/** Roles the Users page can give. Referral Partner logins are created from the Partners page in the portal. */
+function valid_role($r): bool { return in_array($r, ['admin', 'editor', 'viewer', 'chairman', 'clerk', 'trustee', 'dplead'], true); }
 function valid_username(string $u): bool { return (bool)preg_match('/^[a-z0-9._@-]{3,64}$/', $u); }
 function password_problem(string $pw): ?string {
     if (mb_strlen($pw) < 10) return 'Password must be at least 10 characters';
@@ -192,7 +231,7 @@ function login_page(string $msg = '', string $next = '/', int $status = 200): vo
     $b .= '<form method="post" action="/login"><input type="hidden" name="next" value="' . h(safe_next($next)) . '">'
         . '<label for="u">Username</label><input id="u" name="username" autocomplete="username" required autofocus>'
         . '<label for="p">Password</label><input id="p" name="password" type="password" autocomplete="current-password" required>'
-        . '<button type="submit">Sign in</button></form><p class="small">Forgotten your password? Ask your Global Admin to reset it.</p>';
+        . '<button type="submit">Sign in</button></form><p class="small"><a href="/forgot-password">Forgotten your password?</a></p>';
     render_page($status, 'Sign in', $b);
 }
 
@@ -220,7 +259,8 @@ function setup_code(): string {
 function handle_setup(): void {
     if (count(users()) > 0) redirect('/');
     $code = setup_code();
-    $where = (strpos(data_dir(), dirname(__DIR__) . '/duc-data') === 0) ? 'duc-data/setup-code.txt (next to public_html)' : 'public_html/duc-data/setup-code.txt';
+    $outside = data_parent() . '/' . data_folder_name();
+    $where = (strpos(data_dir(), $outside) === 0) ? data_folder_name() . '/setup-code.txt (in your home folder, next to public_html)' : basename(__DIR__) . '/duc-data/setup-code.txt';
     $form = function (string $msg = '') use ($where) {
         $b = '<h1>Welcome – first-time setup</h1><p>Create the <b>Global Admin</b> account. This account can add users, turn on maintenance mode and see the audit log.</p>'
             . '<p style="text-align:left;background:#e8eef8;border-radius:10px;padding:10px 12px;font-size:14px">To prove you own this website, open cPanel <b>File Manager</b> and copy the code from <b>' . h($where) . '</b>.</p>';
@@ -308,7 +348,9 @@ function handle_login(): void {
     });
     audit($un, 'login.success', role_label($u['role']));
     start_session($u);
-    redirect(!empty($u['mustChange']) ? '/change-password' : safe_next($next));
+    $dest = safe_next($next);
+    if ($dest === '/' && ($u['role'] === 'partner' || is_portal_host())) $dest = '/portal';
+    redirect(!empty($u['mustChange']) ? '/change-password' : $dest);
 }
 
 function handle_logout(): void {
@@ -482,7 +524,9 @@ function api_users(): void {
     if ($name === '' || !valid_username($un)) api_err(400, 'Enter a name and a username of 3–64 characters (letters, numbers, . _ - @)');
     if (!valid_role($role)) api_err(400, 'Invalid role');
     if ($e = password_problem($pw)) api_err(400, 'Temporary password: ' . $e);
-    $u = ['id' => bin2hex(random_bytes(8)), 'username' => $un, 'name' => $name, 'role' => $role,
+    $email = strtolower(clip($b['email'] ?? '', 200));
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) api_err(400, 'That email address is not valid');
+    $u = ['id' => bin2hex(random_bytes(8)), 'username' => $un, 'name' => $name, 'role' => $role, 'email' => $email,
         'hash' => password_hash($pw, PASSWORD_DEFAULT), 'disabled' => false, 'mustChange' => true, 'created' => now_iso(), 'lastLogin' => ''];
     $ok = with_lock('users.json', [], function (&$list) use ($u) {
         if (find_user($list, 'username', $u['username'])) return false;
@@ -521,6 +565,11 @@ function api_user_item(string $id): void {
                 $notes[] = 'account disabled'; $revoke = true;
             } else $notes[] = 'account enabled';
             $u['disabled'] = (bool)$b['disabled'];
+        }
+        if (isset($b['email']) && strtolower(clip($b['email'], 200)) !== ($u['email'] ?? '')) {
+            $em = strtolower(clip($b['email'], 200));
+            if ($em !== '' && !filter_var($em, FILTER_VALIDATE_EMAIL)) return [400, 'That email address is not valid'];
+            $notes[] = 'email changed'; $u['email'] = $em;
         }
         if (isset($b['name']) && clip($b['name'], 120) !== '' && clip($b['name'], 120) !== $u['name']) {
             $notes[] = "name '{$u['name']}' → '" . clip($b['name'], 120) . "'"; $u['name'] = clip($b['name'], 120);
@@ -598,10 +647,15 @@ function api_audit_csv(): void {
 }
 
 // ---------- router ----------
+if (PHP_SAPI === 'cli') {
+    // cPanel cron:  /usr/local/bin/php /home/USER/public_html/index.php cron
+    if (($argv[1] ?? '') === 'cron') { echo implode("\n", run_cron(true)) . "\n"; exit(0); }
+    fwrite(STDERR, "Usage: php index.php cron\n"); exit(1);
+}
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: same-origin');
-header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header('Permissions-Policy: camera=(), microphone=(self), geolocation=()');
 header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
 if (is_https()) header('Strict-Transport-Security: max-age=31536000');
 
@@ -609,13 +663,28 @@ if (version_compare(PHP_VERSION, '7.4.0', '<')) { http_response_code(500); exit(
 if (!is_writable(data_dir())) { http_response_code(500); exit('The website cannot write to its data folder: ' . h(data_dir())); }
 
 $path = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+
+// Installed in a sub-folder of public_html (e.g. public_html/trustee_duc) for a subdomain:
+// don't let it be used through the main site's address – send people to the subdomain.
+$sub = '/' . basename(__DIR__);
+if (basename(__DIR__) !== 'public_html' && ($path === $sub || strpos($path, $sub . '/') === 0)) {
+    $home = rtrim((string)portal_settings()['siteUrl'], '/');
+    if ($home === '') { http_response_code(404); exit('Not found'); }
+    header('Location: ' . $home . (substr($path, strlen($sub)) ?: '/'), true, 301); exit;
+}
 $path = '/' . ltrim(rawurldecode($path), '/');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+pseudo_cron();
+// trustees.droitwichunitedcharities.org.uk (or any host starting "trustees." / "portal.") opens the portal
+if ($path === '/' && is_portal_host()) redirect('/portal');
+if (portal_route($path, $method)) exit;
 
 switch (true) {
     case $path === '/' || $path === '/index.php' || $path === '/index.html': handle_root(); break;
     case $path === '/setup': handle_setup(); break;
     case $path === '/login': handle_login(); break;
+    case $path === '/forgot-password': handle_forgot_password(); break;
     case $path === '/logout': handle_logout(); break;
     case $path === '/change-password': handle_change_password(); break;
     case $path === '/api/me' && $method === 'GET': api_me(); break;

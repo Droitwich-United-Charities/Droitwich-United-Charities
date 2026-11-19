@@ -1,25 +1,148 @@
-DROITWICH UNITED CHARITIES – WEBSITE (cPanel edition)   Built by Saltway Digital
+DROITWICH UNITED CHARITIES – WEBSITE + TRUSTEE PORTAL (cPanel edition)   Built by Saltway Digital
 
-INSTALL (about 5 minutes)
-1. cPanel > File Manager > open public_html (or the folder for the domain you're using).
+NEEDS
+  PHP 7.4 or newer (8.1+ recommended) with the openssl, curl, zip and mbstring extensions
+  (cPanel > Select PHP Version / MultiPHP Manager > Extensions). Apache with .htaccess.
+  Install at the top of a domain or subdomain, not in a sub-folder.
+
+NEW INSTALL (about 5 minutes)
+1. cPanel > File Manager > open public_html (or the folder for your domain).
    Move or delete any old website files there (e.g. a default index.html).
 2. Upload DUC-Website-cPanel.zip, right-click it > Extract, then delete the zip.
    (Tick "Show Hidden Files" in File Manager Settings to see the .htaccess file.)
-3. Visit the website. The setup page opens and asks for a setup code.
+3. Visit the website. The setup page asks for a setup code.
 4. In File Manager, go up one level from public_html – a new folder "duc-data"
-   has appeared. Open duc-data/setup-code.txt and copy the code into the setup page.
+   has appeared (for an install in another folder it is "duc-data-FOLDERNAME"). Open duc-data/setup-code.txt and copy the code into the setup page.
 5. Create your Global Admin account. Done – the code file deletes itself.
 
-NEEDS: PHP 7.4 or newer (cPanel > Select PHP Version / MultiPHP Manager) and an
-Apache server with .htaccess (standard on cPanel). Install it at the top of a
-domain or subdomain, not in a sub-folder.
+UPGRADING FROM VERSION 1 (keeps all your users, content and enquiries)
+  Upload DUC-Website-cPanel.zip to public_html and Extract, choosing to overwrite.
+  Your data is in duc-data, next to public_html, and is not touched.
+
+SET UP THE TRUSTEE PORTAL (once, as Global Admin)
+1. Sign in, then open https://YOUR-SITE/portal > Portal settings.
+2. Website address – e.g. https://droitwichunitedcharities.org.uk
+3. Email (SMTP) – every letter, invitation and reminder is sent from here.
+     Microsoft 365: smtp.office365.com, port 587, STARTTLS
+                    (turn on "Authenticated SMTP" for the mailbox in Microsoft 365 admin).
+     cPanel email:  mail.YOURDOMAIN, port 465, SSL/TLS.
+   Press "Save & send test".
+4. Gemini – create an API key at aistudio.google.com in a Google Cloud project WITH
+   BILLING TURNED ON (so Google doesn't use the recordings to improve its products).
+   Set a monthly budget in Google Cloud. Press "Save & test".
+5. Cron job – cPanel > Cron Jobs > add ONE job, every 15 minutes (*/15 * * * *):
+     /usr/local/bin/php /home/YOURUSER/public_html/index.php cron
+   (Portal settings shows the exact line.) This sends reminders, retries emails,
+   runs the retention schedule every night and transcribes recordings.
+6. Check who signs letters, the quorum, and the partner data sharing agreement.
+7. Website admin panel > Users: give each person an email and a role –
+   Trustee, Chairman, Clerk or Data Protection Lead. Or invite trustees from the
+   portal (Trustees & officers > Invite).
+8. Share https://YOUR-SITE/partners/apply with schools, GPs, food banks etc.
+
+TRUSTEES SUBDOMAIN IN ITS OWN FOLDER (trustees.droitwichunitedcharities.org.uk)
+  Site:  /home/USER/public_html/trustees.droitwichunitedcharities.org.uk
+  Data:  /home/USER/duc-data.trustees.droitwichunitedcharities.org.uk
+         (next to public_html – not reachable from the web; an existing folder called
+          duc-data-trustees… or duc-data/duc-data-trustees… is used instead if you have one)
+  1. File Manager > public_html > upload trustees.droitwichunitedcharities.org.uk.zip
+     > Extract. It creates the folder trustees.droitwichunitedcharities.org.uk.
+  2. cPanel > Domains > Create A New Domain (or Manage, if it exists) >
+     trustees.droitwichunitedcharities.org.uk – UNTICK "Share document root" and set
+     Document Root to  public_html/trustees.droitwichunitedcharities.org.uk
+  3. SSL/TLS Status > Run AutoSSL.
+  4. Visit https://trustees.droitwichunitedcharities.org.uk – the setup page shows
+     which folder the setup code (setup-code.txt) is in.
+  5. Create the Global Admin, then follow "SET UP THE TRUSTEE PORTAL" below, with
+     Website address https://trustees.droitwichunitedcharities.org.uk and the cron job:
+       /usr/local/bin/php /home/USER/public_html/trustees.droitwichunitedcharities.org.uk/index.php cron
+  This install has its OWN users and data, separate from the main website. Its home
+  page opens the portal. If the domain's DNS is not in cPanel, add an A record
+  trustees -> 46.252.76.135 where the DNS is managed.
+
+CLAUDE CONNECTOR (ask Claude about meetings, actions and decisions)
+  1. Portal > Claude connector > "Switch the connector on" (Global Admin, once).
+  2. Each trustee: claude.ai > Settings > Connectors > Add custom connector
+       Name: D.U.C. Trustee Portal
+       URL:  https://trustees.droitwichunitedcharities.org.uk/mcp
+     Leave the advanced OAuth boxes empty > Connect > sign in to the portal > Allow.
+  Needs HTTPS. Claude only sees what the person's role allows, never the names or
+  addresses of people referred for help, and can't vote, approve minutes or send letters.
+  Every Claude action is in the audit log. Disconnect anyone from the same portal page.
 
 HTTPS: turn on AutoSSL (cPanel > SSL/TLS Status), then remove the two # marks in
-.htaccess to force HTTPS.
+.htaccess to force HTTPS. The meeting recorder needs HTTPS to use the microphone.
 
 YOUR DATA lives in the duc-data folder next to public_html (not reachable from the web):
-users, content, enquiries, settings, sessions and audit.log. Back it up with the
-rest of your hosting (cPanel > Backup).
+users, content, referrals (personal details encrypted), meetings, recordings, letters,
+GDPR records and audit.log. duc-data/secret.key unlocks the encrypted details –
+back up the whole duc-data folder (cPanel > Backup) and never lose secret.key.
 
 LOCKED OUT OF THE ONLY ADMIN ACCOUNT? Delete duc-data/users.json in File Manager
-and visit the site – setup runs again with a new code (website content is kept).
+and visit the site – setup runs again with a new code (website content is kept;
+portal users will need adding again).
+
+============================================================
+SALTWAY AI (OLLAMA) AND FREE WHISPER – instead of Gemini
+============================================================
+Portal settings > AI for meeting notes has two choices:
+  Transcription:  Gemini, or Whisper (Groq free, or your own server)
+  Notes/minutes:  Gemini, or Saltway AI (Ollama on the Saltway VPS)
+
+A) Give Ollama a secure web address with an API key (on the VPS)
+   Ollama has no password of its own, so Caddy checks a key first.
+   1. Remote Desktop to the VPS. Open PowerShell and make a key:
+        -join ((48..57)+(97..122) | Get-Random -Count 40 | % {[char]$_})
+      Copy it somewhere safe.
+   2. Open C:\RepairHub\caddy\Caddyfile. Inside the existing
+      ai.saltwaydigital.co.uk { ... } block, add this ABOVE the
+      line that sends traffic to the website (put YOURKEY in):
+
+        handle_path /ollama/* {
+            @nokey not header Authorization "Bearer YOURKEY"
+            respond @nokey "Unauthorized" 401
+            reverse_proxy 127.0.0.1:11434 {
+                header_up Host localhost:11434
+            }
+        }
+
+      and wrap the existing website line in  handle { ... }  so it
+      looks like:   handle { reverse_proxy 127.0.0.1:8105 }
+      (use whatever port the website already uses).
+   3. Reload Caddy:  caddy reload --config C:\RepairHub\caddy\Caddyfile
+   4. Pull a model if you haven't:  ollama pull llama3.2:1b
+      Small models work through the meeting a part at a time. llama3.2:3b
+      or llama3.1:8b write noticeably better minutes if the VPS has the memory.
+   5. Check from any computer (should say "Unauthorized"):
+        https://ai.saltwaydigital.co.uk/ollama/api/tags
+   6. Make sure Ollama does NOT listen publicly: it should only be
+      on 127.0.0.1:11434 (the default). Don't open port 11434 in
+      the firewall.
+
+B) Free Whisper for transcription (Groq)
+   console.groq.com > sign in > API Keys > Create API Key.
+   Free allowance: about 2 hours of audio per hour, 2,000 requests a
+   day – plenty for trustee meetings. The portal waits and retries
+   if it hits the limit. Whisper doesn't say who is speaking, so the
+   Clerk should check who each action belongs to.
+
+C) In the portal: Portal settings > AI for meeting notes
+   Transcription: Whisper. Address https://api.groq.com/openai/v1,
+     your gsk_ key, model whisper-large-v3-turbo.
+   Notes: Saltway AI. Address https://ai.saltwaydigital.co.uk/ollama,
+     the key from step A1, model llama3.2:1b.
+   Press "Save & test AI". Both lines should show a tick.
+   Saltway AI jobs run in the background (cron) – make sure the cron
+   job from the main instructions is set up.
+
+============================================================
+LOCKED OUT? (forgotten password, no email on the account)
+============================================================
+1. cPanel > File Manager > open the site folder
+   public_html/trustees.droitwichunitedcharities.org.uk (where index.php is).
+2. + File > name it  recover.txt  > Create. Leave it empty to reset the
+   first Global Admin, or type a username in it.
+3. Within an hour, go to https://trustees.droitwichunitedcharities.org.uk/forgot-password
+   – it opens "Choose a new password" straight away.
+The file deletes itself after one use. What happened is written to
+recover-result.log in the same folder (not visible on the web).

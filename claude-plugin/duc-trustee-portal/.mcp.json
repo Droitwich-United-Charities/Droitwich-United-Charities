@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "duc-trustee-portal": {
+      "type": "http",
+      "url": "https://trustees.droitwichunitedcharities.org.uk/mcp"
+    }
+  }
+}

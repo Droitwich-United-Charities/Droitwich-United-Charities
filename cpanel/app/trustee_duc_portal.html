@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal – Droitwich United Charities</title>
+<link rel="icon" href="/assets/duc-logo.webp">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14254a;--green:#2f6b3a;--water:#7fa8d6;--mist:#eaf1f6;--meadow:#e8f0e6;--gold:#e9a21f;--cream:#f7f5ef;--ink:#1d2433;--muted:#5b6475;--line:#e2e0d8;--red:#b3261e;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Source Sans 3",system-ui,sans-serif;color:var(--ink);background:var(--cream);font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:"Libre Baskerville",Georgia,serif;color:var(--navy);line-height:1.25;margin:0 0 .5em}
+h1{font-size:1.55rem}h2{font-size:1.2rem}h3{font-size:1.02rem}
+a{color:var(--green)}
+.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.top .in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:8px 18px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--navy)}
+.brand img{width:44px;height:44px;object-fit:contain}
+.brand b{font-family:"Libre Baskerville",serif;font-size:15px;line-height:1.1;display:block}
+.brand small{color:var(--green);font-size:12px;font-weight:600}
+.who{margin-left:auto;font-size:14px;color:var(--muted);text-align:right}
+.who a{margin-left:8px}
+.layout{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:230px 1fr;gap:22px;padding:20px 18px 60px}
+nav.side{display:flex;flex-direction:column;gap:2px;position:sticky;top:76px;align-self:start}
+nav.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--navy);text-decoration:none;font-weight:600;font-size:15px}
+nav.side a:hover{background:var(--mist)}
+nav.side a.on{background:var(--navy);color:#fff}
+nav.side .sep{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 12px 4px;font-weight:700}
+nav.side .badge{margin-left:auto;background:var(--gold);color:#3b2a00;border-radius:999px;font-size:12px;padding:0 8px}
+.btn.menu-btn{display:none}
+@media(max-width:900px){.layout{grid-template-columns:1fr}nav.side{position:static;display:none}nav.side.open{display:flex}.btn.menu-btn{display:inline-flex}}
+.card{background:#fff;border-radius:var(--radius);box-shadow:0 2px 10px rgba(20,37,74,.06);padding:18px 20px;margin-bottom:16px}
+.card h2{margin-bottom:10px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.head h1{margin:0}.head .sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:9px 16px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;background:var(--green);color:#fff;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.5;cursor:default}
+.btn.sec{background:var(--mist);color:var(--navy)}.btn.navy{background:var(--navy)}.btn.red{background:var(--red)}.btn.sm{padding:5px 11px;font-size:13px}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid #c9d3df}
+label.l{display:block;font-weight:600;color:var(--navy);font-size:14px;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid #cfd3dc;border-radius:9px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--water);border-color:var(--water)}
+input[type=checkbox],input[type=radio]{width:auto;margin:0 6px 0 0;vertical-align:-2px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex:1;min-width:140px}.row>.fit{flex:0 0 auto;min-width:0}
+.hint{color:var(--muted);font-size:13px}
+table.t{width:100%;border-collapse:collapse;font-size:14.5px}
+table.t th{text-align:left;color:var(--muted);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line);padding:7px 8px}
+table.t td{border-bottom:1px solid #eef0f2;padding:8px;vertical-align:top}
+table.t tr.click{cursor:pointer}table.t tr.click:hover td{background:#f6f9fc}
+.tw{overflow-x:auto}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12.5px;font-weight:700;background:var(--mist);color:var(--navy);white-space:nowrap}
+.pill.g{background:var(--meadow);color:var(--green)}.pill.r{background:#fbe9e7;color:var(--red)}.pill.y{background:#fdf2dc;color:#7a5200}.pill.n{background:#eceff3;color:var(--muted)}
+.empty{color:var(--muted);font-style:italic;padding:10px 0}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi div{background:#fff;border-radius:var(--radius);padding:14px 16px;box-shadow:0 2px 10px rgba(20,37,74,.06)}
+.kpi b{display:block;font-family:"Libre Baskerville",serif;font-size:1.6rem;color:var(--navy)}
+.kpi span{color:var(--muted);font-size:13.5px}
+.list>div{padding:9px 0;border-bottom:1px solid #eef0f2}.list>div:last-child{border:0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:999px;z-index:90;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:90vw}
+.toast.err{background:var(--red)}
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,40,.45);z-index:80;display:flex;align-items:flex-start;justify-content:center;padding:40px 14px;overflow:auto}
+.modal{background:#fff;border-radius:16px;max-width:620px;width:100%;padding:22px 24px}
+.modal.wide{max-width:900px}
+.warn{background:#fdf2dc;color:#5c3f00;border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.ok{background:var(--meadow);color:var(--green);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.bad{background:#fbe9e7;color:var(--red);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.agenda-item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fcfcfb}
+.agenda-item.conf{border-left:4px solid var(--gold)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tabs a{padding:7px 14px;border-radius:999px;background:#fff;color:var(--navy);text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--line)}
+.tabs a.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.rec-big{font-family:"Libre Baskerville",serif;font-size:3rem;color:var(--navy);letter-spacing:.02em}
+.meter{height:12px;border-radius:6px;background:#e5e9ef;overflow:hidden}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold));width:0}
+.banner-rec{background:var(--red);color:#fff;border-radius:10px;padding:10px 16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.dot{width:12px;height:12px;border-radius:50%;background:#fff;animation:bl 1s infinite}@keyframes bl{50%{opacity:.2}}
+.review{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:1000px){.review{grid-template-columns:1fr}}
+.tx{max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:#fcfcfb}
+.seg{padding:6px 0;border-bottom:1px dashed #e8e8e3;font-size:14.5px}
+.seg .tm{color:var(--green);font-weight:700;cursor:pointer;font-size:12.5px;margin-right:6px}
+.seg .sp{font-weight:700;color:var(--navy);margin-right:4px}
+.msg{border-radius:12px;padding:9px 12px;margin:6px 0;max-width:80%}
+.msg.duc{background:var(--mist)}.msg.partner{background:var(--meadow);margin-left:auto}
+.msg small{display:block;color:var(--muted);font-size:12px}
+.cal-month{margin-bottom:18px}.cal-ev{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid #eef0f2}.cal-ev .d{width:110px;flex:0 0 auto;font-weight:700;color:var(--navy)}
+.prog{height:8px;background:#e5e9ef;border-radius:4px;overflow:hidden;margin-top:6px}.prog i{display:block;height:100%;background:var(--green);width:0}
+.legal{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;max-height:340px;overflow:auto;margin:10px 0}
+.countdown{font-family:"Libre Baskerville",serif;font-size:1.3rem}
+pre.block{white-space:pre-wrap;font-family:inherit;background:#fcfcfb;border:1px solid var(--line);border-radius:10px;padding:12px}
+.chk{display:flex;gap:8px;align-items:flex-start;margin:8px 0}.chk input{margin-top:4px}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <button class="btn sec sm menu-btn" onclick="document.querySelector('nav.side').classList.toggle('open')">☰ Menu</button>
+  <a class="brand" href="#dashboard"><img src="/assets/duc-logo.webp" alt=""><span><b>Droitwich United Charities</b><small id="portalName">Portal</small></span></a>
+  <div class="who" id="who"></div>
+</div></header>
+<div class="layout">
+  <nav class="side" id="nav"></nav>
+  <main id="main"><div class="card">Loading…</div></main>
+</div>
+<script>
+"use strict";
+let ME=null, PERMS={}, BOARD=[], CACHE={};
+const $=s=>document.querySelector(s), main=()=>document.getElementById("main");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nl=s=>esc(s).replace(/\n/g,"<br>");
+const fmtD=s=>{if(!s)return"—";const d=new Date(s.length===10?s+"T12:00":s);return isNaN(d)?s:d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});};
+const fmtDT=s=>{if(!s)return"—";const d=new Date(s);return isNaN(d)?s:d.toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"});};
+const hms=t=>{t=Math.max(0,Math.floor(t));return[Math.floor(t/3600),Math.floor(t%3600/60),t%60].map(x=>String(x).padStart(2,"0")).join(":");};
+const money=v=>v===""||v==null?"—":"£"+Number(v).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2});
+const kb=n=>n>1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";
+async function api(method,url,body){
+  const o={method,headers:{"X-DUC":"1"},credentials:"same-origin"};
+  if(body!==undefined){if(body instanceof ArrayBuffer||body instanceof Blob){o.body=body;o.headers["Content-Type"]="application/octet-stream";}else{o.body=JSON.stringify(body);o.headers["Content-Type"]="application/json";}}
+  const r=await fetch(url,o);let j=null;try{j=await r.json();}catch(e){}
+  if(r.status===401){location.href="/login?next=/portal";throw new Error("Please sign in");}
+  if(!r.ok){const e=new Error((j&&j.error)||("Error "+r.status));e.status=r.status;e.data=j;throw e;}
+  return j;
+}
+function toast(m,err){const t=document.createElement("div");t.className="toast"+(err?" err":"");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),err?6000:3200);}
+const fail=e=>toast(e.message||String(e),true);
+function modal(html,wide){const bg=document.createElement("div");bg.className="modal-bg";bg.innerHTML=`<div class="modal ${wide?"wide":""}">${html}</div>`;bg.addEventListener("click",e=>{if(e.target===bg)bg.remove();});document.body.appendChild(bg);return bg;}
+function closeModal(){document.querySelectorAll(".modal-bg").forEach(m=>m.remove());}
+function confirmBox(msg,yes,label="Confirm",danger){const m=modal(`<h2>Please confirm</h2><p>${msg}</p><div class="row" style="justify-content:flex-end"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit ${danger?"red":""}" id="cfYes">${esc(label)}</button></div>`);m.querySelector("#cfYes").onclick=async()=>{closeModal();await yes();};}
+function pill(st,label){const map={done:"g",approved:"g",paid:"g",sent:"g",ready:"g",minutes_approved:"g",in_progress:"y",submitted:"y",more_info:"y",with_trustees:"y",published:"y",held:"y",processing:"y",uploaded:"y",draft:"n",not_started:"n",carried:"n",declined:"r",blocked:"r",error:"r",withdrawn:"n",open:"y",closed:"n",pending:"y",suspended:"r",rejected:"r",id_check:"y",queued:"y"};return`<span class="pill ${map[st]||""}">${esc(label||st.replace(/_/g," "))}</span>`;}
+const STATUS_ACTION={not_started:"Not started",in_progress:"In progress",done:"Done",blocked:"Blocked",carried:"Carried forward"};
+const MEET_STATUS={draft:"Draft",published:"Published",held:"Held",minutes_approved:"Minutes approved"};
+const userOpts=(sel,blank="— nobody —")=>`<option value="">${blank}</option>`+BOARD.map(u=>`<option value="${u.id}" ${u.id===sel?"selected":""}>${esc(u.name)}</option>`).join("");
+const uname=id=>(BOARD.find(u=>u.id===id)||{}).name||"";
+
+/* ---------- chunked upload (fits small cPanel limits) ---------- */
+async function uploadFile(file,onp){
+  const CH=1024*1024;let id="";
+  for(let seq=0,off=0;off<file.size||seq===0;seq++,off+=CH){
+    const part=await file.slice(off,off+CH).arrayBuffer();
+    const q=seq===0?`seq=0&name=${encodeURIComponent(file.name)}&type=${encodeURIComponent(file.type||guessType(file.name))}&size=${file.size}`:`seq=${seq}&id=${id}`;
+    let tries=0;
+    for(;;){try{const r=await api("POST","/api/p/upload?"+q+(seq?"":""),part);id=r.id;break;}catch(e){if(e.status&&e.status<500)throw e;if(++tries>4)throw e;await new Promise(r=>setTimeout(r,1500*tries));}}
+    onp&&onp(Math.min(1,(off+CH)/file.size));
+    if(off+CH>=file.size)break;
+  }
+  return id;
+}
+function guessType(n){n=n.toLowerCase();return n.endsWith(".pdf")?"application/pdf":n.endsWith(".docx")?"application/vnd.openxmlformats-officedocument.wordprocessingml.document":n.endsWith(".doc")?"application/msword":n.endsWith(".xlsx")?"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":n.endsWith(".jpg")||n.endsWith(".jpeg")?"image/jpeg":n.endsWith(".png")?"image/png":n.endsWith(".heic")?"image/heic":n.endsWith(".csv")?"text/csv":"text/plain";}
+function pickFile(accept,cb){const i=document.createElement("input");i.type="file";i.accept=accept||"";i.onchange=()=>i.files[0]&&cb(i.files[0]);i.click();}
+
+/* ---------- navigation ---------- */
+function navItems(){
+  const n=[];
+  if(PERMS.partner){
+    n.push(["referrals","📨","Our referrals"],["new-referral","➕","New referral"]);
+    if(ME.user.orgAdmin)n.push(["colleagues","👥","Colleagues"]);
+    n.push(["sep","","Help"],["privacy","🔒","Privacy & agreement"]);
+    return n;
+  }
+  n.push(["dashboard","🏠","Dashboard"],["meetings","🗓️","Meetings"],["actions","✅","Actions",CACHE.myOpen],["papers","📁","Board papers"],["decisions","🗳️","Decisions",CACHE.toVote],["calendar","📅","Calendar"],["search","🔎","Search minutes"]);
+  if(PERMS.clerk)n.push(["sep","","Case work"],["referrals","📥","Referrals",CACHE.newRefs],["partners","🤝","Partners",CACHE.orgsPending],["letters","✉️","Letters",CACHE.draftLetters]);
+  if(PERMS.gdpr)n.push(["sep","","Data protection"],["gdpr","🛡️","GDPR tools",CACHE.sars]);
+  n.push(["sep","",PERMS.admin?"Admin":"You"]);
+  if(PERMS.admin)n.push(["settings","⚙️","Portal settings"]);
+  n.push(["team","👥","Trustees & officers"]);
+  n.push(["claude","✳️","Claude connector"]);
+  return n;
+}
+function renderNav(){
+  const cur=(location.hash.slice(1)||"").split("/")[0]||(PERMS.partner?"referrals":"dashboard");
+  $("#nav").innerHTML=navItems().map(([k,i,l,b])=>k==="sep"?`<div class="sep">${l}</div>`:`<a href="#${k}" class="${cur===k||(cur==="meeting"&&k==="meetings")||(cur==="record"&&k==="meetings")||(cur==="referral"&&k==="referrals")||(cur==="letter"&&k==="letters")?"on":""}">${i} ${l}${b?`<span class="badge">${b}</span>`:""}</a>`).join("")+`<div class="sep">Website</div><a href="/">🌐 Back to website</a>`;
+}
+async function route(){
+  if(REC.active&&!location.hash.startsWith("#record/")){if(!confirm("Recording is still running. Leave this page? The recording will stop.")){history.back();return;}REC.abort();}
+  document.querySelector("nav.side").classList.remove("open");
+  renderNav();
+  const [p,a,b]=(location.hash.slice(1)||"").split("/");
+  const page=p||(PERMS.partner?"referrals":"dashboard");
+  main().innerHTML=`<div class="card">Loading…</div>`;
+  try{
+    if(PERMS.partner&&(ME.needs.agreement||ME.needs.privacy))return renderGate();
+    const fn=PAGES[page];
+    if(!fn){main().innerHTML=`<div class="card"><h1>Not found</h1></div>`;return;}
+    await fn(a,b);
+  }catch(e){main().innerHTML=`<div class="card bad">${esc(e.message)}</div>`;}
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+window.addEventListener("beforeunload",e=>{if(REC.active||REC.queue.length){e.preventDefault();e.returnValue="";}});
+
+/* ---------- dashboard ---------- */
+const PAGES={};
+PAGES.dashboard=async()=>{
+  const d=await api("GET","/api/p/dashboard");
+  CACHE.myOpen=d.actions.length||"";CACHE.toVote=d.cases.filter(c=>!c.voted).length||"";
+  if(PERMS.clerk){CACHE.newRefs=d.referrals.new||"";CACHE.orgsPending=d.orgsPending||"";CACHE.draftLetters=d.letters||"";}
+  if(PERMS.gdpr)CACHE.sars=d.sars||"";
+  renderNav();
+  const s=ME.setup;let warn="";
+  if(PERMS.admin&&s&&(!s.email||!s.gemini||!s.siteUrl||!s.cron))warn=`<div class="warn"><b>Finish setting up:</b> ${[!s.siteUrl&&"website address",!s.email&&"email (SMTP)",!s.gemini&&"AI for meeting notes",!s.cron&&"the cron job"].filter(Boolean).join(", ")}. <a href="#settings">Open Portal settings</a></div>`;
+  const n=d.next;
+  main().innerHTML=warn+`<div class="head"><h1>Hello, ${esc(ME.user.name.split(" ")[0])}</h1></div>
+  ${PERMS.clerk?`<div class="kpi"><div><b>${d.referrals.new}</b><span>new referrals</span></div><div><b>${d.referrals.late}</b><span>referrals over 10 working days</span></div><div><b>${d.review.length}</b><span>meetings to review</span></div><div><b>${d.letters}</b><span>draft letters</span></div><div><b>${d.orgsPending}</b><span>partner applications</span></div></div>`:""}
+  <div class="grid g2">
+   <div class="card"><h2>Next meeting</h2>${n?`<p style="margin:0"><a href="#meeting/${n.id}"><b>${esc(n.title)}</b></a></p><p class="hint" style="margin:2px 0 10px">${fmtDT(n.date)}${n.venue?" · "+esc(n.venue):""}</p>
+     ${n.status!=="draft"?`<div class="row"><button class="btn sm fit ${n.my==="attending"?"":"sec"}" onclick="rsvp('${n.id}','attending')">✓ Attending</button><button class="btn sm fit ${n.my==="apologies"?"navy":"sec"}" onclick="rsvp('${n.id}','apologies')">Apologies</button><a class="btn sm ghost fit" href="/api/p/meetings/${n.id}/invite.ics">Add to calendar</a></div>`:`<p class="hint">Draft – not yet sent to trustees.</p>`}`:`<p class="empty">No meeting booked.</p>`}</div>
+   <div class="card"><h2>My actions</h2>${d.actions.length?`<div class="list">${d.actions.slice(0,6).map(a=>`<div><a href="#actions">${esc(a.text)}</a><br><span class="hint">${a.due?(a.overdue?`<b style="color:var(--red)">Overdue – was due ${fmtD(a.due)}</b>`:"Due "+fmtD(a.due)):"No due date"} · ${STATUS_ACTION[a.status]}</span></div>`).join("")}</div>`:`<p class="empty">Nothing outstanding. 🎉</p>`}</div>
+   <div class="card"><h2>Waiting for a decision</h2>${d.cases.length?`<div class="list">${d.cases.map(c=>`<div><a href="#decisions">${esc(c.title)}</a> ${c.voted?pill("done","you've voted"):pill("open","your vote needed")}<br><span class="hint">${c.votes} vote(s) so far</span></div>`).join("")}</div>`:`<p class="empty">Nothing waiting.</p>`}</div>
+   <div class="card"><h2>Notices</h2>${PERMS.clerk?`<div class="row" style="margin-bottom:8px"><input id="newsT" placeholder="Post a short notice to trustees"><button class="btn sm fit" onclick="postNews()">Post</button></div>`:""}
+     ${d.news.length?`<div class="list">${d.news.map(x=>`<div>${nl(x.text)}<br><span class="hint">${esc(x.by)} · ${fmtD(x.at)}</span>${PERMS.clerk?` <a href="javascript:delNews('${x.id}')" class="hint">remove</a>`:""}</div>`).join("")}</div>`:`<p class="empty">No notices.</p>`}</div>
+   ${d.confirm.length?`<div class="card"><h2>Please read and confirm</h2><div class="list">${d.confirm.map(x=>`<div><a href="#papers">${esc(x.title)}</a></div>`).join("")}</div></div>`:""}
+   ${PERMS.clerk&&d.review.length?`<div class="card"><h2>Meeting notes to review</h2><div class="list">${d.review.map(m=>`<div><a href="#meeting/${m.id}">${esc(m.title)}</a> <span class="hint">${fmtD(m.date)}</span></div>`).join("")}</div></div>`:""}
+   <div class="card"><h2>Recently added papers</h2>${d.docs.length?`<div class="list">${d.docs.map(x=>`<div><a href="/api/p/docs/${x.id}/file" target="_blank">${esc(x.title)}</a><br><span class="hint">${esc(x.folderName)} · v${x.version} · ${fmtD(x.at)}</span></div>`).join("")}</div>`:`<p class="empty">No papers yet.</p>`}</div>
+  </div>`;
+};
+async function rsvp(id,st){try{await api("POST",`/api/p/meetings/${id}/rsvp`,{status:st});toast(st==="attending"?"Thanks – marked as attending":"Apologies recorded");route();}catch(e){fail(e);}}
+async function postNews(){try{await api("POST","/api/p/announcements",{text:$("#newsT").value});route();}catch(e){fail(e);}}
+async function delNews(id){try{await api("POST","/api/p/announcements",{delete:id});route();}catch(e){fail(e);}}
+
+/* ---------- meetings ---------- */
+PAGES.meetings=async()=>{
+  const l=await api("GET","/api/p/meetings");
+  main().innerHTML=`<div class="head"><h1>Meetings</h1><span class="sp"></span>${PERMS.clerk?`<button class="btn fit" onclick="newMeeting()">+ New meeting</button>`:""}</div>
+  <div class="card tw">${l.length?`<table class="t"><tr><th>Date</th><th>Meeting</th><th>Status</th><th>Recording</th><th>You</th>${PERMS.admin?"<th></th>":""}</tr>${l.map(m=>`<tr class="click" onclick="location.hash='meeting/${m.id}'"><td>${fmtDT(m.date)}</td><td><b>${esc(m.title)}</b><br><span class="hint">${esc(m.venue)}</span></td><td>${pill(m.status,MEET_STATUS[m.status])}</td><td>${m.rec==="none"?"—":pill(m.rec)}</td><td>${m.my?pill(m.my==="attending"?"done":"n",m.my):"—"}</td>${PERMS.admin?`<td><button class="btn sm ghost" title="Delete meeting" onclick="event.stopPropagation();deleteMeeting('${m.id}',${esc(JSON.stringify(m.title))})">🗑️</button></td>`:""}</tr>`).join("")}</table>`:`<p class="empty">No meetings yet.</p>`}</div>`;
+};
+function deleteMeeting(id,title){confirmBox(`Delete <b>${esc(title)}</b>? This removes the meeting, its agenda, recording, transcript, AI notes and its actions. It can't be undone. Approved minutes already saved in Documents stay there.`,async()=>{try{const r=await api("DELETE","/api/p/meetings/"+id);toast("Meeting deleted"+(r.actionsRemoved?` with ${r.actionsRemoved} action(s)`:""));if(location.hash==="#meetings")PAGES.meetings();else location.hash="meetings";}catch(e){fail(e);}},"Delete",true);}
+function newMeeting(){
+  const d=new Date();d.setDate(d.getDate()+14);const dv=d.toISOString().slice(0,10)+"T19:00";
+  const m=modal(`<h2>New meeting</h2><label class="l">Title</label><input id="nmT" value="Trustees' meeting"><div class="row"><div><label class="l">Date and time</label><input id="nmD" type="datetime-local" value="${dv}"></div><div><label class="l">Type</label><select id="nmY"><option value="board">Board meeting</option><option value="agm">AGM</option><option value="committee">Sub-committee</option></select></div></div>
+  <label class="l">Venue</label><input id="nmV" placeholder="e.g. St Andrew's Church Hall, Droitwich Spa"><p class="hint">A standard agenda is added. You can change it before sending the papers.</p><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="nmGo">Create</button></div>`);
+  m.querySelector("#nmGo").onclick=async()=>{try{const r=await api("POST","/api/p/meetings",{title:$("#nmT").value,date:$("#nmD").value,type:$("#nmY").value,venue:$("#nmV").value});closeModal();location.hash="meeting/"+r.id;}catch(e){fail(e);}};
+}
+let MT=null,MT_POLL=null;
+PAGES.meeting=async(id)=>{
+  clearInterval(MT_POLL);
+  MT=await api("GET","/api/p/meetings/"+id);
+  BOARD=MT.people.map(p=>({id:p.id,name:p.name,role:p.role}));
+  const m=MT,c=PERMS.clerk,locked=m.status==="minutes_approved",rec=m.recording||{status:"none"};
+  const att=(st)=>Object.entries(m.attendance||{}).filter(([,v])=>v===st).map(([k])=>uname(k)).filter(Boolean);
+  let h=`<div class="head"><div><a href="#meetings" class="hint">← Meetings</a><h1>${esc(m.title)}</h1><div class="hint">${fmtDT(m.date)}${m.venue?" · "+esc(m.venue):""} · ${pill(m.status,MEET_STATUS[m.status])}</div></div><span class="sp"></span>
+   ${c&&!locked?`<button class="btn sec fit" onclick="editMeeting()">Edit details</button>`:""}${c&&m.status==="draft"?`<button class="btn fit" onclick="publishMeeting()">Publish & send papers</button>`:""}${c&&m.status!=="draft"&&!locked?`<button class="btn sec fit" onclick="publishMeeting()">Re-send invitation</button>`:""}<a class="btn ghost fit" href="/api/p/meetings/${m.id}/invite.ics">📅 .ics</a>${PERMS.admin?`<button class="btn red fit" onclick="deleteMeeting('${m.id}',MT.title)">🗑️ Delete meeting</button>`:""}</div>`;
+  // attendance
+  h+=`<div class="card"><h2>Attendance</h2><div class="row" style="margin-bottom:8px"><span class="fit">You:</span><button class="btn sm fit ${m.attendance[ME.user.id]==="attending"?"":"sec"}" onclick="rsvp('${m.id}','attending')">✓ Attending</button><button class="btn sm fit ${m.attendance[ME.user.id]==="apologies"?"navy":"sec"}" onclick="rsvp('${m.id}','apologies')">Apologies</button></div>
+   <p class="hint" style="margin:0"><b>Attending:</b> ${esc(att("attending").join(", ")||"—")} · <b>Apologies:</b> ${esc(att("apologies").join(", ")||"—")}</p>
+   ${c&&!locked?`<details style="margin-top:8px"><summary class="hint">Record attendance for everyone</summary><table class="t">${BOARD.map(p=>`<tr><td>${esc(p.name)}</td><td><select onchange="setAtt('${p.id}',this.value)">${["","attending","apologies","absent"].map(s=>`<option value="${s}" ${(m.attendance[p.id]||"")===s?"selected":""}>${s||"—"}</option>`).join("")}</select></td></tr>`).join("")}</table></details>`:""}</div>`;
+  // agenda
+  h+=`<div class="card"><div class="head" style="margin:0 0 8px"><h2 style="margin:0">Agenda</h2><span class="sp"></span>${c&&!locked?`<button class="btn sm sec fit" onclick="addAgenda()">+ Add item</button><button class="btn sm fit" onclick="saveAgenda()">Save agenda</button>`:""}</div><div id="agenda"></div></div>`;
+  // recording
+  h+=`<div class="card"><h2>Recording and notes</h2><div id="recBox"></div></div>`;
+  if(c&&m.drafts&&!locked)h+=`<div class="card"><div class="head" style="margin:0 0 8px"><h2 style="margin:0">Review: transcript and AI drafts</h2><span class="sp"></span>${!locked?`<button class="btn sm sec fit" onclick="saveReview()">Save changes</button>`:""}</div><div id="reviewBox"></div></div>`;
+  // minutes & actions
+  h+=`<div class="card"><div class="head" style="margin:0 0 8px"><h2 style="margin:0">Minutes</h2><span class="sp"></span>${(locked||c)?`<a class="btn sm ghost fit" href="/api/p/meetings/${m.id}/minutes.docx">⬇ Word</a>`:""}${PERMS.chair&&!locked&&m.drafts?`<button class="btn sm fit" onclick="approveMinutes()">Approve & lock minutes</button>`:""}</div>
+   ${locked?`<div class="ok">Approved by ${esc(uname(m.minutes.approvedBy)||"the Chairman")} on ${fmtD(m.minutes.approvedAt)}. These minutes are locked.</div><div class="legal" style="max-height:none">${md(m.minutes.text)}</div>`:(m.drafts?`<p class="hint">Draft minutes are below in the review. The Chairman approves them, usually at the next meeting.</p>`:`<p class="empty">No minutes yet.</p>`)}
+   ${m.actions.length?`<h3 style="margin-top:14px">Actions from this meeting</h3><table class="t">${m.actions.map(a=>`<tr><td>${esc(a.text)}</td><td>${esc(a.ownerName||"—")}</td><td>${a.due?fmtD(a.due):"—"}</td><td>${pill(a.status,STATUS_ACTION[a.status])}</td></tr>`).join("")}</table>`:""}</div>`;
+  main().innerHTML=h;
+  renderAgenda();renderRecBox();if(c&&m.drafts&&!locked)renderReview();
+  if(["processing","uploaded"].includes(rec.status))MT_POLL=setInterval(async()=>{if(!location.hash.startsWith("#meeting/"+id)){clearInterval(MT_POLL);return;}const x=await api("GET","/api/p/meetings/"+id);if(x.recording.status!==MT.recording.status||x.recording.step!==MT.recording.step){if(["ready","error"].includes(x.recording.status)){clearInterval(MT_POLL);route();}else{MT.recording=x.recording;renderRecBox();}}},6000);
+};
+function renderAgenda(){
+  const m=MT,c=PERMS.clerk&&m.status!=="minutes_approved";
+  $("#agenda").innerHTML=m.agenda.map((a,i)=>`<div class="agenda-item ${a.confidential?"conf":""}">
+   ${c?`<div class="row"><b class="fit">${i+1}.</b><input value="${esc(a.title)}" oninput="MT.agenda[${i}].title=this.value"><select class="fit" style="width:170px" onchange="MT.agenda[${i}].owner=this.value">${userOpts(a.owner,"— lead —")}</select><input class="fit" style="width:70px" type="number" min="0" value="${a.mins}" oninput="MT.agenda[${i}].mins=+this.value" title="minutes"><span class="fit hint">min</span></div>
+     <div class="row" style="margin-top:6px"><label class="fit hint"><input type="checkbox" ${a.confidential?"checked":""} onchange="MT.agenda[${i}].confidential=this.checked;renderAgenda()"> Confidential – no recording</label><span></span>
+     <button class="btn sm ghost fit" onclick="attachPaper(${i})">📎 Attach paper</button><button class="btn sm ghost fit" ${i===0?"disabled":""} onclick="mvAgenda(${i},-1)">↑</button><button class="btn sm ghost fit" ${i===m.agenda.length-1?"disabled":""} onclick="mvAgenda(${i},1)">↓</button><button class="btn sm ghost fit" onclick="MT.agenda.splice(${i},1);renderAgenda()">✕</button></div>`
+   :`<b>${i+1}. ${esc(a.title)}</b>${a.owner?` <span class="hint">– ${esc(uname(a.owner))}</span>`:""}${a.mins?` <span class="hint">(${a.mins} min)</span>`:""}${a.confidential?` <span class="pill y">confidential</span>`:""}`}
+   ${a.papers.length?`<div style="margin-top:4px">${a.papers.map(p=>`<a href="/api/p/docs/${p}/file" target="_blank" class="pill" style="text-decoration:none;margin-right:4px">📄 ${esc((m.paperDocs[p]||{}).title||"paper")}</a>`).join("")}</div>`:""}
+   ${a.kind==="matters"?`<div style="margin-top:6px">${m.openActions.length?`<table class="t">${m.openActions.map(x=>`<tr><td>${esc(x.text)}<br><span class="hint">${esc(x.meetingTitle)}</span></td><td>${esc(x.ownerName||"—")}</td><td>${x.overdue?`<b style="color:var(--red)">${fmtD(x.due)}</b>`:fmtD(x.due)}</td><td>${pill(x.status,STATUS_ACTION[x.status])}</td></tr>`).join("")}</table>`:`<span class="hint">No open actions from earlier meetings.</span>`}</div>`:""}
+   ${(MT.drafts&&MT.drafts.items||[]).filter(s=>s.itemId===a.id&&s.summary).map(s=>`<div class="hint" style="margin-top:6px;border-left:3px solid var(--water);padding-left:8px">${nl(s.summary)}</div>`).join("")}
+  </div>`).join("");
+}
+function addAgenda(){MT.agenda.push({id:"",title:"New item",owner:"",mins:5,confidential:false,papers:[],kind:""});renderAgenda();}
+function mvAgenda(i,d){const a=MT.agenda;[a[i],a[i+d]]=[a[i+d],a[i]];renderAgenda();}
+async function saveAgenda(){try{await api("PUT","/api/p/meetings/"+MT.id,{agenda:MT.agenda});toast("Agenda saved");route();}catch(e){fail(e);}}
+function attachPaper(i){
+  pickFile("",async f=>{try{await api("PUT","/api/p/meetings/"+MT.id,{agenda:MT.agenda});toast("Uploading "+f.name+"…");const up=await uploadFile(f);const it=MT.agenda[i];await api("POST","/api/p/docs",{uploadId:up,folder:"papers",title:f.name.replace(/\.[^.]+$/,""),meetingId:MT.id,itemId:it.id});toast("Paper attached");route();}catch(e){fail(e);}});
+}
+function editMeeting(){
+  const m=MT;const mm=modal(`<h2>Meeting details</h2><label class="l">Title</label><input id="emT" value="${esc(m.title)}"><div class="row"><div><label class="l">Date and time</label><input id="emD" type="datetime-local" value="${esc(m.date)}"></div><div><label class="l">Length (minutes)</label><input id="emL" type="number" value="${m.durationMins||120}"></div></div><label class="l">Venue</label><input id="emV" value="${esc(m.venue)}">
+  <div class="row" style="justify-content:space-between;margin-top:14px">${m.status==="draft"||m.status==="published"||PERMS.admin?`<button class="btn red fit" id="emDel">Delete meeting</button>`:"<span></span>"}<span class="fit"><button class="btn sec" onclick="closeModal()">Cancel</button> <button class="btn" id="emGo">Save</button></span></div>`);
+  mm.querySelector("#emGo").onclick=async()=>{try{await api("PUT","/api/p/meetings/"+m.id,{title:$("#emT").value,date:$("#emD").value,venue:$("#emV").value,durationMins:+$("#emL").value});closeModal();route();}catch(e){fail(e);}};
+  const del=mm.querySelector("#emDel");if(del)del.onclick=()=>confirmBox("Delete this meeting, its agenda and any recording?",async()=>{try{await api("DELETE","/api/p/meetings/"+m.id);location.hash="meetings";}catch(e){fail(e);}},"Delete",true);
+}
+async function publishMeeting(){confirmBox("Email every trustee the agenda, a link to the papers and a calendar invitation?",async()=>{try{await api("PUT","/api/p/meetings/"+MT.id,{agenda:MT.agenda});const r=await api("POST",`/api/p/meetings/${MT.id}/publish`);toast(`Sent to ${r.sent} people`);route();}catch(e){fail(e);}},"Send");}
+async function setAtt(uid,st){try{await api("POST",`/api/p/meetings/${MT.id}/rsvp`,{userId:uid,status:st});MT.attendance[uid]=st;toast("Saved");}catch(e){fail(e);}}
+function renderRecBox(){
+  const m=MT,r=m.recording||{status:"none"},c=PERMS.clerk,locked=m.status==="minutes_approved";
+  let h="";
+  if(r.status==="none"||!r.status)h=`<p>No recording yet.</p>`;
+  else if(r.status==="recording")h=`<div class="warn">A recording was started${r.method==="room"?" in the room":""} but not finished. ${c?`<a href="#record/${m.id}">Open the recorder</a> to carry on, or start again.`:""}</div>`;
+  else if(r.status==="uploaded")h=`<div class="warn">Recording saved (${hms(r.duration||0)}). ${esc(r.step||"Waiting to be transcribed…")} It's picked up within 15 minutes.</div>`;
+  else if(r.status==="processing")h=`<div class="warn">⏳ The AI${r.provider?" ("+esc(r.provider)+")":""} is working on it: <b>${esc(r.step||"processing")}</b>. This usually takes a few minutes for each hour of audio. You can leave this page.</div>`;
+  else if(r.status==="error")h=`<div class="bad">The AI couldn't finish: ${esc(r.error)}. It will try again automatically${c?", or press Try again":""}.</div>`;
+  else if(r.status==="ready")h=`<div class="ok">Transcript and drafts ready${r.tokens?` <span class="hint">(${(r.tokens.in+r.tokens.out).toLocaleString()} Gemini tokens)</span>`:""}.</div>`;
+  else if(r.status==="deleted")h=`<p class="hint">The audio and raw transcript were deleted on ${fmtD(r.deletedAt)} under the retention schedule. The approved minutes are kept.</p>`;
+  if(r.consentAt&&r.status!=="none")h+=`<p class="hint">Consent to record confirmed by ${esc(uname(r.consentBy)||"the Clerk")} at ${fmtDT(r.consentAt)}.</p>`;
+  if(m.hasAudio)h+=`<audio id="aud" controls preload="none" src="/api/p/meetings/${m.id}/audio" style="width:100%;margin:6px 0"></audio>`;
+  if(c&&!locked)h+=`<div class="row" style="margin-top:8px"><a class="btn fit" href="#record/${m.id}">🎙️ Record in the room</a><button class="btn sec fit" onclick="uploadRecording()">⬆ Upload a recording</button>${m.hasAudio&&["ready","error","uploaded"].includes(r.status)?`<button class="btn sec fit" onclick="processNow()">${r.status==="ready"?"Run the AI again":"Try again"}</button>`:""}</div>`;
+  $("#recBox").innerHTML=h;
+}
+async function processNow(){confirmBox(MT.recording.status==="ready"?"Run Gemini again? Your edits to the drafts will be replaced.":"Send the recording to Gemini now?",async()=>{try{await api("POST",`/api/p/meetings/${MT.id}/process`);toast("Started – this page will update. Saltway AI jobs run in the background within 15 minutes.");setTimeout(route,1500);}catch(e){fail(e);}},"Go");}
+function uploadRecording(){
+  pickFile("audio/*,video/mp4,.m4a,.mp3,.wav",async f=>{
+    const types={"mp3":"audio/mpeg","wav":"audio/wav","m4a":"audio/mp4","ogg":"audio/ogg","flac":"audio/flac","aac":"audio/aac","mp4":"video/mp4"};
+    const ext=f.name.split(".").pop().toLowerCase();const mime=types[ext]||f.type;
+    if(!Object.values(types).includes(mime)){toast("Use an MP3, WAV, M4A, OGG, FLAC or MP4 file",true);return;}
+    let duration=0;try{duration=await new Promise(res=>{const a=document.createElement("audio");a.preload="metadata";a.onloadedmetadata=()=>res(a.duration||0);a.onerror=()=>res(0);a.src=URL.createObjectURL(f);});}catch(e){}
+    const mm=modal(`<h2>Uploading ${esc(f.name)}</h2><p class="hint">${kb(f.size)}. Please keep this page open.</p><div class="prog"><i id="upP"></i></div>`);
+    try{
+      await api("POST",`/api/p/meetings/${MT.id}/rec/start`,{method:"upload",mime,size:f.size,name:f.name});
+      const CH=2*1024*1024;
+      for(let seq=0,off=0;off<f.size;seq++,off+=CH){const part=await f.slice(off,off+CH).arrayBuffer();let t=0;for(;;){try{await api("POST",`/api/p/meetings/${MT.id}/rec/chunk?seq=${seq}`,part);break;}catch(e){if(e.status===409&&e.data&&e.data.next>seq)break;if(++t>5)throw e;await new Promise(r=>setTimeout(r,2000*t));}}$("#upP").style.width=Math.min(100,(off+CH)/f.size*100)+"%";}
+      const r=await api("POST",`/api/p/meetings/${MT.id}/rec/finish`,{duration:Math.round(duration)});
+      closeModal();toast(r.processing?"Uploaded – Gemini is transcribing it now":(r.message||"Uploaded"));route();
+    }catch(e){closeModal();fail(e);}
+  });
+}
+function renderReview(){
+  const m=MT,d=m.drafts,locked=m.status==="minutes_approved",tx=m.transcript||{segments:[],speakers:{}};
+  const labels=[...new Set(tx.segments.map(s=>s.speaker))];
+  const itemOpts=sel=>`<option value="">—</option>`+m.agenda.map(a=>`<option value="${a.id}" ${a.id===sel?"selected":""}>${esc(a.title)}</option>`).join("");
+  $("#reviewBox").innerHTML=`
+  ${d.actionsPublished?`<div class="ok">Actions published on ${fmtD(d.publishedAt)} – owners have been emailed.</div>`:`<div class="warn">Check the drafts against the recording, then press <b>Publish actions</b> to email owners. AI drafts can be wrong – a person always checks them first.</div>`}
+  <div class="review">
+   <div><h3>Who is who</h3><div class="grid g2" style="gap:6px">${labels.map(l=>`<div class="row"><span class="fit" style="min-width:80px"><b>${esc(l)}</b></span><select onchange="MT.transcript.speakers['${esc(l)}']=this.value;renderTx()">${userOpts(tx.speakers[l],"— not matched —")}</select></div>`).join("")||`<span class="hint">No speakers.</span>`}</div>
+    <h3 style="margin-top:14px">Transcript <span class="hint">– click a time to play from there</span></h3><input id="txQ" placeholder="Find in transcript" oninput="renderTx()" style="margin-bottom:6px"><div class="tx" id="tx"></div></div>
+   <div>
+    <h3>Summary for each item</h3>${m.agenda.map(a=>{const s=(d.items||[]).find(x=>x.itemId===a.id);return`<label class="l">${esc(a.title)}</label><textarea ${locked?"disabled":""} data-item="${a.id}" class="sumT" style="min-height:60px">${esc(s?s.summary:"")}</textarea>`;}).join("")}
+    <h3 style="margin-top:14px">Decisions</h3><div id="decs"></div>${!locked?`<button class="btn sm sec" onclick="MT.drafts.decisions.push({text:'',itemId:'',t:0});renderDecs()">+ Add decision</button>`:""}
+    <h3 style="margin-top:14px">Actions</h3><div id="acts"></div>${!locked&&!d.actionsPublished?`<button class="btn sm sec" onclick="MT.drafts.actions.push({id:'',text:'',owner:'',due:'',itemId:'',t:0});renderActs()">+ Add action</button> <button class="btn sm" onclick="publishActions()">Publish actions & email owners</button>`:""}
+    ${(d.questions||[]).length?`<h3 style="margin-top:14px">Open questions</h3><ul>${d.questions.map(q=>`<li>${esc(q)}</li>`).join("")}</ul>`:""}
+    <h3 style="margin-top:14px">Draft minutes</h3><textarea id="minT" ${locked?"disabled":""} style="min-height:320px;font-size:14.5px">${esc(d.minutes)}</textarea>
+   </div></div>`;
+  window._itemOpts=itemOpts;renderTx();renderDecs();renderActs();
+}
+function renderTx(){
+  const tx=MT.transcript||{segments:[],speakers:{}},q=($("#txQ")||{}).value?.toLowerCase()||"";
+  $("#tx").innerHTML=tx.segments.map((s,i)=>(!q||s.text.toLowerCase().includes(q))?`<div class="seg"><span class="tm" onclick="seek(${s.t})">${hms(s.t)}</span><span class="sp">${esc(tx.speakers[s.speaker]?uname(tx.speakers[s.speaker]):s.speaker)}:</span><span contenteditable="${MT.status!=="minutes_approved"}" data-seg="${i}" class="segT">${esc(s.text)}</span></div>`:"").join("")||`<p class="empty">No transcript.</p>`;
+}
+function seek(t){const a=$("#aud");if(!a){toast("No audio available");return;}a.currentTime=t;a.play();a.scrollIntoView({block:"center",behavior:"smooth"});}
+function renderDecs(){const d=MT.drafts,l=MT.status==="minutes_approved";$("#decs").innerHTML=d.decisions.map((x,i)=>`<div class="row" style="margin-bottom:6px"><textarea style="min-height:44px" ${l?"disabled":""} oninput="MT.drafts.decisions[${i}].text=this.value">${esc(x.text)}</textarea>${x.t?`<span class="fit tm seg" style="border:0"><span class="tm" onclick="seek(${x.t})">${hms(x.t)}</span></span>`:""}${!l?`<button class="btn sm ghost fit" onclick="MT.drafts.decisions.splice(${i},1);renderDecs()">✕</button>`:""}</div>`).join("")||`<p class="empty">None.</p>`;}
+function renderActs(){const d=MT.drafts,l=MT.status==="minutes_approved"||d.actionsPublished;$("#acts").innerHTML=d.actions.map((x,i)=>`<div class="agenda-item"><textarea style="min-height:44px" ${l?"disabled":""} oninput="MT.drafts.actions[${i}].text=this.value">${esc(x.text)}</textarea>
+  <div class="row" style="margin-top:6px"><select ${l?"disabled":""} onchange="MT.drafts.actions[${i}].owner=this.value">${userOpts(x.owner,x.ownerName?"— "+x.ownerName+"? —":"— who? —")}</select><input type="date" ${l?"disabled":""} value="${esc(x.due)}" onchange="MT.drafts.actions[${i}].due=this.value"><select ${l?"disabled":""} onchange="MT.drafts.actions[${i}].itemId=this.value">${_itemOpts(x.itemId)}</select>${x.t?`<span class="fit"><span class="tm" style="color:var(--green);font-weight:700;cursor:pointer" onclick="seek(${x.t})">▶ ${hms(x.t)}</span></span>`:""}${!l?`<button class="btn sm ghost fit" onclick="MT.drafts.actions.splice(${i},1);renderActs()">✕</button>`:""}</div></div>`).join("")||`<p class="empty">No actions.</p>`;}
+function collectReview(){
+  const d=MT.drafts;
+  d.items=[...document.querySelectorAll(".sumT")].map(t=>({itemId:t.dataset.item,summary:t.value}));
+  d.minutes=$("#minT").value;
+  const segs={};document.querySelectorAll(".segT").forEach(s=>{const i=+s.dataset.seg;if(MT.transcript.segments[i].text!==s.textContent){segs[i]=s.textContent;MT.transcript.segments[i].text=s.textContent;}});
+  return{drafts:d,speakers:MT.transcript?MT.transcript.speakers:{},segments:segs};
+}
+async function saveReview(silent){try{await api("PUT",`/api/p/meetings/${MT.id}/review`,collectReview());if(!silent)toast("Saved");}catch(e){fail(e);throw e;}}
+function publishActions(){const n=MT.drafts.actions.filter(a=>a.text.trim()).length;const no=MT.drafts.actions.filter(a=>a.text.trim()&&!a.owner).length;
+  confirmBox(`Create ${n} action(s) and email each owner?${no?`<br><b>${no} action(s) have no owner</b> – they'll be added unassigned.`:""}`,async()=>{try{await saveReview(true);const r=await api("POST",`/api/p/meetings/${MT.id}/publish-actions`);toast(`${r.created} actions published`);route();}catch(e){fail(e);}},"Publish");}
+function approveMinutes(){confirmBox("Approve these minutes? They'll be locked, saved to Board papers and emailed to trustees. The audio will be deleted after the retention period.",async()=>{try{if($("#minT")&&MT.status!=="minutes_approved")await saveReview(true);await api("POST",`/api/p/meetings/${MT.id}/approve-minutes`,{minutes:$("#minT")?$("#minT").value:undefined});toast("Minutes approved");route();}catch(e){fail(e);}},"Approve");}
+
+/* ---------- in-room recorder ---------- */
+const REC={active:false,paused:false,queue:[],seq:0,samples:0,chunks:[],pending:[],rate:16000,sending:false,ctx:null,stream:null,node:null,wake:null,lastLevel:0,timer:null,offline:false,
+  abort(){try{this.node&&this.node.disconnect();this.ctx&&this.ctx.close();this.stream&&this.stream.getTracks().forEach(t=>t.stop());}catch(e){}this.active=false;clearInterval(this.timer);}};
+PAGES.record=async(id)=>{
+  MT=await api("GET","/api/p/meetings/"+id);BOARD=MT.people;
+  if(!PERMS.clerk){main().innerHTML=`<div class="card">Only the Clerk can record meetings.</div>`;return;}
+  if(REC.active&&REC.mid===id){drawRecorder();return;}
+  const notice=`"Before we start, I'd like to let everyone know that this meeting is being recorded so the Clerk can write accurate minutes. The recording is kept securely and deleted after the minutes are approved. We will pause the recording for confidential items. Is everyone happy for us to record?"`;
+  main().innerHTML=`<div class="head"><div><a href="#meeting/${id}" class="hint">← ${esc(MT.title)}</a><h1>Record the meeting</h1></div></div>
+  <div class="card"><h2>Before you start</h2>
+   <p>Read this out to everyone present:</p><blockquote style="border-left:4px solid var(--green);margin:0 0 12px;padding:6px 14px;background:var(--meadow);border-radius:6px">${notice}</blockquote>
+   <div class="chk"><input type="checkbox" id="c1"><label for="c1">Everyone present has been told the meeting is being recorded and why.</label></div>
+   <div class="chk"><input type="checkbox" id="c2"><label for="c2">Nobody has objected. <span class="hint">(If someone objects, don't record – take notes instead.)</span></label></div>
+   <div class="chk"><input type="checkbox" id="c3"><label for="c3">The <b>Chairman</b> confirms consent has been given.</label></div>
+   <p class="hint">Tips: put a USB conference microphone in the middle of the table, plug the laptop in, and keep this page open. If the Wi-Fi drops, the recording carries on and catches up when it's back.</p>
+   <label class="l">Microphone</label><select id="micSel"><option value="">Default microphone</option></select>
+   <div style="margin-top:14px"><button class="btn" onclick="startRec('${id}')">🎙️ Start recording</button></div></div>`;
+  try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());const devs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==="audioinput");$("#micSel").innerHTML=`<option value="">Default microphone</option>`+devs.map(d=>`<option value="${d.deviceId}">${esc(d.label||"Microphone")}</option>`).join("");}catch(e){$("#micSel").insertAdjacentHTML("afterend",`<div class="bad" style="margin-top:8px">The browser hasn't allowed the microphone. Click the padlock next to the web address and allow the microphone.</div>`);}
+};
+async function startRec(id){
+  if(!["c1","c2","c3"].every(k=>$("#"+k).checked)){toast("Please tick all three boxes first",true);return;}
+  try{
+    REC.stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:$("#micSel").value||undefined,echoCancellation:false,noiseSuppression:true,autoGainControl:true,channelCount:1}});
+    await api("POST",`/api/p/meetings/${id}/rec/start`,{method:"room",consent:true,sampleRate:16000});
+  }catch(e){fail(e);return;}
+  Object.assign(REC,{active:true,paused:false,queue:[],seq:0,samples:0,chunks:[],pending:[],mid:id,pos:0,item:null,started:Date.now()});
+  const ctx=REC.ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const src=ctx.createMediaStreamSource(REC.stream);
+  const node=REC.node=ctx.createScriptProcessor(4096,1,1);
+  const ratio=ctx.sampleRate/16000;
+  node.onaudioprocess=e=>{
+    const inp=e.inputBuffer.getChannelData(0);let peak=0;for(let i=0;i<inp.length;i+=16)peak=Math.max(peak,Math.abs(inp[i]));REC.lastLevel=peak;
+    if(REC.paused)return;
+    const out=[];let p=REC.pos;
+    while(p<inp.length){const i=Math.floor(p),f=p-i,a=inp[i],b=i+1<inp.length?inp[i+1]:a;let v=a+(b-a)*f;v=Math.max(-1,Math.min(1,v));out.push(v<0?v*0x8000:v*0x7fff);p+=ratio;}
+    REC.pos=p-inp.length;
+    const pcm=Int16Array.from(out);REC.pending.push(pcm);REC.chunks.push(pcm);REC.samples+=pcm.length;
+  };
+  src.connect(node);node.connect(ctx.destination);
+  try{REC.wake=await navigator.wakeLock.request("screen");}catch(e){}
+  REC.timer=setInterval(()=>{flushPending();drawStatus();},5000);
+  setInterval(()=>{if(REC.active)drawLevel();},200);
+  drawRecorder();
+}
+function flushPending(){if(!REC.pending.length)return;const n=REC.pending.reduce((a,b)=>a+b.length,0);const buf=new Int16Array(n);let o=0;for(const c of REC.pending){buf.set(c,o);o+=c.length;}REC.pending=[];REC.queue.push({seq:REC.seq++,data:buf.buffer});sendQueue();}
+async function sendQueue(){
+  if(REC.sending)return;REC.sending=true;
+  while(REC.queue.length){
+    const q=REC.queue[0];
+    try{await api("POST",`/api/p/meetings/${REC.mid}/rec/chunk?seq=${q.seq}`,q.data);REC.queue.shift();REC.offline=false;}
+    catch(e){if(e.status===409&&e.data&&typeof e.data.next==="number"){REC.queue=REC.queue.filter(x=>x.seq>=e.data.next);if(REC.queue.length&&REC.queue[0].seq>e.data.next){REC.offline=true;break;}continue;}REC.offline=true;await new Promise(r=>setTimeout(r,4000));if(!REC.active&&REC.queue.length&&REC.giveUp)break;}
+    drawStatus();
+  }
+  REC.sending=false;drawStatus();
+}
+const recT=()=>REC.samples/16000;
+async function marker(type,itemId){try{await api("POST",`/api/p/meetings/${REC.mid}/rec/marker`,{t:Math.round(recT()),itemId:itemId||"",type});}catch(e){}}
+function drawRecorder(){
+  const m=MT;
+  main().innerHTML=`<div class="banner-rec" id="recBan"><span class="dot"></span> RECORDING – ${esc(m.title)}</div>
+  <div class="grid g2" style="margin-top:14px"><div class="card" style="text-align:center"><div class="rec-big" id="recTime">00:00:00</div><div class="meter" style="margin:12px 0"><i id="lvl"></i></div><div id="recSt" class="hint"></div>
+   <div class="row" style="justify-content:center;margin-top:14px"><button class="btn navy fit" id="pBtn" onclick="togglePause()">⏸ Pause</button><button class="btn red fit" onclick="stopRec()">⏹ Stop and save</button></div>
+   <p class="hint" style="margin-top:12px">Keep this tab open and the laptop plugged in.</p><button class="btn sm ghost" onclick="downloadBackup()">⬇ Download a backup copy</button></div>
+  <div class="card"><h2>Now discussing</h2><p class="hint">Tap the item being discussed. It helps the notes line up with the agenda. Confidential items pause the recording automatically.</p>
+   <div id="recAg">${m.agenda.map(a=>`<button class="btn sec" style="display:flex;width:100%;margin-bottom:6px;justify-content:flex-start;white-space:normal;text-align:left" data-id="${a.id}" onclick="nowItem('${a.id}')">${a.confidential?"🔒 ":""}${esc(a.title)}</button>`).join("")}</div></div></div>`;
+  drawStatus();
+}
+function drawLevel(){const l=$("#lvl");if(l)l.style.width=Math.min(100,REC.lastLevel*140)+"%";const t=$("#recTime");if(t)t.textContent=hms(recT());}
+function drawStatus(){const s=$("#recSt");if(!s)return;const q=REC.queue.length;s.innerHTML=(REC.paused?"<b>Paused</b> · ":"")+(REC.offline?`<b style="color:var(--red)">Connection lost – keeping ${q} part(s) safe and retrying…</b>`:q?`Uploading… ${q} part(s) waiting`:"✓ All audio safely uploaded");const b=$("#recBan");if(b){b.style.background=REC.paused?"#7a5200":"";b.innerHTML=`<span class="dot"></span> ${REC.paused?"PAUSED":"RECORDING"} – ${esc(MT.title)}`;}const pb=$("#pBtn");if(pb)pb.textContent=REC.paused?"▶ Resume":"⏸ Pause";
+  document.querySelectorAll("#recAg button").forEach(b=>{b.className="btn "+(b.dataset.id===REC.item?"":"sec");});}
+function togglePause(){REC.paused=!REC.paused;marker(REC.paused?"pause":"resume",REC.item);drawStatus();}
+function nowItem(id){const a=MT.agenda.find(x=>x.id===id);REC.item=id;
+  if(a.confidential&&!REC.paused){REC.paused=true;marker("pause",id);toast("Confidential item – recording paused");}
+  else if(!a.confidential&&REC.paused&&REC.autoPaused){REC.paused=false;marker("resume",id);toast("Recording resumed");}
+  REC.autoPaused=a.confidential;marker("item",id);drawStatus();}
+async function stopRec(){
+  confirmBox("Stop the recording and save it?",async()=>{
+    REC.node.disconnect();REC.stream.getTracks().forEach(t=>t.stop());try{REC.ctx.close();}catch(e){}try{REC.wake&&REC.wake.release();}catch(e){}
+    clearInterval(REC.timer);REC.active=false;flushPending();
+    const mm=modal(`<h2>Saving the recording…</h2><p id="svSt" class="hint">Uploading the last parts.</p><button class="btn sm ghost" onclick="downloadBackup()">⬇ Download a backup copy</button>`);
+    for(let i=0;i<600&&(REC.queue.length||REC.sending);i++){if(!REC.sending)sendQueue();$("#svSt").textContent=REC.offline?"Waiting for the internet connection… ("+REC.queue.length+" parts left). Keep this page open.":"Uploading the last parts ("+REC.queue.length+")…";await new Promise(r=>setTimeout(r,1000));}
+    if(REC.queue.length){$("#svSt").innerHTML="<b>Couldn't upload everything.</b> Download a backup copy now, then upload it from the meeting page when you're back online.";return;}
+    try{const r=await api("POST",`/api/p/meetings/${REC.mid}/rec/finish`,{sampleRate:16000});closeModal();toast(r.processing?"Saved – Gemini is writing the notes now":(r.message||"Saved"));REC.chunks=[];location.hash="meeting/"+REC.mid;}
+    catch(e){$("#svSt").innerHTML=`<b>${esc(e.message)}</b><br>Download a backup copy to be safe.`;}
+  },"Stop and save",true);
+}
+function downloadBackup(){
+  const n=REC.chunks.reduce((a,b)=>a+b.length,0);if(!n){toast("Nothing recorded yet");return;}
+  const buf=new ArrayBuffer(44+n*2),v=new DataView(buf);const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+  w(0,"RIFF");v.setUint32(4,36+n*2,true);w(8,"WAVE");w(12,"fmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,16000,true);v.setUint32(28,32000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,"data");v.setUint32(40,n*2,true);
+  let o=44;for(const c of REC.chunks){new Int16Array(buf,o,c.length).set(c);o+=c.length*2;}
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));a.download="DUC meeting backup "+new Date().toISOString().slice(0,16).replace(":","-")+".wav";a.click();
+}
+
+/* ---------- actions ---------- */
+PAGES.actions=async()=>{
+  const [l,b]=await Promise.all([api("GET","/api/p/actions"),api("GET","/api/p/board-users")]);BOARD=b;
+  const f=CACHE.actF||"mine";
+  const list=l.filter(a=>f==="all"||(f==="mine"&&a.owner===ME.user.id)||(f==="open"&&a.status!=="done"));
+  CACHE.myOpen=l.filter(a=>a.owner===ME.user.id&&a.status!=="done").length||"";renderNav();
+  main().innerHTML=`<div class="head"><h1>Actions</h1><span class="sp"></span>${PERMS.clerk?`<button class="btn fit" onclick="newAction()">+ Add action</button>`:""}</div>
+  <div class="tabs">${[["mine","Mine"],["open","All open"],["all","Everything"]].map(([k,t])=>`<a href="javascript:CACHE.actF='${k}';route()" class="${f===k?"on":""}">${t}</a>`).join("")}</div>
+  <div class="card tw">${list.length?`<table class="t"><tr><th>Action</th><th>Owner</th><th>Due</th><th>Status</th><th></th></tr>${list.map(a=>{const can=PERMS.clerk||a.owner===ME.user.id;return`<tr><td>${esc(a.text)}<br><span class="hint">${esc(a.meetingTitle)}</span></td>
+   <td>${PERMS.clerk?`<select onchange="updAction('${a.id}',{owner:this.value})">${userOpts(a.owner)}</select>`:esc(a.ownerName||"—")}</td>
+   <td>${PERMS.clerk?`<input type="date" value="${a.due}" onchange="updAction('${a.id}',{due:this.value})">`:(a.overdue?`<b style="color:var(--red)">${fmtD(a.due)}</b>`:fmtD(a.due))}</td>
+   <td>${can?`<select onchange="updAction('${a.id}',{status:this.value})">${Object.entries(STATUS_ACTION).map(([k,v])=>`<option value="${k}" ${a.status===k?"selected":""}>${v}</option>`).join("")}</select>`:pill(a.status,STATUS_ACTION[a.status])}${a.overdue?`<br><span class="pill r">overdue</span>`:""}</td>
+   <td style="white-space:nowrap"><button class="btn sm ghost" onclick='actHist(${JSON.stringify(a.history).replace(/'/g,"&#39;")})'>History</button>${can?` <button class="btn sm ghost" onclick="actNote('${a.id}')">Note</button>`:""}${PERMS.clerk?` <button class="btn sm ghost" onclick="delAction('${a.id}')">✕</button>`:""}</td></tr>`;}).join("")}</table>`:`<p class="empty">Nothing here.</p>`}</div>`;
+};
+async function updAction(id,b){try{await api("PUT","/api/p/actions/"+id,b);toast("Updated");}catch(e){fail(e);route();}}
+function actHist(h){modal(`<h2>History</h2><div class="list">${h.map(x=>`<div>${esc(x.what)}<br><span class="hint">${esc(uname(x.by)||"")} · ${fmtDT(x.at)}</span></div>`).join("")}</div><div style="text-align:right"><button class="btn sec" onclick="closeModal()">Close</button></div>`);}
+function actNote(id){const m=modal(`<h2>Add a note</h2><textarea id="anT" placeholder="e.g. Spoke to the school, waiting to hear back"></textarea><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="anGo">Save</button></div>`);m.querySelector("#anGo").onclick=async()=>{await updAction(id,{note:$("#anT").value});closeModal();};}
+function delAction(id){confirmBox("Remove this action?",async()=>{try{await api("DELETE","/api/p/actions/"+id);route();}catch(e){fail(e);}},"Remove",true);}
+function newAction(){const m=modal(`<h2>New action</h2><label class="l">What needs doing</label><textarea id="naT"></textarea><div class="row"><div><label class="l">Who</label><select id="naO">${userOpts("")}</select></div><div><label class="l">Due</label><input type="date" id="naD"></div></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="naGo">Add</button></div>`);
+  m.querySelector("#naGo").onclick=async()=>{try{await api("POST","/api/p/actions",{text:$("#naT").value,owner:$("#naO").value,due:$("#naD").value});closeModal();route();}catch(e){fail(e);}};}
+
+/* ---------- board papers ---------- */
+PAGES.papers=async(folder)=>{
+  const r=await api("GET","/api/p/docs");const f=folder||"all";
+  const list=r.docs.filter(d=>f==="all"||d.folder===f);
+  main().innerHTML=`<div class="head"><h1>Board papers</h1><span class="sp"></span>${PERMS.clerk?`<button class="btn fit" onclick="uploadDoc()">⬆ Upload</button>`:""}</div>
+  <div class="tabs"><a href="#papers" class="${f==="all"?"on":""}">All</a>${Object.entries(r.folders).map(([k,v])=>`<a href="#papers/${k}" class="${f===k?"on":""}">${esc(v)}</a>`).join("")}</div>
+  <div class="card tw">${list.length?`<table class="t"><tr><th>Document</th><th>Folder</th><th>Version</th><th>Read & confirm</th><th></th></tr>${list.map(d=>`<tr><td><a href="/api/p/docs/${d.id}/file" target="_blank"><b>${esc(d.title)}</b></a>${d.locked?" 🔒":""}<br><span class="hint">${esc(d.name)} · ${kb(d.size)}${d.review?` · review by ${fmtD(d.review)}`:""}</span></td><td>${esc(d.folderName)}</td>
+   <td>v${d.version}<br><span class="hint">${fmtD(d.at)} · ${esc(d.by)}</span></td>
+   <td>${d.requireConfirm?(d.confirmed?pill("done","✓ confirmed"):`<button class="btn sm" onclick="confirmDoc('${d.id}')">I've read it</button>`)+(PERMS.clerk&&d.notConfirmed&&d.notConfirmed.length?`<br><span class="hint">Not yet: ${esc(d.notConfirmed.join(", "))}</span>`:""):"—"}</td>
+   <td style="white-space:nowrap"><button class="btn sm ghost" onclick='docHist(${JSON.stringify({id:d.id,h:d.history}).replace(/'/g,"&#39;")})'>Versions</button>${PERMS.clerk&&!d.locked?` <button class="btn sm ghost" onclick="uploadDoc('${d.id}')">New version</button> <button class="btn sm ghost" onclick='editDoc(${JSON.stringify(d).replace(/'/g,"&#39;")})'>Edit</button>`:""}</td></tr>`).join("")}</table>`:`<p class="empty">No documents here yet.</p>`}</div>`;
+  CACHE.folders=r.folders;
+};
+function docHist(x){modal(`<h2>Versions</h2><div class="list">${x.h.slice().reverse().map(v=>`<div><a href="/api/p/docs/${x.id}/file?v=${v.v}" target="_blank">Version ${v.v}</a> – ${esc(v.name)}<br><span class="hint">${esc(v.by)} · ${fmtDT(v.at)}</span></div>`).join("")}</div><div style="text-align:right"><button class="btn sec" onclick="closeModal()">Close</button></div>`);}
+async function confirmDoc(id){try{await api("POST",`/api/p/docs/${id}/confirm`);toast("Thank you – confirmed");route();}catch(e){fail(e);}}
+function uploadDoc(docId){
+  pickFile("",f=>{
+    const m=modal(`<h2>${docId?"New version":"Upload a document"}</h2><p><b>${esc(f.name)}</b> <span class="hint">${kb(f.size)}</span></p>${docId?"":`<label class="l">Title</label><input id="udT" value="${esc(f.name.replace(/\.[^.]+$/,""))}"><label class="l">Folder</label><select id="udF">${Object.entries(CACHE.folders||{}).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join("")}</select><div class="chk"><input type="checkbox" id="udC"><label for="udC">Trustees must read and confirm this (for example a new policy)</label></div><label class="l">Review date (optional)</label><input type="date" id="udR">`}<div class="prog"><i id="udP"></i></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="udGo">Upload</button></div>`);
+    m.querySelector("#udGo").onclick=async()=>{try{m.querySelector("#udGo").disabled=true;const up=await uploadFile(f,p=>$("#udP").style.width=p*100+"%");await api("POST","/api/p/docs",docId?{uploadId:up,docId}:{uploadId:up,title:$("#udT").value,folder:$("#udF").value,requireConfirm:$("#udC").checked,review:$("#udR").value});closeModal();toast("Uploaded");route();}catch(e){fail(e);m.querySelector("#udGo").disabled=false;}};
+  });
+}
+function editDoc(d){const m=modal(`<h2>Edit document</h2><label class="l">Title</label><input id="edT" value="${esc(d.title)}"><label class="l">Folder</label><select id="edF">${Object.entries(CACHE.folders).map(([k,v])=>`<option value="${k}" ${d.folder===k?"selected":""}>${esc(v)}</option>`).join("")}</select><div class="chk"><input type="checkbox" id="edC" ${d.requireConfirm?"checked":""}><label for="edC">Trustees must read and confirm</label></div><label class="l">Review date</label><input type="date" id="edR" value="${d.review||""}">
+  <div class="row" style="justify-content:space-between;margin-top:12px"><button class="btn red fit" id="edDel">Delete</button><span class="fit"><button class="btn sec" onclick="closeModal()">Cancel</button> <button class="btn" id="edGo">Save</button></span></div>`);
+  m.querySelector("#edGo").onclick=async()=>{try{await api("PUT","/api/p/docs/"+d.id,{title:$("#edT").value,folder:$("#edF").value,requireConfirm:$("#edC").checked,review:$("#edR").value});closeModal();route();}catch(e){fail(e);}};
+  m.querySelector("#edDel").onclick=()=>confirmBox("Delete this document and all its versions?",async()=>{try{await api("DELETE","/api/p/docs/"+d.id);route();}catch(e){fail(e);}},"Delete",true);}
+
+/* ---------- decisions ---------- */
+PAGES.decisions=async()=>{
+  const l=await api("GET","/api/p/cases");
+  const open=l.filter(c=>c.status==="open"),closed=l.filter(c=>c.status!=="open");
+  CACHE.toVote=open.filter(c=>!c.mine&&!c.myConflict).length||"";renderNav();
+  const canVote=["trustee","chairman"].includes(ME.user.role);
+  main().innerHTML=`<div class="head"><h1>Decisions</h1></div>${open.length?"":`<div class="card empty">Nothing is waiting for a decision.</div>`}
+  ${open.map(c=>{const r=c.referral||{};return`<div class="card"><div class="head" style="margin-bottom:6px"><div><h2 style="margin:0">${esc(c.title)}</h2><span class="hint">Opened ${fmtD(c.opened)}${c.closeBy?` · please vote by <b>${fmtD(c.closeBy)}</b>`:""}</span></div><span class="sp"></span>${c.quorate?pill("done","quorate"):pill("open",`${Object.values(c.tally).reduce((a,b)=>a+b,0)} of ${c.quorum} votes needed`)}</div>
+   <div class="grid g2"><div><table class="t"><tr><td>Reference</td><td><b>${esc(r.ref)}</b> (${esc(r.initials)})</td></tr><tr><td>Referred by</td><td>${esc(r.org)}</td></tr><tr><td>Help needed</td><td>${esc(c.referral?(CATEGORIES_LABEL[r.category]||r.category):"")}</td></tr><tr><td>Amount</td><td><b>${money(c.amount)}</b></td></tr></table>
+     ${c.question?`<p><b>Question for trustees:</b> ${nl(c.question)}</p>`:""}
+     <details><summary><b>Read the request</b></summary><p><b>What's needed:</b><br>${nl(r.need)}</p><p><b>Why D.U.C.:</b><br>${nl(r.why)}</p>${r.tried?`<p><b>Other help tried:</b><br>${nl(r.tried)}</p>`:""}${r.household?`<p><b>Household:</b><br>${nl(r.household)}</p>`:""}<p class="hint">${r.files} supporting document(s) – the Clerk can share them if needed.</p></details></div>
+    <div>${canVote?(c.myConflict?`<div class="warn">You declared a conflict of interest: ${esc(c.myConflict.reason)}. You can't vote on this.</div>`:`<div class="chk"><input type="checkbox" id="nc_${c.id}" ${c.mine?"checked":""}><label for="nc_${c.id}">I have no conflict of interest in this request</label></div>
+      <div class="row">${[["approve","Approve"],["decline","Decline"],["more_info","Need more info"],["abstain","Abstain"]].map(([k,t])=>`<button class="btn sm fit ${c.mine&&c.mine.vote===k?"":"sec"}" onclick="vote('${c.id}','${k}')">${t}</button>`).join("")}</div>
+      <textarea id="vc_${c.id}" placeholder="Comment (optional)" style="margin-top:8px;min-height:50px">${esc(c.mine?c.mine.comment:"")}</textarea>
+      <a href="javascript:declConf('${c.id}')" class="hint">I have a conflict of interest</a>`):`<p class="hint">Trustees vote here.</p>`}
+     <h3 style="margin-top:12px">Votes so far</h3><p style="margin:0">✓ ${c.tally.approve} approve · ✕ ${c.tally.decline} decline · ? ${c.tally.more_info} more info · – ${c.tally.abstain} abstain</p>
+     ${c.voters.length?`<div class="list">${c.voters.map(v=>`<div><b>${esc(v.name)}</b> – ${esc(v.vote.replace("_"," "))}${v.comment?`<br><span class="hint">${esc(v.comment)}</span>`:""}</div>`).join("")}</div>`:""}
+     ${c.conflicted.length?`<p class="hint">Conflicts declared: ${c.conflicted.map(x=>esc(x.name)+" ("+esc(x.reason)+")").join("; ")}</p>`:""}
+     ${PERMS.clerk?`<div style="margin-top:10px"><button class="btn navy" onclick='closeCase(${JSON.stringify({id:c.id,amount:c.amount,suggested:c.suggested}).replace(/'/g,"&#39;")})'>Record the decision${c.suggested?" ("+c.suggested.replace("_"," ")+")":""}</button></div>`:""}</div></div></div>`;}).join("")}
+  ${closed.length?`<div class="card tw"><h2>Decided</h2><table class="t"><tr><th>Request</th><th>Outcome</th><th>Votes</th><th>Closed</th></tr>${closed.map(c=>`<tr><td>${esc(c.title)}</td><td>${pill(c.status,c.status.replace("_"," "))}</td><td>${c.tally.approve}/${c.tally.decline}/${c.tally.more_info}/${c.tally.abstain}</td><td>${fmtD(c.closedAt)}</td></tr>`).join("")}</table></div>`:""}`;
+};
+const CATEGORIES_LABEL={household:"Household items or furniture",utilities:"Gas, electricity or water",food:"Food",clothing:"Clothing or school uniform",education:"Education or training",health:"Health, mobility or disability equipment",travel:"Travel or transport",other:"Something else"};
+async function vote(id,v){if(!$("#nc_"+id).checked){toast("Please confirm you have no conflict of interest first",true);return;}try{await api("POST",`/api/p/cases/${id}/vote`,{vote:v,noConflict:true,comment:$("#vc_"+id).value});toast("Vote recorded");route();}catch(e){fail(e);}}
+function declConf(id){const m=modal(`<h2>Declare a conflict of interest</h2><p>You won't be able to vote on this request. The conflict is recorded in the minutes.</p><label class="l">What is the conflict?</label><input id="dcR" placeholder="e.g. I know the family personally"><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="dcGo">Declare</button></div>`);m.querySelector("#dcGo").onclick=async()=>{try{await api("POST",`/api/p/cases/${id}/vote`,{conflict:true,reason:$("#dcR").value});closeModal();route();}catch(e){fail(e);}};}
+function closeCase(c){const m=modal(`<h2>Record the trustees' decision</h2><label class="l">Outcome</label><select id="ccO"><option value="approved" ${c.suggested==="approved"?"selected":""}>Approved – grant awarded</option><option value="declined" ${c.suggested==="declined"?"selected":""}>Declined</option><option value="more_info" ${c.suggested==="more_info"?"selected":""}>More information needed</option></select>
+  <div id="ccA"><div class="row"><div><label class="l">Amount (£)</label><input id="ccAm" value="${esc(c.amount)}"></div><div><label class="l">Paid by</label><input id="ccP" placeholder="e.g. direct payment to the supplier"></div></div><label class="l">What it's for (goes in the letter)</label><input id="ccPu" placeholder="e.g. a new bed and bedding"></div>
+  <div id="ccD" style="display:none"><label class="l">Reason (goes in the letter – kind and brief)</label><textarea id="ccR"></textarea></div><div id="ccM" style="display:none"><label class="l">Information needed</label><textarea id="ccI"></textarea></div>
+  <p class="hint">A draft letter is created for you to check in Letters. The referrer is told the status, without personal details.</p><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="ccGo">Record decision</button></div>`);
+  const sw=()=>{const o=$("#ccO").value;$("#ccA").style.display=o==="approved"?"":"none";$("#ccD").style.display=o==="declined"?"":"none";$("#ccM").style.display=o==="more_info"?"":"none";};$("#ccO").onchange=sw;sw();
+  m.querySelector("#ccGo").onclick=async()=>{try{const r=await api("POST",`/api/p/cases/${c.id}/close`,{outcome:$("#ccO").value,amount:$("#ccAm").value,payment:$("#ccP").value,purpose:$("#ccPu").value,reason:$("#ccR").value,info:$("#ccI").value});closeModal();toast("Decision recorded – draft letter ready");if(r.letterId)location.hash="letter/"+r.letterId;else route();}catch(e){fail(e);}};}
+
+/* ---------- calendar & search ---------- */
+PAGES.calendar=async()=>{
+  const r=await api("GET","/api/p/calendar");const by={};
+  r.events.filter(e=>e.start>=new Date(Date.now()-31*864e5).toISOString().slice(0,10)).forEach(e=>{const k=e.start.slice(0,7);(by[k]=by[k]||[]).push(e);});
+  const icon={meeting:"🗓️",action:"✅",review:"📄",vote:"🗳️"},link=e=>e.kind==="meeting"?"#meeting/"+e.id:e.kind==="action"?"#actions":e.kind==="vote"?"#decisions":"#papers";
+  main().innerHTML=`<div class="head"><h1>Calendar</h1><span class="sp"></span><button class="btn sec fit" onclick="calLink()">${r.feed?"New private link":"Add to Outlook / phone"}</button></div>${r.feed?`<div class="ok">Your private calendar link (subscribe in Outlook or on your phone – don't share it): <br><input readonly value="${esc(r.feed)}" onclick="this.select()"></div>`:""}
+  <div class="card">${Object.keys(by).length?Object.entries(by).map(([k,l])=>`<div class="cal-month"><h2>${new Date(k+"-01T12:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</h2>${l.map(e=>`<div class="cal-ev"><span class="d">${new Date(e.start).toLocaleDateString("en-GB",{weekday:"short",day:"numeric"})}${e.allDay?"":"<br><span class='hint'>"+new Date(e.start).toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"})+"</span>"}</span><span>${icon[e.kind]} <a href="${link(e)}">${esc(e.title)}</a>${e.where?`<br><span class="hint">${esc(e.where)}</span>`:""}</span></div>`).join("")}</div>`).join(""):`<p class="empty">Nothing coming up.</p>`}</div>`;
+};
+async function calLink(){try{const r=await api("POST","/api/p/calendar");toast("Link created");route();}catch(e){fail(e);}}
+PAGES.search=async()=>{
+  main().innerHTML=`<div class="head"><h1>Search minutes</h1></div><div class="card"><div class="row"><input id="sq" placeholder="e.g. Christmas hampers" onkeydown="if(event.key==='Enter')doSearch()"><button class="btn fit" onclick="doSearch()">Search</button><button class="btn sec fit" onclick="doAsk()">✨ Ask Gemini</button></div><p class="hint">Search looks for the exact words. "Ask Gemini" answers a question from the approved minutes, for example "What did we decide about the Christmas hampers?"</p></div><div id="sr"></div>`;
+};
+async function doSearch(){const q=$("#sq").value.trim();if(!q)return;try{const r=await api("GET","/api/p/search?q="+encodeURIComponent(q));$("#sr").innerHTML=`<div class="card">${r.length?`<div class="list">${r.map(x=>`<div><a href="#meeting/${x.meetingId}"><b>${esc(x.meeting)}</b></a> <span class="pill">${esc(x.where)}</span><br>${esc(x.text)}</div>`).join("")}</div>`:`<p class="empty">No matches.</p>`}</div>`;}catch(e){fail(e);}}
+async function doAsk(){const q=$("#sq").value.trim();if(!q)return;$("#sr").innerHTML=`<div class="card">Thinking…</div>`;try{const r=await api("POST","/api/p/ask",{q});$("#sr").innerHTML=`<div class="card"><h2>Answer</h2><pre class="block">${esc(r.answer)}</pre><p class="hint">Written by Gemini from the approved minutes. Check the minutes before relying on it.</p></div>`;}catch(e){$("#sr").innerHTML="";fail(e);}}
+
+/* ---------- referrals ---------- */
+let REFMETA={};
+PAGES.referrals=async()=>{
+  const r=await api("GET","/api/p/referrals");REFMETA=r;
+  const f=CACHE.refF||"active";
+  const act=["submitted","more_info","with_trustees","approved"];
+  let list=r.referrals.filter(x=>f==="all"||(f==="active"&&(act.includes(x.status)||x.status==="draft"))||(f==="late"&&x.late)||(f==="closed"&&["paid","declined","withdrawn"].includes(x.status)));
+  if(PERMS.partner){
+    const s=r.stats;
+    main().innerHTML=`<div class="head"><div><h1>${esc(ME.org.name)}</h1><span class="hint">Referral partner</span></div><span class="sp"></span><a class="btn fit" href="#new-referral">+ New referral</a></div>
+    <div class="kpi"><div><b>${s.made}</b><span>referrals this year</span></div><div><b>${s.approved}</b><span>approved</span></div><div><b>${money(s.total)}</b><span>awarded this year</span></div></div>
+    <div class="tabs">${[["active","Active"],["closed","Closed"],["all","All"]].map(([k,t])=>`<a href="javascript:CACHE.refF='${k}';route()" class="${f===k?"on":""}">${t}</a>`).join("")}</div>
+    <div class="card tw">${refTable(list)}</div>`;
+    return;
+  }
+  CACHE.newRefs=r.referrals.filter(x=>x.status==="submitted").length||"";renderNav();
+  main().innerHTML=`<div class="head"><h1>Referrals</h1></div>
+  <div class="tabs">${[["active","Active"],["late",`Over 10 working days (${r.referrals.filter(x=>x.late).length})`],["closed","Closed"],["all","All"]].map(([k,t])=>`<a href="javascript:CACHE.refF='${k}';route()" class="${f===k?"on":""}">${t}</a>`).join("")}</div>
+  <div class="card tw">${refTable(list,true)}</div>`;
+};
+function refTable(list,inbox){return list.length?`<table class="t"><tr><th>Reference</th><th>Person</th>${inbox?"<th>Partner</th>":""}<th>Help</th><th>Amount</th><th>Status</th><th>Updated</th></tr>${list.map(x=>`<tr class="click" onclick="location.hash='referral/${x.id}'"><td><b>${esc(x.ref||"Draft")}</b>${x.unread?` <span class="pill y">${x.unread} new</span>`:""}</td><td>${esc(x.name||"—")}${inbox&&x.postcode?`<br><span class="hint">${esc(x.postcode)}${x.inArea?"":" ⚠ outside area?"}</span>`:""}</td>${inbox?`<td>${esc(x.org)}</td>`:""}<td>${esc(x.categoryLabel)}</td><td>${money(x.amount)}</td><td>${pill(x.status,x.statusLabel)}${x.late?` <span class="pill r">late</span>`:""}${x.dup?` <span class="pill y">possible duplicate</span>`:""}</td><td>${fmtD(x.updated)}</td></tr>`).join("")}</table>`:`<p class="empty">No referrals here.</p>`;}
+PAGES["new-referral"]=async()=>{try{const r=await api("POST","/api/p/referrals",{});location.replace("#referral/"+r.id);}catch(e){fail(e);}};
+let RF=null;
+PAGES.referral=async(id)=>{
+  RF=await api("GET","/api/p/referrals/"+id);
+  if(!REFMETA.categories){REFMETA=await api("GET","/api/p/referrals");}
+  const r=RF,p=r.person||{},partner=PERMS.partner,edit=partner?["draft","more_info"].includes(r.status):PERMS.clerk;
+  const fld=(k,l,t,ph)=>`<label class="l">${l}</label>${t==="ta"?`<textarea data-k="${k}" ${edit?"":"disabled"} placeholder="${esc(ph||"")}">${esc(p[k]||"")}</textarea>`:`<input data-k="${k}" ${t?`type="${t}"`:""} ${edit?"":"disabled"} value="${esc(p[k]||"")}" placeholder="${esc(ph||"")}">`}`;
+  const c=r.consent||{};
+  let h=`<div class="head"><div><a href="#referrals" class="hint">← Referrals</a><h1>${esc(r.ref||"New referral")}</h1><span class="hint">${partner?"":esc(r.org)+" · "}${pill(r.status,r.statusLabel)}${r.late?" "+pill("error","over 10 working days"):""}${r.dup?" "+pill("pending","possible duplicate"):""}</span></div><span class="sp"></span>
+   ${partner&&edit?`<button class="btn sec fit" onclick="saveRef()">Save draft</button><button class="btn fit" onclick="submitRef()">${r.status==="more_info"?"Send updated referral":"Submit referral"}</button>`:""}
+   ${partner&&r.status==="draft"?`<button class="btn ghost fit" onclick="delRef()">Delete draft</button>`:""}
+   ${!partner&&PERMS.clerk?`<button class="btn sec fit" onclick="saveRef()">Save changes</button><button class="btn fit" onclick="refStatus()">Change status</button>${["submitted","more_info"].includes(r.status)?`<button class="btn navy fit" onclick="toTrustees()">Put to trustees</button>`:""}`:""}</div>`;
+  if(r.status==="more_info"&&partner)h+=`<div class="warn"><b>The Clerk needs more information.</b> See the messages below, update the referral, then press Send updated referral.</div>`;
+  if(r.decision&&["approved","paid","declined"].includes(r.status))h+=`<div class="${r.status==="declined"?"warn":"ok"}"><b>Decision:</b> ${r.status==="declined"?"The trustees were not able to help on this occasion.":`Grant of ${money(r.decision.amount)} approved${r.decision.payment?" – paid by "+esc(r.decision.payment):""}.`} <span class="hint">${fmtD(r.decision.at)}</span></div>`;
+  h+=`<div class="grid g2"><div>
+   <div class="card"><h2>About the person</h2>${fld("name","Full name")}<div class="row"><div>${fld("dob","Date of birth (if relevant)","date")}</div><div>${fld("phone","Phone")}</div></div>${fld("email","Email","email")}${fld("address1","Address line 1")}${fld("address2","Address line 2")}<div class="row"><div>${fld("town","Town","","Droitwich Spa")}</div><div>${fld("postcode","Postcode")}</div></div>
+    ${p.postcode&&!r.inArea?`<div class="warn" style="margin-top:8px">This postcode may be outside Droitwich Spa. D.U.C. can only help people living within the town.</div>`:""}
+    ${fld("household","Household (who lives with them, ages of children)","ta")}
+    <label class="l">How should D.U.C. contact them about the outcome?</label><select data-k="contactPref" ${edit?"":"disabled"}>${[["none","Through us (the referrer) only"],["post","By post"],["email","By email"]].map(([k,t])=>`<option value="${k}" ${(p.contactPref||"none")===k?"selected":""}>${t}</option>`).join("")}</select></div>
+   <div class="card"><h2>What help is needed</h2><label class="l">Type of help</label><select id="rfCat" ${edit?"":"disabled"}>${Object.entries(REFMETA.categories||CATEGORIES_LABEL).map(([k,v])=>`<option value="${k}" ${r.category===k?"selected":""}>${esc(v)}</option>`).join("")}</select>
+    <label class="l">Amount (£, if known)</label><input id="rfAmt" ${edit?"":"disabled"} value="${esc(r.amount)}" inputmode="decimal">
+    ${fld("need","What is needed, and what it will cost","ta","e.g. A replacement cooker. The old one is unsafe. Quote attached: £320 from …")}${fld("why","Why is D.U.C. the right place to help?","ta")}${fld("tried","Other help already tried","ta","e.g. Local welfare assistance – declined because …")}${fld("payee","Who should be paid? (supplier, or the person)","","e.g. Currys, against the quote attached")}</div>
+  </div><div>
+   <div class="card"><h2>Consent</h2>${partner&&edit?`<div class="chk"><input type="checkbox" id="cnG" ${c.given?"checked":""}><label for="cnG"><b>The person has agreed</b> to this referral and to D.U.C. holding their details to consider it.</label></div>
+     <div class="row"><div><label class="l">How did they agree?</label><select id="cnM">${[["in_person","In person"],["phone","By phone"],["written","In writing"],["parent","Parent or carer agreed"]].map(([k,t])=>`<option value="${k}" ${c.method===k?"selected":""}>${t}</option>`).join("")}</select></div><div><label class="l">When?</label><input type="date" id="cnD" value="${c.date||new Date().toISOString().slice(0,10)}"></div></div>
+     <div class="chk"><input type="checkbox" id="cnH" ${c.health?"checked":""}><label for="cnH">The referral includes health or disability information, and they agreed to share it.</label></div>
+     <label class="l">How were they told about the privacy notice?</label><select id="cnN">${[["told","Told in person"],["paper","Given a paper copy"],["email","Sent by email"],["post","Sent by post"]].map(([k,t])=>`<option value="${k}" ${c.noticeGiven===k?"selected":""}>${t}</option>`).join("")}</select><p class="hint"><a href="/privacy-notice" target="_blank">Open the privacy notice</a> to print or send it.</p>`
+     :(c.given?`<p>✓ Consent given ${esc((c.method||"").replace("_"," "))} on ${fmtD(c.date)}${c.health?", including health information":""}. Privacy notice: ${esc(c.noticeGiven||"")} (version ${c.noticeVersion||1}).</p>`:`<p class="empty">Not recorded yet.</p>`)}</div>
+   <div class="card"><h2>Supporting documents</h2><p class="hint">Quotes, letters or benefit statements. PDF, photos, Word or Excel, up to 10 MB each.</p><div class="list">${r.files.map(f=>`<div><a href="/api/p/referrals/${r.id}/files/${f.id}" target="_blank">📄 ${esc(f.name)}</a> <span class="hint">${kb(f.size)}</span>${edit?` <a href="javascript:delFile('${f.id}')" class="hint">remove</a>`:""}</div>`).join("")||`<div class="empty">None yet.</div>`}</div>${edit?`<button class="btn sm sec" onclick="addFile()">⬆ Add a document</button><div class="prog" style="display:none" id="fP"><i></i></div>`:""}</div>
+   <div class="card"><h2>Messages</h2><div id="msgs">${r.messages.map(m=>`<div class="msg ${m.side}"><small>${esc(m.from)} · ${fmtDT(m.at)}</small>${nl(m.text)}</div>`).join("")||`<p class="empty">No messages.</p>`}</div><textarea id="msgT" placeholder="Write a message to ${partner?"the D.U.C. Clerk":esc(r.org)}" style="margin-top:8px"></textarea><button class="btn sm" onclick="sendMsg()">Send</button></div>
+   <div class="card"><h2>History</h2><div class="list">${r.history.slice().reverse().map(x=>`<div>${esc(x.what)}<br><span class="hint">${esc(x.by)} · ${fmtDT(x.at)}</span></div>`).join("")}</div></div>
+   ${!partner?`<div class="card"><h2>Letters</h2><div id="rfLetters">Loading…</div><button class="btn sm sec" onclick="newLetterFor('referral','${r.id}')">+ New letter</button></div>`:""}
+   ${!partner&&PERMS.gdpr?`<div class="card"><h2>Data protection</h2>${r.legalHold?`<div class="warn">On legal hold.</div><button class="btn sm sec" onclick="hold('referral','${r.id}',true)">Remove legal hold</button>`:`<button class="btn sm sec" onclick="hold('referral','${r.id}')">Place on legal hold</button>`}</div>`:""}
+  </div></div>`;
+  main().innerHTML=h;
+  if(!partner)loadRefLetters(r.id);
+};
+async function loadRefLetters(id){try{const l=await api("GET",`/api/p/letters?refType=referral&refId=${id}`);$("#rfLetters").innerHTML=l.length?`<div class="list">${l.map(x=>`<div><a href="#letter/${x.id}">${esc(x.templateName)}</a> ${pill(x.status)}<br><span class="hint">${fmtD(x.at)}${x.sentVia?" · "+esc(x.sentVia):""}</span></div>`).join("")}</div>`:`<p class="empty">No letters yet.</p>`;}catch(e){}}
+function refBody(){const b={};document.querySelectorAll("[data-k]").forEach(i=>b[i.dataset.k]=i.value);b.category=$("#rfCat").value;b.amount=$("#rfAmt").value;
+  if($("#cnG"))b.consent={given:$("#cnG").checked,method:$("#cnM").value,date:$("#cnD").value,health:$("#cnH").checked,noticeGiven:$("#cnN").value};return b;}
+async function saveRef(silent){try{RF=await api("PUT","/api/p/referrals/"+RF.id,refBody());if(!silent){toast("Saved");route();}}catch(e){fail(e);throw e;}}
+async function submitRef(){try{await saveRef(true);confirmBox("Send this referral to the D.U.C. Clerk? You won't be able to change it unless the Clerk asks for more information.",async()=>{try{const r=await api("POST",`/api/p/referrals/${RF.id}/submit`);toast("Sent – reference "+r.ref);route();}catch(e){fail(e);}},"Send");}catch(e){}}
+function delRef(){confirmBox("Delete this draft?",async()=>{try{await api("DELETE","/api/p/referrals/"+RF.id);location.hash="referrals";}catch(e){fail(e);}},"Delete",true);}
+function addFile(){pickFile(".pdf,.jpg,.jpeg,.png,.heic,.webp,.doc,.docx,.xls,.xlsx,.txt",async f=>{if(f.size>10*1048576){toast("Files must be under 10 MB",true);return;}const p=$("#fP");p.style.display="";try{await saveRef(true).catch(()=>{});const up=await uploadFile(f,x=>p.firstChild.style.width=x*100+"%");await api("POST",`/api/p/referrals/${RF.id}/files`,{uploadId:up});toast("Added");route();}catch(e){fail(e);p.style.display="none";}});}
+function delFile(fid){confirmBox("Remove this document?",async()=>{try{await api("DELETE",`/api/p/referrals/${RF.id}/files/${fid}`);route();}catch(e){fail(e);}},"Remove",true);}
+async function sendMsg(){const t=$("#msgT").value.trim();if(!t)return;try{await api("POST",`/api/p/referrals/${RF.id}/messages`,{text:t});toast("Sent");route();}catch(e){fail(e);}}
+function refStatus(){const st=REFMETA.statuses||{};const m=modal(`<h2>Change status</h2><select id="rsS">${Object.entries(st).filter(([k])=>k!=="draft").map(([k,v])=>`<option value="${k}" ${RF.status===k?"selected":""}>${esc(v)}</option>`).join("")}</select><label class="l">Note</label><textarea id="rsN" placeholder="For 'More information needed', write what you need – it's sent to the referrer as a message."></textarea><p class="hint">The referrer gets an email saying the status changed, without personal details.</p><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="rsGo">Save</button></div>`);
+  m.querySelector("#rsGo").onclick=async()=>{try{await api("PUT",`/api/p/referrals/${RF.id}/status`,{status:$("#rsS").value,note:$("#rsN").value});closeModal();route();}catch(e){fail(e);}};}
+function toTrustees(){const m=modal(`<h2>Put to trustees</h2><p>Trustees will see the reference, initials, the request and the amount. Name and address stay hidden.</p><label class="l">Title</label><input id="ttT" value="${esc((RF.ref||"")+" – "+(RF.categoryLabel||""))}"><label class="l">Amount to consider (£)</label><input id="ttA" value="${esc(RF.amount)}"><label class="l">Question or notes for trustees</label><textarea id="ttQ" placeholder="e.g. Clerk recommends approval; quote checked."></textarea><label class="l">Vote by</label><input type="date" id="ttB">
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="ttGo">Send to trustees</button></div>`);
+  m.querySelector("#ttGo").onclick=async()=>{try{await api("POST","/api/p/cases",{referralId:RF.id,title:$("#ttT").value,amount:$("#ttA").value,question:$("#ttQ").value,closeBy:$("#ttB").value});closeModal();toast("Sent to trustees");route();}catch(e){fail(e);}};}
+function hold(type,id,remove){if(remove){api("POST","/api/p/gdpr/holds",{type,id,remove:true}).then(()=>{toast("Hold removed");route();}).catch(fail);return;}
+  const m=modal(`<h2>Legal hold</h2><p>A record on legal hold is never deleted automatically.</p><label class="l">Reason</label><input id="lhR" placeholder="e.g. Complaint received – keep until resolved"><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="lhGo">Place hold</button></div>`);
+  m.querySelector("#lhGo").onclick=async()=>{try{await api("POST","/api/p/gdpr/holds",{type,id,reason:$("#lhR").value});closeModal();toast("On legal hold");route();}catch(e){fail(e);}};}
+
+/* ---------- partners ---------- */
+PAGES.partners=async()=>{
+  const l=await api("GET","/api/p/orgs");
+  CACHE.orgsPending=l.filter(o=>o.status==="pending").length||"";renderNav();
+  main().innerHTML=`<div class="head"><h1>Referral partners</h1><span class="sp"></span><a class="btn sec fit" href="/partners/apply" target="_blank">Public sign-up page ↗</a></div>
+  <p class="hint">Share <b>${location.origin}/partners/apply</b> with local organisations. Applications appear here for you to check.</p>
+  ${l.length?l.map(o=>`<div class="card"><div class="head" style="margin-bottom:6px"><div><h2 style="margin:0">${esc(o.name)}</h2><span class="hint">${esc(o.typeLabel)}${o.regNo?" · "+esc(o.regNo):""} · applied ${fmtD(o.created)}</span></div><span class="sp"></span>${pill(o.status)}</div>
+   <div class="grid g2"><div><p style="margin:0 0 6px"><b>Contact:</b> ${esc(o.contactName)} · <a href="mailto:${esc(o.contactEmail)}">${esc(o.contactEmail)}</a>${o.contactPhone?" · "+esc(o.contactPhone):""}<br><b>Address:</b> ${esc(o.address)}<br><b>Data protection:</b> ${esc(o.dpContact)}</p>${o.serves?`<p class="hint">${nl(o.serves)}</p>`:""}
+    <p class="hint">${o.agreement?`Data sharing agreement v${o.agreement.version} accepted by ${esc(o.agreement.name)} on ${fmtD(o.agreement.at)}`:"Agreement not yet accepted"} · ${o.referrals} referral(s)</p></div>
+    <div><b>Logins</b>${o.users.length?`<div class="list">${o.users.map(u=>`<div>${esc(u.name)} <span class="hint">${esc(u.email)}${u.orgAdmin?" · main contact":""}${u.disabled?" · disabled":""} · last sign-in ${fmtD(u.lastLogin)}</span></div>`).join("")}</div>`:`<p class="empty">None yet.</p>`}
+    ${o.status==="approved"?`<button class="btn sm sec" onclick="inviteColleague('${o.id}')">+ Add a login</button>`:""}</div></div>
+   <div class="row" style="margin-top:10px">${o.status!=="approved"?`<button class="btn fit" onclick="orgStatus('${o.id}','approved')">Approve & send welcome</button>`:""}${o.status==="pending"?`<button class="btn sec fit" onclick="orgStatus('${o.id}','rejected')">Reject</button>`:""}${o.status==="approved"?`<button class="btn sec fit" onclick="orgStatus('${o.id}','suspended')">Suspend</button>`:""}</div></div>`).join(""):`<div class="card empty">No partners yet.</div>`}`;
+};
+function orgStatus(id,st){const msg={approved:"Approve this organisation? Their main contact will get a welcome letter and a link to set their password.",rejected:"Reject this application?",suspended:"Suspend this partner? All their logins will stop working."}[st];
+  confirmBox(msg,async()=>{try{const r=await api("PUT","/api/p/orgs/"+id,{status:st});if(r.link)modal(`<h2>Email not sent</h2><p>Email isn't working, so send this set-password link to the contact yourself:</p><input readonly value="${esc(r.link)}" onclick="this.select()"><div style="text-align:right;margin-top:10px"><button class="btn" onclick="closeModal();route()">Done</button></div>`);else{toast("Done");route();}}catch(e){fail(e);}},st==="approved"?"Approve":"Confirm",st!=="approved");}
+function inviteColleague(orgId){const m=modal(`<h2>Add a login</h2><label class="l">Name</label><input id="icN"><label class="l">Work email</label><input id="icE" type="email"><p class="hint">They'll get an email with a link to set their password.</p><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="icGo">Send invitation</button></div>`);
+  m.querySelector("#icGo").onclick=async()=>{try{const r=await api("POST","/api/p/org-users",{name:$("#icN").value,email:$("#icE").value,orgId});closeModal();if(r.link)modal(`<h2>Email not sent</h2><p>Send this link to them yourself:</p><input readonly value="${esc(r.link)}" onclick="this.select()"><div style="text-align:right;margin-top:10px"><button class="btn" onclick="closeModal();route()">Done</button></div>`);else{toast("Invitation sent");route();}}catch(e){fail(e);}};}
+PAGES.colleagues=async()=>{
+  const l=await api("GET","/api/p/org-users");
+  main().innerHTML=`<div class="head"><h1>Colleagues</h1><span class="sp"></span><button class="btn fit" onclick="inviteColleague('')">+ Add a colleague</button></div><p class="hint">Everyone who makes referrals needs their own login. Remove people when they leave.</p>
+  <div class="card tw"><table class="t"><tr><th>Name</th><th>Email</th><th>Last sign-in</th><th></th></tr>${l.map(u=>`<tr><td>${esc(u.name)}${u.orgAdmin?` <span class="pill">main contact</span>`:""}</td><td>${esc(u.email)}</td><td>${fmtD(u.lastLogin)}</td><td>${u.id!==ME.user.id?`<button class="btn sm ghost" onclick="rmColleague('${u.id}','${esc(u.name)}')">Remove</button>`:""}</td></tr>`).join("")}</table></div>`;
+};
+function rmColleague(id,n){confirmBox(`Remove ${esc(n)}'s login?`,async()=>{try{await api("DELETE","/api/p/org-users/"+id);route();}catch(e){fail(e);}},"Remove",true);}
+PAGES.privacy=async()=>{main().innerHTML=`<div class="card"><h1>Privacy & agreement</h1><p><a href="/privacy-notice" target="_blank">Read the D.U.C. privacy notice</a> – you can print it or send the link to people you refer.</p><p>Your organisation accepted version ${ME.org.agreement?ME.org.agreement.version:"?"} of the data sharing agreement${ME.org.agreement?" on "+fmtD(ME.org.agreement.at)+" ("+esc(ME.org.agreement.name)+")":""}.</p><p>Questions? Contact the Clerk, Mrs Janet Clarke, on 01905 775226.</p></div>`;};
+function md(t){return t.split(/\n\s*\n/).map(b=>/^#{1,3}\s/.test(b)?`<h3>${esc(b.replace(/^#+\s*/,""))}</h3>`:b.split("\n").every(l=>/^\s*-\s/.test(l))?`<ul>${b.split("\n").map(l=>`<li>${esc(l.replace(/^\s*-\s*/,""))}</li>`).join("")}</ul>`:`<p>${nl(b)}</p>`).join("");}
+function renderGate(){
+  const n=ME.needs;
+  main().innerHTML=`<div class="card"><h1>Before you start</h1>
+   ${n.agreement?(ME.user.orgAdmin?`<h2>Data sharing agreement</h2><div class="legal">${md(ME.agreement.text)}</div><div class="chk"><input type="checkbox" id="gA"><label for="gA">I accept this agreement (version ${ME.agreement.version}) on behalf of <b>${esc(ME.org.name)}</b>.</label></div>`:`<div class="warn">Your organisation's main contact needs to accept the updated data sharing agreement before you can make referrals.</div>`):""}
+   ${n.privacy?`<h2>Privacy notice</h2><div class="legal">${md(ME.privacy.text)}</div><div class="chk"><input type="checkbox" id="gP"><label for="gP">I have read the privacy notice (version ${ME.privacy.version}).</label></div>`:""}
+   ${(!n.agreement||ME.user.orgAdmin)?`<button class="btn" onclick="acceptGate()">Continue</button>`:""}</div>`;
+}
+async function acceptGate(){try{await api("POST","/api/p/partner/agree",{agreement:$("#gA")?$("#gA").checked:false,privacy:$("#gP")?$("#gP").checked:false});await boot();}catch(e){fail(e);}}
+
+/* ---------- letters ---------- */
+let TPLS=null;
+PAGES.letters=async(tab)=>{
+  TPLS=TPLS||await api("GET","/api/p/letter-templates");
+  const t=tab||"list";
+  const tabs=`<div class="tabs"><a href="#letters" class="${t==="list"?"on":""}">Letters</a><a href="#letters/templates" class="${t==="templates"?"on":""}">Templates</a></div>`;
+  if(t==="templates"){
+    const groups={};Object.entries(TPLS).forEach(([k,v])=>(groups[v.group]=groups[v.group]||[]).push([k,v]));
+    main().innerHTML=`<div class="head"><h1>Letter templates</h1></div>${tabs}<p class="hint">Every letter uses the D.U.C. letterhead (logo, charity number and the Clerk's address). Words in {curly brackets} are filled in automatically. ${PERMS.admin?"":"Only the Global Admin can change the wording."}</p>
+    ${Object.entries(groups).map(([g,l])=>`<div class="card"><h2>${esc(g)}</h2><div class="list">${l.map(([k,v])=>`<div><b>${esc(v.name)}</b> <span class="hint">· ${esc(v.channel)} · signed by ${esc(v.sign)}${v.updated?" · edited "+fmtD(v.updated):""}</span>${PERMS.admin?` <a href="javascript:editTpl('${k}')">Edit</a>`:` <a href="javascript:viewTpl('${k}')">View</a>`}</div>`).join("")}</div></div>`).join("")}`;
+    return;
+  }
+  const l=await api("GET","/api/p/letters");
+  CACHE.draftLetters=l.filter(x=>x.status==="draft").length||"";renderNav();
+  main().innerHTML=`<div class="head"><h1>Letters</h1><span class="sp"></span><button class="btn fit" onclick="newLetterFor('','')">+ New letter</button></div>${tabs}
+  <div class="card tw">${l.length?`<table class="t"><tr><th>Letter</th><th>To</th><th>About</th><th>Status</th><th>Date</th></tr>${l.map(x=>`<tr class="click" onclick="location.hash='letter/${x.id}'"><td><b>${esc(x.templateName)}</b><br><span class="hint">${esc(x.subject)}</span></td><td>${esc(x.recipient||"—")}</td><td>${esc(x.refLabel||"—")}</td><td>${pill(x.status)}${x.missing&&x.missing.length&&x.status==="draft"?` <span class="pill r">${x.missing.length} gap(s)</span>`:""}</td><td>${fmtD(x.sentAt||x.at)}</td></tr>`).join("")}</table>`:`<p class="empty">No letters yet.</p>`}</div>`;
+};
+function viewTpl(k){const t=TPLS[k];modal(`<h2>${esc(t.name)}</h2><p><b>${esc(t.subject)}</b></p><pre class="block">${esc(t.body)}</pre><div style="text-align:right"><button class="btn sec" onclick="closeModal()">Close</button></div>`,true);}
+function editTpl(k){const t=TPLS[k];const m=modal(`<h2>${esc(t.name)}</h2><label class="l">Subject line</label><input id="etS" value="${esc(t.subject)}"><label class="l">Wording</label><textarea id="etB" style="min-height:300px">${esc(t.body)}</textarea><p class="hint">Blank line = new paragraph. Start lines with "- " for a list. **bold**. Fields: {recipient_name} {reference} {grant_amount} {grant_purpose} {payment_method} {decline_reason} {info_requested} {respond_by} {meeting_title} {meeting_date} {portal_link} {privacy_link} {sar_received} {sar_due} and more.</p>
+  <label class="l">Signed by</label><select id="etG">${["chairman","clerk","system"].map(s=>`<option value="${s}" ${t.sign===s?"selected":""}>${{chairman:"Chairman",clerk:"Clerk",system:"Droitwich United Charities (automatic emails)"}[s]}</option>`).join("")}</select>
+  <div class="row" style="justify-content:space-between;margin-top:12px"><button class="btn sec fit" id="etR">Reset to original</button><span class="fit"><button class="btn sec" onclick="closeModal()">Cancel</button> <button class="btn" id="etGo">Save</button></span></div>`,true);
+  m.querySelector("#etGo").onclick=async()=>{try{await api("PUT","/api/p/letter-templates/"+k,{subject:$("#etS").value,body:$("#etB").value,sign:$("#etG").value});TPLS=null;closeModal();toast("Saved");route();}catch(e){fail(e);}};
+  m.querySelector("#etR").onclick=()=>confirmBox("Go back to the original wording?",async()=>{try{await api("PUT","/api/p/letter-templates/"+k,{reset:true});TPLS=null;route();}catch(e){fail(e);}},"Reset");}
+async function newLetterFor(refType,refId){
+  TPLS=TPLS||await api("GET","/api/p/letter-templates");
+  const letterT=Object.entries(TPLS).filter(([,v])=>v.channel!=="email");
+  const m=modal(`<h2>New letter</h2><label class="l">Letter</label><select id="nlT">${letterT.map(([k,v])=>`<option value="${k}">${esc(v.group)} – ${esc(v.name)}</option>`).join("")}</select>${refType?`<p class="hint">Details are filled in from ${esc(refType)} automatically.</p>`:`<label class="l">About a referral? (reference, optional)</label><input id="nlR" placeholder="DUC-R-2026-0001">`}<div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="nlGo">Create draft</button></div>`);
+  m.querySelector("#nlGo").onclick=async()=>{try{let rt=refType,ri=refId;if(!rt&&$("#nlR").value.trim()){const all=await api("GET","/api/p/referrals");const f=all.referrals.find(x=>x.ref.toLowerCase()===$("#nlR").value.trim().toLowerCase());if(!f)throw new Error("No referral with that reference");rt="referral";ri=f.id;}
+    const r=await api("POST","/api/p/letters",{template:$("#nlT").value,refType:rt,refId:ri});closeModal();location.hash="letter/"+r.id;}catch(e){fail(e);}};
+}
+let LT=null;
+PAGES.letter=async(id)=>{
+  const l=await api("GET","/api/p/letters");LT=l.find(x=>x.id===id);if(!LT)throw new Error("Letter not found");
+  TPLS=TPLS||await api("GET","/api/p/letter-templates");
+  const t=TPLS[LT.template],draft=LT.status==="draft";
+  const keys=[...new Set(((LT.customSubject??t.subject)+" "+(LT.customBody??t.body)).match(/\{[a-z0-9_]+\}/g)||[])].map(s=>s.slice(1,-1)).filter(k=>!["date","portal_link","privacy_link","signatory_name","signatory_role","signatory_contact"].includes(k));
+  const addr=["recipient_name","organisation","address_1","town_postcode","salutation","enclosures"];
+  const F=LT.fields||{};
+  const fi=(k)=>`<label class="l">${esc(k.replace(/_/g," "))}</label>${["address_1","decline_reason","info_requested","body","kept_reason","breach_summary","breach_actions","breach_advice","breach_data"].includes(k)?`<textarea data-f="${k}" ${draft?"":"disabled"} style="min-height:60px">${esc(F[k]||"")}</textarea>`:`<input data-f="${k}" ${draft?"":"disabled"} value="${esc(F[k]||"")}">`}`;
+  main().innerHTML=`<div class="head"><div><a href="#letters" class="hint">← Letters</a><h1>${esc(LT.templateName)}</h1><span class="hint">${LT.refLabel?esc(LT.refLabel)+" · ":""}${pill(LT.status)} ${LT.sentAt?"· "+esc(LT.sentVia)+" "+fmtDT(LT.sentAt)+(LT.sentTo?" to "+esc(LT.sentTo):""):""}</span></div><span class="sp"></span>
+   ${draft?`<button class="btn sec fit" onclick="saveLetter()">Save</button>`:""}<a class="btn ghost fit" href="/api/p/letters/${LT.id}">⬇ Word</a>${draft?`<button class="btn fit" onclick="emailLetter()">✉ Email</button><button class="btn sec fit" onclick="postedLetter()">Mark as posted</button><button class="btn ghost fit" onclick="delLetter()">Delete</button>`:""}</div>
+  ${LT.missing&&LT.missing.length&&draft?`<div class="warn">Fill in before sending: <b>${LT.missing.map(esc).join(", ")}</b></div>`:""}
+  <div class="grid g2"><div class="card"><h2>Recipient</h2>${addr.map(fi).join("")}<h2 style="margin-top:14px">Details</h2>${keys.filter(k=>!addr.includes(k)).map(fi).join("")||`<p class="hint">No other details needed.</p>`}
+   <label class="l">Signed by</label><select id="ltG" ${draft?"":"disabled"}>${["chairman","clerk"].map(s=>`<option value="${s}" ${LT.sign===s?"selected":""}>${s==="chairman"?"Chairman":"Clerk"}</option>`).join("")}</select>
+   <details style="margin-top:12px"><summary class="hint">Change the wording for this letter only</summary><label class="l">Subject</label><input id="ltS" ${draft?"":"disabled"} value="${esc(LT.customSubject??t.subject)}"><label class="l">Wording</label><textarea id="ltB" ${draft?"":"disabled"} style="min-height:220px">${esc(LT.customBody??t.body)}</textarea></details></div>
+  <div class="card"><h2>Preview</h2><div id="ltPrev" style="border:1px solid var(--line);border-radius:8px;padding:18px 22px;font-family:Arial,sans-serif;font-size:14.5px;color:#0B1C3D"></div><p class="hint">The Word file has the full D.U.C. letterhead and footer.</p></div></div>`;
+  document.querySelectorAll("[data-f],#ltS,#ltB,#ltG").forEach(i=>i.addEventListener("input",()=>{clearTimeout(window._pv);window._pv=setTimeout(previewLetter,400);}));
+  previewLetter();
+};
+function letterBody(){const f={};document.querySelectorAll("[data-f]").forEach(i=>f[i.dataset.f]=i.value);const t=TPLS[LT.template];const b={fields:f,sign:$("#ltG").value};const s=$("#ltS").value,bd=$("#ltB").value;b.subject=s===t.subject?null:s;b.body=bd===t.body?null:bd;return b;}
+async function previewLetter(){try{const b=letterBody();const r=await api("POST","/api/p/letters",{template:LT.template,refType:LT.refType,refId:LT.refId,preview:true,fields:b.fields,subject:b.subject??undefined,body:b.body??undefined,sign:b.sign});const f=r.fields;
+  $("#ltPrev").innerHTML=`<div style="text-align:right"><img src="/assets/duc-logo.webp" style="width:80px"></div>${[f.recipient_name,f.organisation,f.address_1,f.town_postcode].filter(Boolean).map(nl).join("<br>")}<p>${esc(f.date)}</p><p>Dear ${esc(f.salutation||"Sir or Madam")},</p><p style="font-family:Georgia,serif;font-weight:bold">${esc(r.subject)}</p>${r.html}`;}catch(e){}}
+async function saveLetter(silent){try{await api("PUT","/api/p/letters/"+LT.id,{action:"update",...letterBody()});if(!silent){toast("Saved");route();}}catch(e){fail(e);throw e;}}
+function emailLetter(){const em=(LT.fields||{}).email||"";const m=modal(`<h2>Email this letter</h2><label class="l">Send to</label><input id="elT" type="email" value="${esc(em)}"><p class="hint">The letter is sent in the email and attached as a Word file.</p><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="elGo">Send</button></div>`);
+  m.querySelector("#elGo").onclick=async()=>{try{await saveLetter(true);const r=await api("PUT","/api/p/letters/"+LT.id,{action:"email",to:$("#elT").value});closeModal();toast(r.sent?"Sent":"Queued – it will be retried");route();}catch(e){fail(e);}};}
+function postedLetter(){confirmBox("Mark this letter as printed and posted?",async()=>{try{await saveLetter(true);await api("PUT","/api/p/letters/"+LT.id,{action:"posted"});route();}catch(e){fail(e);}},"Mark posted");}
+function delLetter(){confirmBox("Delete this draft letter?",async()=>{try{await api("DELETE","/api/p/letters/"+LT.id);location.hash="letters";}catch(e){fail(e);}},"Delete",true);}
+
+/* ---------- GDPR ---------- */
+PAGES.gdpr=async(tab,sub)=>{
+  const t=tab||"overview";
+  const tabs=`<div class="tabs">${[["overview","Overview"],["requests","Requests (SARs)"],["retention","Retention"],["consents","Consents"],["notice","Privacy notice"],["breaches","Breach log"],["ropa","Record of processing"]].map(([k,l])=>`<a href="#gdpr/${k}" class="${t===k?"on":""}">${l}</a>`).join("")}</div>`;
+  const head=`<div class="head"><h1>GDPR tools</h1></div>`+tabs;
+  if(t==="overview"){
+    const y=sub||new Date().getFullYear();const r=await api("GET","/api/p/gdpr/report?year="+y);
+    main().innerHTML=head+`<div class="card"><div class="head" style="margin-bottom:8px"><h2 style="margin:0">Yearly report for trustees – ${r.year}</h2><span class="sp"></span><select class="fit" style="width:110px" onchange="location.hash='gdpr/overview/'+this.value">${[0,1,2].map(i=>new Date().getFullYear()-i).map(v=>`<option ${v==r.year?"selected":""}>${v}</option>`).join("")}</select><button class="btn sm sec fit" onclick="window.print()">Print</button></div>
+     <div class="kpi"><div><b>${r.sars}</b><span>requests from people (SARs etc.)</span></div><div><b>${r.sarsClosed?Math.round(r.sarsOnTime/r.sarsClosed*100)+"%":"—"}</b><span>answered on time</span></div><div><b>${r.sarAvgDays??"—"}</b><span>average days to answer</span></div><div><b>${r.retentionDeletions}</b><span>retention deletions</span></div><div><b>${r.erasureRequests}</b><span>erasures</span></div><div><b>${r.breaches}</b><span>breaches logged (${r.breachesReported} reported to ICO)</span></div><div><b>${r.consents}</b><span>consents recorded (${r.consentsWithdrawn} withdrawn)</span></div><div><b>${r.holds}</b><span>records on legal hold</span></div></div>
+     <p class="hint">Privacy notice: version ${r.noticeVersion}.</p></div>`;
+    return;
+  }
+  if(t==="retention"){
+    const [r,h]=await Promise.all([api("GET","/api/p/gdpr/retention"),api("GET","/api/p/gdpr/holds")]);const can=["admin","dplead"].includes(ME.user.role);
+    main().innerHTML=head+`<div class="card"><h2>Retention schedule</h2><p class="hint">A nightly job deletes records when their time is up${r.lastRun?` (last run ${fmtDT(r.lastRun)})`:""}. Trustees should confirm these periods.</p><table class="t"><tr><th>Record</th><th>Keep for (days)</th><th>Then</th></tr>${r.rules.map(x=>`<tr><td>${esc(x.record)}</td><td>${can?`<input type="number" min="1" data-rk="${x.key}" value="${x.days}" style="width:110px">`:x.days}<span class="hint"> ≈ ${(x.days/365).toFixed(x.days<365?2:1)} yr</span></td><td>${esc(x.end)}</td></tr>`).join("")}</table>${can?`<button class="btn sm" onclick="saveRet()">Save</button>`:""}</div>
+    <div class="card"><h2>Due in the next 14 days</h2>${r.due.length?`<table class="t"><tr><th>Due</th><th>Record</th><th>Action</th><th></th></tr>${r.due.map(d=>`<tr><td>${fmtD(d.due)}</td><td>${esc(d.label)}</td><td>${esc(d.action.replace("_"," "))}</td><td>${d.hold?pill("pending","on hold"):["referral","meeting","user","enquiry"].includes(d.type)?`<button class="btn sm ghost" onclick="hold('${d.type}','${d.id}')">Legal hold</button>`:""}</td></tr>`).join("")}</table>`:`<p class="empty">Nothing due.</p>`}</div>
+    <div class="card"><h2>Legal holds</h2>${h.length?`<table class="t">${h.map(x=>`<tr><td>${esc(x.label)}<br><span class="hint">${esc(x.reason)} · ${esc(x.byName)} · ${fmtD(x.at)}</span></td><td><button class="btn sm ghost" onclick="hold('${x.type}','${x.id}',true)">Remove</button></td></tr>`).join("")}</table>`:`<p class="empty">None.</p>`}</div>`;
+    return;
+  }
+  if(t==="requests"){
+    if(sub)return gdprSar(sub,head);
+    const l=await api("GET","/api/p/gdpr/sars");
+    main().innerHTML=head+`<div class="head"><span class="sp"></span><button class="btn fit" onclick="newSar()">+ Log a request</button></div><div class="card tw">${l.length?`<table class="t"><tr><th>Reference</th><th>Person</th><th>Type</th><th>Received</th><th>Due</th><th>Status</th></tr>${l.map(s=>`<tr class="click" onclick="location.hash='gdpr/requests/${s.id}'"><td><b>${esc(s.ref)}</b></td><td>${esc(s.person.name)}</td><td>${esc(s.type)}</td><td>${fmtD(s.received)}</td><td>${s.status==="closed"?fmtD(s.due):s.paused?`<span class="pill y">paused – ID check</span>`:`${fmtD(s.due)} ${s.daysLeft<0?`<span class="pill r">${-s.daysLeft} days late</span>`:s.daysLeft<=7?`<span class="pill r">${s.daysLeft} days left</span>`:`<span class="hint">${s.daysLeft} days</span>`}`}</td><td>${pill(s.status)}</td></tr>`).join("")}</table>`:`<p class="empty">No requests.</p>`}</div>`;
+    return;
+  }
+  if(t==="consents"){
+    const l=await api("GET","/api/p/gdpr/consents");
+    main().innerHTML=head+`<div class="card tw"><h2>Consent register</h2>${l.length?`<table class="t"><tr><th>Who</th><th>Consented to</th><th>How</th><th>Notice</th><th>When</th><th></th></tr>${l.map(c=>`<tr><td>${esc(c.subject)}</td><td>${esc(c.purpose)}</td><td>${esc(c.method.replace("_"," "))}</td><td>v${c.noticeVersion}</td><td>${fmtD(c.date||c.at)}</td><td>${c.withdrawnAt?`<span class="pill r">withdrawn ${fmtD(c.withdrawnAt)}</span>`:`<button class="btn sm ghost" onclick="withdraw('${c.id}')">Withdraw</button>`}</td></tr>`).join("")}</table>`:`<p class="empty">No consents recorded yet.</p>`}</div>`;
+    return;
+  }
+  if(t==="notice"){
+    const l=await api("GET","/api/p/gdpr/notices");const cur=l[l.length-1];
+    main().innerHTML=head+`<div class="card"><h2>Privacy notice – version ${cur.version}</h2><p class="hint">Public page: <a href="/privacy-notice" target="_blank">${location.origin}/privacy-notice</a>. Publishing a new version emails partners and asks them to accept it at their next sign-in.</p><textarea id="pnT" style="min-height:380px">${esc(cur.text)}</textarea><button class="btn" onclick="publishNotice()">Publish as version ${cur.version+1}</button></div>
+    <div class="card"><h2>Versions</h2><div class="list">${l.slice().reverse().map(n=>`<div>Version ${n.version} · ${fmtD(n.at)}</div>`).join("")}</div></div>`;
+    return;
+  }
+  if(t==="breaches"){
+    const l=await api("GET","/api/p/gdpr/breaches");
+    main().innerHTML=head+`<div class="head"><span class="sp"></span><button class="btn red fit" onclick="newBreach()">+ Log a breach</button></div>${l.length?l.map(breachCard).join(""):`<div class="card empty">No breaches logged.</div>`}`;
+    return;
+  }
+  if(t==="ropa"){
+    const rows=await api("GET","/api/p/gdpr/ropa");CACHE.ropa=rows;
+    const cols=[["activity","Activity"],["purpose","Purpose"],["people","Whose data"],["data","Personal data"],["basis","Lawful basis"],["recipients","Who sees it"],["retention","How long"],["security","Security"]];
+    main().innerHTML=head+`<div class="card"><div class="head" style="margin-bottom:8px"><h2 style="margin:0">Record of processing activities</h2><span class="sp"></span><a class="btn sm ghost fit" href="/api/p/gdpr/ropa?format=csv">⬇ CSV</a><button class="btn sm sec fit" onclick="CACHE.ropa.push({});route2ropa()">+ Add</button><button class="btn sm fit" onclick="saveRopa()">Save</button></div><div id="ropa"></div></div>`;
+    window.route2ropa=()=>{$("#ropa").innerHTML=CACHE.ropa.map((r,i)=>`<div class="agenda-item"><div class="grid g2" style="gap:6px">${cols.map(([k,l])=>`<div><label class="l">${l}</label><textarea style="min-height:46px" oninput="CACHE.ropa[${i}]['${k}']=this.value">${esc(r[k]||"")}</textarea></div>`).join("")}</div><button class="btn sm ghost" onclick="CACHE.ropa.splice(${i},1);route2ropa()">Remove</button></div>`).join("");};route2ropa();
+    return;
+  }
+};
+async function saveRet(){const b={};document.querySelectorAll("[data-rk]").forEach(i=>b[i.dataset.rk]=+i.value);try{await api("PUT","/api/p/gdpr/retention",b);toast("Saved");route();}catch(e){fail(e);}}
+async function saveRopa(){try{await api("PUT","/api/p/gdpr/ropa",{rows:CACHE.ropa});toast("Saved");}catch(e){fail(e);}}
+function withdraw(id){confirmBox("Record that this consent has been withdrawn? Linked referrals will be restricted.",async()=>{try{await api("POST",`/api/p/gdpr/consents/${id}/withdraw`);route();}catch(e){fail(e);}},"Withdraw",true);}
+function publishNotice(){confirmBox("Publish this as a new version? Partners will be emailed and asked to accept it.",async()=>{try{await api("POST","/api/p/gdpr/notices",{text:$("#pnT").value});toast("Published");route();}catch(e){fail(e);}},"Publish");}
+function newSar(){const m=modal(`<h2>Log a request from a person</h2><div class="row"><div><label class="l">Type of request</label><select id="sT"><option value="access">Copy of their information (SAR)</option><option value="erasure">Delete their information</option><option value="rectification">Correct their information</option><option value="restriction">Stop using their information</option></select></div><div><label class="l">Received on</label><input type="date" id="sR" value="${new Date().toISOString().slice(0,10)}"></div></div>
+  <label class="l">How it came in</label><select id="sC"><option value="letter">Letter</option><option value="email">Email</option><option value="phone">Phone</option><option value="website">Website</option><option value="in_person">In person</option></select>
+  <label class="l">Name</label><input id="sN"><div class="row"><div><label class="l">Email</label><input id="sE"></div><div><label class="l">Phone</label><input id="sP"></div></div><label class="l">Address (last line: town and postcode)</label><textarea id="sA" style="min-height:70px"></textarea><label class="l">What they asked for</label><textarea id="sD" style="min-height:60px"></textarea>
+  <p class="hint">The one-month deadline starts once you've confirmed who they are. An acknowledgement letter asking for ID is drafted for you.</p><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="sGo">Log request</button></div>`);
+  m.querySelector("#sGo").onclick=async()=>{try{const r=await api("POST","/api/p/gdpr/sars",{type:$("#sT").value,received:$("#sR").value,channel:$("#sC").value,name:$("#sN").value,email:$("#sE").value,phone:$("#sP").value,address:$("#sA").value,details:$("#sD").value});closeModal();location.hash="gdpr/requests/"+r.id;}catch(e){fail(e);}};}
+let SAR=null;
+async function gdprSar(id,head){
+  const l=await api("GET","/api/p/gdpr/sars");SAR=l.find(s=>s.id===id);if(!SAR)throw new Error("Request not found");
+  const s=SAR,closed=s.status==="closed",letters=await api("GET",`/api/p/letters?refType=sar&refId=${id}`);
+  main().innerHTML=head+`<div class="head"><div><a href="#gdpr/requests" class="hint">← Requests</a><h1>${esc(s.ref)} – ${esc(s.person.name)}</h1><span class="hint">${esc(s.type)} · received ${fmtD(s.received)} by ${esc(s.channel)} · ${pill(s.status)}</span></div><span class="sp"></span>${!closed?`<button class="btn sec fit" onclick="sarAct('close')">Close request</button>`:""}</div>
+  <div class="grid g2"><div class="card"><h2>Deadline</h2>${s.paused?`<div class="warn"><b>Paused</b> – the clock starts when you confirm their identity.</div>${!closed?`<div class="row"><input type="date" id="idD" value="${new Date().toISOString().slice(0,10)}"><input id="idH" placeholder="How, e.g. copy of council tax bill"><button class="btn fit" onclick="sarAct('confirm_id',{date:$('#idD').value,how:$('#idH').value})">Identity confirmed</button></div>`:""}`
+   :`<p class="countdown">${closed?"Closed "+fmtD(s.closedAt):s.daysLeft<0?`<span style="color:var(--red)">${-s.daysLeft} days late</span>`:`${s.daysLeft} days left`}</p><p class="hint">Due ${fmtD(s.due)}${s.extension?` (extended: ${esc(s.extension.reason)})`:""}. Warnings are shown at 7 and 2 days.</p>${!closed&&!s.extension?`<button class="btn sm sec" onclick="sarExtend()">Extend by 2 months (complex request)</button>`:""}`}
+   <p style="margin-top:10px"><b>Contact:</b> ${esc(s.person.email||"")} ${esc(s.person.phone||"")}<br>${nl(s.person.address||"")}</p>${s.person.details?`<p class="hint">${nl(s.person.details)}</p>`:""}
+   <label class="l">Notes</label><textarea id="sNotes" onchange="sarAct('notes',{notes:this.value},true)">${esc(s.notes)}</textarea></div>
+  <div class="card"><h2>Letters</h2>${letters.length?`<div class="list">${letters.map(x=>`<div><a href="#letter/${x.id}">${esc(x.templateName)}</a> ${pill(x.status)} <span class="hint">${fmtD(x.at)}</span></div>`).join("")}</div>`:`<p class="empty">None.</p>`}</div></div>
+  <div class="card"><div class="head" style="margin-bottom:8px"><h2 style="margin:0">1. Find their data</h2><span class="sp"></span>${!s.paused&&!closed?`<input class="fit" style="width:240px" id="sExtra" placeholder="Other names or references, comma-separated"><button class="btn fit" onclick="sarAct('search',{extra:$('#sExtra').value.split(',').map(x=>x.trim()).filter(Boolean)})">🔎 Find my data</button>`:""}</div>
+   ${s.hits.length?`<table class="t"><tr><th></th><th>Record</th><th>Summary</th></tr>${s.hits.map(h=>`<tr><td><input type="checkbox" class="hitC" value="${esc(h.key)}" ${h.include?"checked":""}></td><td>${esc(h.label)}</td><td class="hint">${esc(h.summary)}</td></tr>`).join("")}</table>`:`<p class="empty">${s.paused?"Confirm their identity first.":"Not searched yet. It looks in referrals, website enquiries, letters, accounts, partner contacts, meeting transcripts and minutes, the audit log and consents."}</p>`}</div>
+  ${s.hits.length&&!closed?(s.type==="erasure"?`<div class="card"><h2>2. Delete their data</h2><p>Ticked records will be deleted. Grant records that must be kept for accounting have the name and contact details removed instead. Anything kept is listed with the reason, and an erasure letter is drafted.</p>${s.erasure?`<div class="ok">Done ${fmtD(s.erasure.at)}: ${s.erasure.done.length} erased.</div>${s.erasure.kept.length?`<ul>${s.erasure.kept.map(k=>`<li>${esc(k)}</li>`).join("")}</ul>`:""}`:""}<button class="btn red" onclick="sarErase()">Erase ticked records</button></div>`
+   :`<div class="card"><h2>2. Check and export</h2><p class="hint">Remove anything about other people (for example a family member named in a message). List names or phrases to redact, one per line:</p><textarea id="sRed" placeholder="e.g. Mrs Jones"></textarea>${s.exportedAt?`<div class="ok">Exported ${fmtDT(s.exportedAt)}. <a href="/api/p/sars/${s.id}/export.zip">Download again</a></div>`:""}<button class="btn" onclick="sarExport()">Create protected export</button> <span class="hint">A password-protected ZIP with a readable report, the data, their documents and a cover letter.</span></div>`):""}`;
+}
+async function sarAct(action,extra,silent){try{if(action==="search"||action==="close"){const keys=[...document.querySelectorAll(".hitC")].filter(c=>c.checked).map(c=>c.value);if(keys.length)await api("PUT","/api/p/gdpr/sars/"+SAR.id,{action:"select",keys});}await api("PUT","/api/p/gdpr/sars/"+SAR.id,{action,...(extra||{})});if(!silent){toast("Saved");route();}}catch(e){fail(e);}}
+function sarExtend(){const m=modal(`<h2>Extend the deadline</h2><p>You can extend by up to two more months if the request is complex or there are several requests. You must tell the person within the first month.</p><label class="l">Reason (goes in the letter)</label><input id="exR" placeholder="e.g. the records go back several years and include paper files"><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="exGo">Extend</button></div>`);m.querySelector("#exGo").onclick=async()=>{closeModal();await sarAct("extend",{reason:$("#exR")?$("#exR").value:""});};
+  m.querySelector("#exGo").onclick=async()=>{const r=$("#exR").value;closeModal();await sarAct("extend",{reason:r});};}
+async function sarExport(){try{const keys=[...document.querySelectorAll(".hitC")].filter(c=>c.checked).map(c=>c.value);await api("PUT","/api/p/gdpr/sars/"+SAR.id,{action:"select",keys});const r=await api("POST",`/api/p/gdpr/sars/${SAR.id}/export`,{redact:$("#sRed").value});
+  modal(`<h2>Export ready</h2>${r.protected?`<p>The ZIP is protected with this password. <b>Write it down now</b> – it isn't stored. Give it to the person separately (for example by phone), not in the same email.</p><p class="countdown" style="text-align:center;letter-spacing:.08em">${esc(r.password)}</p>`:`<div class="bad">This server can't password-protect ZIP files. Send it only by a secure method, or post it on a USB stick.</div>`}<p><a class="btn" href="${r.download}">⬇ Download the ZIP</a></p><p class="hint">A cover letter has been added to the request's letters.</p><div style="text-align:right"><button class="btn sec" onclick="closeModal();route()">Done</button></div>`);}catch(e){fail(e);}}
+function sarErase(){const keys=[...document.querySelectorAll(".hitC")].filter(c=>c.checked).map(c=>c.value);if(!keys.length){toast("Tick the records to erase",true);return;}
+  confirmBox(`Erase ${keys.length} record(s)? This can't be undone.`,async()=>{try{const r=await api("POST","/api/p/gdpr/erase",{sarId:SAR.id,keys});toast(`${r.done.length} erased`);route();}catch(e){fail(e);}},"Erase",true);}
+function breachCard(b){const left=b.hoursLeft;return`<div class="card"><div class="head" style="margin-bottom:6px"><div><h2 style="margin:0">${esc(b.ref)} ${pill(b.risk==="high"?"error":b.risk==="medium"?"pending":"n",b.risk+" risk")}</h2><span class="hint">Aware ${fmtDT(b.aware)} · ${b.people} people · logged by ${esc(b.byName)}</span></div><span class="sp"></span>${b.status==="closed"?pill("closed"):b.icoAt?pill("done","reported to ICO"):b.ico==="no_report"?pill("n","not reportable"):`<span class="countdown" style="color:${left<24?"var(--red)":"var(--navy)"}">${left>0?Math.floor(left)+"h left to report":"ICO deadline passed"}</span>`}</div>
+  <p>${nl(b.summary)}</p>${b.data?`<p class="hint"><b>Data involved:</b> ${esc(b.data)}</p>`:""}
+  ${b.status!=="closed"?`<details><summary><b>Work through the checklist</b></summary>
+   <div class="chk"><input type="checkbox" ${b.checklist.contained?"checked":""} onchange="updBreach('${b.id}',{checklist:{contained:this.checked}})"><label>1. Contained – stopped it getting worse (e.g. recalled the email, changed passwords)</label></div><textarea placeholder="What you did to contain it" onchange="updBreach('${b.id}',{containment:this.value})">${esc(b.containment)}</textarea>
+   <div class="chk"><input type="checkbox" ${b.checklist.assessed?"checked":""} onchange="updBreach('${b.id}',{checklist:{assessed:this.checked}})"><label>2. Assessed the risk to the people affected</label></div><textarea placeholder="Assessment" onchange="updBreach('${b.id}',{assessment:this.value})">${esc(b.assessment)}</textarea>
+   <div class="row"><select onchange="updBreach('${b.id}',{risk:this.value})">${["low","medium","high"].map(r=>`<option ${b.risk===r?"selected":""}>${r}</option>`).join("")}</select><input type="number" value="${b.people}" onchange="updBreach('${b.id}',{people:+this.value})" title="people affected"></div>
+   <div class="chk"><input type="checkbox" ${b.checklist.decided?"checked":""} onchange="updBreach('${b.id}',{checklist:{decided:this.checked}})"><label>3. Decided whether to report to the ICO (within 72 hours unless it's unlikely to put anyone at risk)</label></div>
+   <div class="row"><select onchange="updBreach('${b.id}',{ico:this.value})"><option value="">— decide —</option><option value="report" ${b.ico==="report"?"selected":""}>Report to the ICO</option><option value="no_report" ${b.ico==="no_report"?"selected":""}>Not reportable</option></select><input placeholder="ICO reference" value="${esc(b.icoRef)}" onchange="updBreach('${b.id}',{icoRef:this.value})">${b.ico==="report"&&!b.icoAt?`<button class="btn sm fit" onclick="updBreach('${b.id}',{icoReported:true},1)">Mark reported</button>`:""}</div>
+   <textarea placeholder="Reason for the decision (required if not reporting)" onchange="updBreach('${b.id}',{icoReason:this.value})">${esc(b.icoReason)}</textarea><p class="hint">Report online at ico.org.uk/for-organisations/report-a-breach or call 0303 123 1113.</p>
+   <div class="chk"><input type="checkbox" ${b.checklist.told?"checked":""} onchange="updBreach('${b.id}',{checklist:{told:this.checked}})"><label>4. Told the people affected (needed if it's high risk to them)</label></div><textarea placeholder="Who was told and how" onchange="updBreach('${b.id}',{told:this.value})">${esc(b.told)}</textarea>
+   <div class="row" style="margin-top:8px"><button class="btn sm sec fit" onclick="newLetterBreach('${b.id}')">Draft a letter to people affected</button><button class="btn sm navy fit" onclick="updBreach('${b.id}',{status:'closed'},1)">Close</button></div></details>`:(b.icoReason?`<p class="hint">ICO decision: ${esc(b.ico.replace("_"," "))} – ${esc(b.icoReason)}</p>`:"")}</div>`;}
+async function updBreach(id,b,reload){try{await api("PUT","/api/p/gdpr/breaches/"+id,b);toast("Saved");if(reload)route();}catch(e){fail(e);}}
+function newBreach(){const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());const m=modal(`<h2>Log a data breach</h2><p class="hint">Log anything that might be a breach – for example an email sent to the wrong person, a lost paper file or a hacked account. If it must be reported, the ICO needs to know within 72 hours of when you became aware.</p>
+  <label class="l">When did D.U.C. become aware?</label><input type="datetime-local" id="bA" value="${now.toISOString().slice(0,16)}"><label class="l">What happened</label><textarea id="bS"></textarea><label class="l">What personal data was involved</label><input id="bD"><div class="row"><div><label class="l">People affected (about)</label><input type="number" id="bP" value="1"></div><div><label class="l">Risk</label><select id="bR"><option>low</option><option selected>medium</option><option>high</option></select></div></div>
+  <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn red fit" id="bGo">Log breach</button></div>`);
+  m.querySelector("#bGo").onclick=async()=>{try{await api("POST","/api/p/gdpr/breaches",{aware:new Date($("#bA").value).toISOString(),summary:$("#bS").value,data:$("#bD").value,people:+$("#bP").value,risk:$("#bR").value});closeModal();route();}catch(e){fail(e);}};}
+async function newLetterBreach(id){try{const b=(await api("GET","/api/p/gdpr/breaches")).find(x=>x.id===id);const r=await api("POST","/api/p/letters",{template:"breach_notice",refType:"breach",refId:id,fields:{breach_summary:b.summary,breach_data:b.data,breach_actions:b.containment,breach_advice:""}});location.hash="letter/"+r.id;}catch(e){fail(e);}}
+
+/* ---------- settings & team ---------- */
+PAGES.settings=async()=>{
+  const s=await api("GET","/api/p/settings");
+  const st=s.status;
+  main().innerHTML=`<div class="head"><h1>Portal settings</h1></div>
+  <div class="card"><h2>Setup checklist</h2><div class="list"><div>${st.siteUrl?"✅":"⬜"} Website address</div><div>${st.email?"✅":"⬜"} Email (SMTP)</div><div>${st.gemini?"✅":"⬜"} AI for meeting notes (${esc(st.ai||"")})</div><div>${st.cron?"✅":"⬜"} Cron job running</div></div></div>
+  ${s.recovery&&s.recovery.files.length?`<div class="card" id="recCard"><h2>Password recovery files</h2><p class="hint">These were left on the server after someone used recover.txt to reset a password. Delete them once you're back in.</p>
+   <div class="list">${s.recovery.files.map(f=>`<div>📄 ${esc(f)}</div>`).join("")}</div>${s.recovery.log?`<pre style="white-space:pre-wrap;background:#f6f6f6;padding:10px;border-radius:8px;font-size:13px">${esc(s.recovery.log)}</pre>`:""}
+   <div style="margin-top:10px"><button class="btn red fit" onclick="clearRecovery()">🗑️ Delete recovery files</button></div></div>`:""}
+  <div class="card"><h2>Website address</h2><input id="sU" value="${esc(s.siteUrl)}" placeholder="https://droitwichunitedcharities.org.uk"><p class="hint">Used in emails, invitations and calendar links.</p></div>
+  <div class="card"><h2>Email (SMTP)</h2><p class="hint">All letters, invitations and reminders are sent through this mailbox. Microsoft 365: smtp.office365.com, port 587, STARTTLS (the mailbox needs "Authenticated SMTP" turned on). cPanel mail: mail.yourdomain, port 465, SSL.</p>
+   <div class="row"><div><label class="l">Server</label><input id="mH" value="${esc(s.smtp.host)}" placeholder="smtp.office365.com"></div><div style="flex:0 0 110px"><label class="l">Port</label><input id="mP" type="number" value="${s.smtp.port}"></div><div style="flex:0 0 160px"><label class="l">Security</label><select id="mS">${[["tls","STARTTLS"],["ssl","SSL/TLS"],["none","None"]].map(([k,t])=>`<option value="${k}" ${s.smtp.secure===k?"selected":""}>${t}</option>`).join("")}</select></div></div>
+   <div class="row"><div><label class="l">Username</label><input id="mU" value="${esc(s.smtp.user)}" autocomplete="off"></div><div><label class="l">Password</label><input id="mW" type="password" value="${esc(s.smtp.pass)}" autocomplete="new-password"></div></div>
+   <div class="row"><div><label class="l">From address</label><input id="mF" value="${esc(s.smtp.from)}" placeholder="clerk@droitwichunitedcharities.org.uk"></div><div><label class="l">From name</label><input id="mN" value="${esc(s.smtp.fromName)}"></div><div><label class="l">Reply-to (optional)</label><input id="mR" value="${esc(s.smtp.replyTo)}"></div></div>
+   <div class="row" style="margin-top:10px"><input id="mT" placeholder="Send a test email to…" value="${esc(ME.user.email)}"><button class="btn sec fit" onclick="testMail()">Save & send test</button></div>
+   ${s.outbox.length?`<h3 style="margin-top:12px">Waiting to send (${s.outbox.length})</h3><table class="t">${s.outbox.map(o=>`<tr><td>${esc(o.to)}</td><td>${esc(o.subject)}</td><td class="hint">${o.tries} tries · ${esc(o.error)}</td></tr>`).join("")}</table>`:""}</div>
+  <div class="card"><h2>AI for meeting notes</h2><p class="hint">Two jobs: turning the recording into text, then writing the summary, decisions, actions and draft minutes. Pick a service for each.</p>
+   <div class="row"><div><label class="l">Transcription (recording → text)</label><select id="aiS" onchange="aiShow()"><option value="gemini" ${s.ai.stt==="gemini"?"selected":""}>Gemini</option><option value="whisper" ${s.ai.stt==="whisper"?"selected":""}>Whisper – Groq (free) or your own Whisper server</option></select></div>
+    <div><label class="l">Notes, actions and minutes</label><select id="aiN" onchange="aiShow()"><option value="gemini" ${s.ai.notes==="gemini"?"selected":""}>Gemini</option><option value="ollama" ${s.ai.notes==="ollama"?"selected":""}>Saltway AI (Ollama on your VPS)</option></select></div></div>
+   <div id="aiW" class="agenda-item" style="margin-top:10px"><b>Whisper</b><p class="hint">Groq: sign up free at console.groq.com → API Keys → Create API Key. Whisper doesn't say who is speaking, so the Clerk checks action owners.</p>
+    <div class="row"><div><label class="l">Address</label><input id="wB" value="${esc(s.ai.whisper.base)}"></div><div><label class="l">API key</label><input id="wK" value="${esc(s.ai.whisper.key)}" autocomplete="off" placeholder="gsk_…"></div><div style="flex:0 0 220px"><label class="l">Model</label><input id="wM" value="${esc(s.ai.whisper.model)}"></div></div></div>
+   <div id="aiO" class="agenda-item" style="margin-top:10px"><b>Saltway AI (Ollama)</b><p class="hint">The address Caddy gives Ollama on your VPS, the API key you set in Caddy, and the model you've pulled (for example llama3.2:1b, llama3.2:3b or llama3.1:8b). Notes are written in the background and the Clerk is emailed when they're ready.</p>
+    <div class="row"><div><label class="l">Address</label><input id="oB" value="${esc(s.ai.ollama.base)}"></div><div><label class="l">API key</label><input id="oK" value="${esc(s.ai.ollama.key)}" autocomplete="off"></div></div>
+    <div class="row"><div><label class="l">Model</label><input id="oM" value="${esc(s.ai.ollama.model)}"></div><div><label class="l">Context size (tokens)</label><input id="oC" type="number" value="${s.ai.ollama.ctx}"><span class="hint">32768 fits about 2 hours of meeting. Lower it if the VPS runs short of memory.</span></div>
+     <div><label class="l">How to read the meeting</label><select id="oX"><option value="auto" ${s.ai.ollama.mode==="auto"?"selected":""}>Automatic – a part at a time for small models</option><option value="sections" ${s.ai.ollama.mode==="sections"?"selected":""}>Always a part at a time</option><option value="whole" ${s.ai.ollama.mode==="whole"?"selected":""}>All in one go (8B models and bigger)</option></select><span class="hint">Small models like llama3.2:1b do much better a part at a time. Marking each agenda item while recording gives each item its own section.</span></div></div></div>
+   <div id="aiG" class="agenda-item" style="margin-top:10px"><b>Gemini</b><p class="hint">Key from aistudio.google.com, in a Google Cloud project <b>with billing turned on</b> – free-tier data may be used by Google, and Google only allows paid use for UK users.</p>
+    <label class="l">API key</label><input id="gK" value="${esc(s.gemini.key)}" autocomplete="off" placeholder="AIza…"><div class="row"><div><label class="l">Fast model (transcripts)</label><input id="gF" value="${esc(s.gemini.fastModel)}"></div><div><label class="l">Pro model (minutes and actions)</label><input id="gP" value="${esc(s.gemini.proModel)}"></div></div></div>
+   <div class="row" style="margin-top:10px"><button class="btn sec fit" onclick="testGemini()">Save & test AI</button></div></div>
+  <div class="card"><h2>Decisions</h2><label class="l">Votes needed for a decision to be quorate</label><input id="vQ" type="number" min="1" value="${s.votes.quorum}" style="width:120px"><p class="hint">Check this against the governing document. Decisions are by simple majority.</p>
+   <label class="l">Droitwich Spa postcode areas (one per line)</label><textarea id="pcs" style="min-height:80px">${esc(s.postcodes.join("\n"))}</textarea><p class="hint">Referrals from other postcodes get a warning, but aren't blocked.</p></div>
+  <div class="card"><h2>Who signs letters</h2>${["chairman","clerk"].map(k=>`<h3>${k==="chairman"?"Chairman":"Clerk"}</h3><div class="row"><div><label class="l">Name</label><input id="sg_${k}_name" value="${esc(s.signatories[k].name)}"></div><div><label class="l">Title</label><input id="sg_${k}_role" value="${esc(s.signatories[k].role)}"></div></div><label class="l">Contact line</label><input id="sg_${k}_contact" value="${esc(s.signatories[k].contact)}">`).join("")}<p class="hint">The brand guide says these details came from 2016 letters – please check they're still correct.</p></div>
+  <div class="card"><h2>Data sharing agreement for partners (version ${s.agreement.version})</h2><textarea id="agT" style="min-height:260px">${esc(s.agreement.text)}</textarea><p class="hint">Saving a change creates a new version. Every partner's main contact must accept it again.</p></div>
+  <div class="card"><h2>Cron job (reminders, retention, retries)</h2><p>In cPanel, open <b>Cron Jobs</b> and add one job to run <b>every 15 minutes</b>:</p><input readonly value="${esc(s.cronCommand)}" onclick="this.select()"><p class="hint">If your host doesn't allow that, use this web address with "wget" or an online cron service instead (keep it secret):</p><input readonly value="${esc(s.cronUrl)}" onclick="this.select()"></div>
+  <div style="position:sticky;bottom:12px;text-align:right"><button class="btn" onclick="saveSettings()">Save settings</button></div>`;
+  aiShow();
+};
+function settingsBody(){return{siteUrl:$("#sU").value,smtp:{host:$("#mH").value,port:+$("#mP").value,secure:$("#mS").value,user:$("#mU").value,pass:$("#mW").value,from:$("#mF").value,fromName:$("#mN").value,replyTo:$("#mR").value},
+  gemini:{key:$("#gK").value,fastModel:$("#gF").value,proModel:$("#gP").value},
+  ai:{stt:$("#aiS").value,notes:$("#aiN").value,whisper:{base:$("#wB").value,key:$("#wK").value,model:$("#wM").value},ollama:{base:$("#oB").value,key:$("#oK").value,model:$("#oM").value,ctx:+$("#oC").value,mode:$("#oX").value}},votes:{quorum:+$("#vQ").value},postcodes:$("#pcs").value.split("\n").map(x=>x.trim()).filter(Boolean),
+  signatories:Object.fromEntries(["chairman","clerk"].map(k=>[k,{name:$(`#sg_${k}_name`).value,role:$(`#sg_${k}_role`).value,contact:$(`#sg_${k}_contact`).value}])),agreementText:$("#agT").value};}
+async function saveSettings(silent){try{await api("PUT","/api/p/settings",settingsBody());if(!silent){toast("Settings saved");await boot();}}catch(e){fail(e);throw e;}}
+async function testMail(){try{await saveSettings(true);await api("POST","/api/p/settings/test-email",{to:$("#mT").value});toast("Test email sent – check the inbox");}catch(e){fail(e);}}
+async function testGemini(){try{await saveSettings(true);const r=await api("POST","/api/p/settings/test-gemini");modal(`<h2>AI test</h2><p>✅ ${esc(r.reply).replace(/ \| /g,"<br>✅ ")}</p><div style="text-align:right"><button class="btn" onclick="closeModal()">Done</button></div>`);}catch(e){modal(`<h2>AI test</h2><div class="bad">${esc(e.message).replace(/ \| /g,"<br>")}</div><div style="text-align:right"><button class="btn" onclick="closeModal()">Close</button></div>`);}}
+async function clearRecovery(){if(!confirm("Delete the password recovery files from the server?"))return;try{const r=await api("POST","/api/p/settings/recovery-clear");toast("Deleted: "+(r.deleted.join(", ")||"nothing"));const c=$("#recCard");if(c)c.remove();}catch(e){fail(e);}}
+function aiShow(){const s=$("#aiS").value,n=$("#aiN").value;$("#aiW").style.display=s==="whisper"?"":"none";$("#aiO").style.display=n==="ollama"?"":"none";$("#aiG").style.display=(s==="gemini"||n==="gemini")?"":"none";}
+PAGES.team=async()=>{
+  const l=await api("GET","/api/p/board-users");BOARD=l;const can=["admin","clerk"].includes(ME.user.role);
+  main().innerHTML=`<div class="head"><h1>Trustees & officers</h1><span class="sp"></span>${can?`<button class="btn fit" onclick="inviteBoard()">+ Invite</button>`:""}</div>
+  <div class="card tw"><table class="t"><tr><th>Name</th><th>Role</th><th>Email</th></tr>${l.map(u=>`<tr><td>${esc(u.name)}</td><td>${PERMS.admin&&u.id!==ME.user.id?`<select onchange="setBoardRole('${u.id}',this)">${[["trustee","Trustee"],["chairman","Chairman"],["clerk","Clerk"],["dplead","Data Protection Lead"],["admin","Global Admin"]].map(([v,t])=>`<option value="${v}" ${u.role===v?"selected":""}>${t}</option>`).join("")}</select>`:esc(u.roleLabel)+(u.id===ME.user.id?' <span class="hint">(you)</span>':"")}</td><td>${u.email?`<a href="mailto:${esc(u.email)}">${esc(u.email)}</a>`:`<span class="hint">no email – add one on the website's Users page</span>`}</td></tr>`).join("")}</table></div>
+  ${PERMS.admin?`<p class="hint">You can have as many Global Admins as you like. Choose <b>Global Admin</b> in someone's role list, or when you invite them. Global Admins can change everyone's role except their own, and there must always be at least one. Reset passwords or remove people on the website's admin panel (Users).</p>`:""}`;
+};
+async function setBoardRole(id,sel){const u=BOARD.find(x=>x.id===id),old=u.role,v=sel.value;
+  const go=async()=>{try{await api("PUT","/api/p/board-users/"+id+"/role",{role:v});toast(`${u.name} is now ${sel.options[sel.selectedIndex].text}`);PAGES.team();}catch(e){sel.value=old;fail(e);}};
+  if(v==="admin")confirmBox(`Make <b>${esc(u.name)}</b> a Global Admin? They'll be able to change settings, users, the Claude connector and delete meetings.`,go,"Make Global Admin");
+  else go();
+  const mm=document.querySelector(".modal, #modal");if(v==="admin"&&mm){const c=mm.querySelector(".btn.sec");if(c)c.addEventListener("click",()=>{sel.value=old;});}
+}
+function inviteBoard(){const m=modal(`<h2>Invite to the Trustee Portal</h2><label class="l">Name</label><input id="ibN"><label class="l">Email</label><input id="ibE" type="email"><label class="l">Role</label><select id="ibR"><option value="trustee">Trustee</option>${PERMS.admin?`<option value="chairman">Chairman</option><option value="clerk">Clerk</option><option value="dplead">Data Protection Lead</option><option value="admin">Global Admin</option>`:""}</select><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn sec fit" onclick="closeModal()">Cancel</button><button class="btn fit" id="ibGo">Send invitation</button></div>`);
+  m.querySelector("#ibGo").onclick=async()=>{try{const r=await api("POST","/api/p/board-users",{name:$("#ibN").value,email:$("#ibE").value,role:$("#ibR").value});closeModal();if(r.link)modal(`<h2>Email not sent</h2><p>Send this set-password link yourself:</p><input readonly value="${esc(r.link)}" onclick="this.select()"><div style="text-align:right;margin-top:10px"><button class="btn" onclick="closeModal();route()">Done</button></div>`);else{toast("Invitation sent");route();}}catch(e){fail(e);}};}
+
+/* ---------- Claude connector ---------- */
+PAGES.claude=async()=>{
+  const r=await api("GET","/api/p/claude");
+  main().innerHTML=`<div class="head"><h1>Claude connector</h1></div>
+  <div class="card"><p>Connect Claude (claude.ai, the Claude desktop and mobile apps) to the Trustee Portal, then ask things like <i>"What actions do I have?"</i>, <i>"What did we decide about the Christmas hampers?"</i> or <i>"Mark my hampers action as done"</i>.</p>
+   ${r.enabled?`<div class="ok">The connector is <b>on</b>.</div>`:`<div class="warn">The connector is <b>off</b>.${PERMS.admin?"":" Ask the Global Admin to switch it on."}</div>`}
+   ${PERMS.admin?`<button class="btn ${r.enabled?"sec":""}" onclick="claudeToggle(${!r.enabled})">${r.enabled?"Switch off (disconnects everyone)":"Switch the connector on"}</button>`:""}</div>
+  <div class="card"><h2>How to connect</h2><ol>
+   <li>In Claude, open <b>Settings → Connectors</b> (claude.ai/customize/connectors) and choose <b>Add custom connector</b>.<br><span class="hint">On a Team or Enterprise plan, an owner adds it once under Organisation settings → Connectors.</span></li>
+   <li>Name: <b>D.U.C. Trustee Portal</b>. Remote MCP server URL:<br><input readonly value="${esc(r.url)}" onclick="this.select()" style="max-width:520px"><br><span class="hint">Leave the advanced OAuth settings empty.</span></li>
+   <li>Press <b>Connect</b>, sign in with your portal username and password, and press <b>Allow</b>.</li></ol>
+   <p class="hint">Claude sees only what your role allows. Names, addresses and other personal details of people referred for help are never sent to Claude – only reference numbers and initials. Claude can't vote, approve minutes or send letters. Everything it does is recorded in the audit log.</p></div>
+  ${PERMS.admin?`<div class="card"><h2>Check the connector</h2><p class="hint">Runs the same steps Claude does when you press Connect, and shows any that fail.</p><button class="btn sec" onclick="claudeCheck()">Run the check</button><div id="ccRes"></div>
+   ${r.failures&&r.failures.length?`<h3 style="margin-top:14px">Recent failed attempts from Claude</h3><table class="t">${r.failures.map(f=>`<tr><td style="white-space:nowrap">${fmtDT(f.time)}</td><td>${esc(f.details)}</td></tr>`).join("")}</table>`:""}</div>
+  <div class="card"><h2>Client ID (if Claude says "Couldn't register")</h2><p>Create a Client ID, then in Claude open the connector's <b>Advanced settings</b>, paste it into <b>OAuth Client ID</b> and leave <b>OAuth Client Secret</b> empty.</p>
+   ${r.clients.length?`<table class="t">${r.clients.map(c=>`<tr><td><input readonly value="${esc(c.id)}" onclick="this.select()" style="max-width:340px"></td><td class="hint">created ${fmtD(c.created)}</td><td><button class="btn sm ghost" onclick="claudeDelClient('${c.id}')">Delete</button></td></tr>`).join("")}</table>`:""}
+   <button class="btn sec" onclick="claudeNewClient()">Create a Client ID</button></div>`:""}
+  <div class="card"><h2>${PERMS.admin?"Everyone's connections":"Your connections"}</h2>${r.connections.length?`<table class="t"><tr><th>Person</th><th>App</th><th>Since</th><th></th></tr>${r.connections.map(c=>`<tr><td>${esc(c.user)}</td><td>${esc(c.app)}</td><td>${fmtD(c.since)}</td><td><button class="btn sm ghost" onclick="claudeOff('${c.userId}','${c.client}')">Disconnect</button></td></tr>`).join("")}</table>`:`<p class="empty">No connections.</p>`}</div>`;
+};
+async function claudeCheck(){$("#ccRes").innerHTML="<p>Checking…</p>";try{const r=await api("POST","/api/p/claude",{selfCheck:true});const c=r.check;$("#ccRes").innerHTML=`<table class="t" style="margin-top:10px">${c.map(x=>`<tr><td>${x.ok?"✅":"❌"}</td><td><b>${esc(x.step)}</b><br><span class="hint">${esc(x.url)} → ${x.status||"no answer"}</span>${x.ok?"":`<br><code style="font-size:12px">${esc(x.body)}</code>`}</td></tr>`).join("")}</table>${c.every(x=>x.ok)?`<div class="ok" style="margin-top:8px">All good – Claude should be able to connect.</div>`:`<div class="warn" style="margin-top:8px">${claudeAdvice(c)}</div>`}`;}catch(e){$("#ccRes").innerHTML="";fail(e);}}
+function claudeAdvice(c){const f=c.find(x=>!x.ok);if(!f)return"";const s=f.status;
+  if(s===404&&/switched off/.test(f.body))return"The connector is switched off – press the button at the top of this page.";
+  if(s===403||s===406||s===501)return"Your server's firewall (ModSecurity) is blocking this. In cPanel open <b>ModSecurity</b> and switch it <b>Off</b> for trustees.droitwichunitedcharities.org.uk, then run the check again. Or use a Client ID below.";
+  if(/Website address/.test(f.step))return"Go to ⚙️ Portal settings and change <b>Website address</b> to "+esc(location.origin)+", then save and run the check again.";
+  if(s===0)return"The server couldn't call its own address – check the Website address in Portal settings is https://trustees.droitwichunitedcharities.org.uk.";
+  if(s===200&&/<html/i.test(f.body))return"A web page came back instead of data – the latest files may not be in place. Upload and extract the newest zip again.";
+  return"Send this result to your developer.";}
+async function claudeNewClient(){try{await api("POST","/api/p/claude",{createClient:true});toast("Client ID created");route();}catch(e){fail(e);}}
+async function claudeDelClient(id){if(!confirm("Delete this Client ID? Anyone connected with it will be disconnected."))return;try{await api("POST","/api/p/claude",{deleteClient:id});route();}catch(e){fail(e);}}
+async function claudeToggle(on){if(!on&&!confirm("Switch off the Claude connector? Everyone will be disconnected."))return;try{await api("POST","/api/p/claude",{enabled:on});route();}catch(e){fail(e);}}
+async function claudeOff(uid,cid){try{await api("POST","/api/p/claude",{disconnect:cid,userId:uid});toast("Disconnected");route();}catch(e){fail(e);}}
+
+/* ---------- start ---------- */
+async function boot(){
+  try{ME=await api("GET","/api/p/me");}catch(e){main().innerHTML=`<div class="card bad">${esc(e.message)}</div>`;return;}
+  PERMS=ME.perms;
+  $("#portalName").textContent=PERMS.partner?"Referral partner portal":"Trustee Portal";
+  $("#who").innerHTML=`${esc(ME.user.name)} · ${esc(ME.user.roleLabel)}${ME.org?" · "+esc(ME.org.name):""}<br><a href="/change-password">Change password</a><a href="/logout">Sign out</a>`;
+  if(PERMS.board){try{BOARD=await api("GET","/api/p/board-users");}catch(e){}}
+  route();
+}
+boot();
+</script>
+</body>
+</html>
