@@ -138,10 +138,11 @@ C) In the portal: Portal settings > AI for meeting notes
 ============================================================
 LOCKED OUT? (forgotten password, no email on the account)
 ============================================================
-1. cPanel > File Manager > open your data folder
-   (duc-data.trustees.droitwichunitedcharities.org.uk, next to public_html).
-2. + File > name it  recover.txt  > open it and type your username
-   (for example  matthew ) > Save.
+1. cPanel > File Manager > open the site folder
+   public_html/trustees.droitwichunitedcharities.org.uk (where index.php is).
+2. + File > name it  recover.txt  > Create. Leave it empty to reset the
+   first Global Admin, or type a username in it.
 3. Within an hour, go to https://trustees.droitwichunitedcharities.org.uk/forgot-password
    – it opens "Choose a new password" straight away.
-The file deletes itself after one use, and is ignored if it's over an hour old.
+The file deletes itself after one use. What happened is written to
+recover-result.log in the same folder (not visible on the web).

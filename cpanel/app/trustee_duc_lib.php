@@ -270,19 +270,32 @@ function handle_forgot_password(): void {
             . '<button type="submit">Send reset link</button></form><p class="small"><a href="/login">Back to sign in</a></p>';
         render_page(200, 'Forgotten password', $b);
     };
-    // Locked out with no email? Anyone with cPanel access can put a file called recover.txt in the data
-    // folder containing a username. The next visit to this page opens the password form for that user.
-    $rf = data_dir() . '/recover.txt';
-    if (is_file($rf)) {
-        $who = strtolower(trim((string)file_get_contents($rf)));
+    // Locked out with no email? Anyone with cPanel access can put a file called recover.txt (containing a
+    // username, email or name) in the site folder or the data folder. The next visit opens the password form.
+    $site = dirname(APP_DIR);
+    foreach ([$site . '/recover.txt', data_dir() . '/recover.txt'] as $rf) {
+        if (!is_file($rf)) continue;
+        $raw = (string)file_get_contents($rf);
+        $raw = preg_replace('/^\xEF\xBB\xBF/', '', $raw);
+        $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', $raw)), 'strlen'));
+        $who = strtolower($lines[0] ?? '');
         $fresh = filemtime($rf) > time() - 3600;
         @unlink($rf);
-        $u = null; foreach (users() as $x) if (strtolower($x['username']) === $who) $u = $x;
-        if ($fresh && $u && empty($u['disabled'])) {
+        $u = null;
+        foreach (users() as $x) if ($who !== '' && empty($x['disabled']) && in_array($who, [strtolower($x['username']), strtolower(user_email($x)), strtolower($x['name'] ?? '')], true)) { $u = $x; break; }
+        if (!$u && $who === '') foreach (users() as $x) if (($x['role'] ?? '') === 'admin' && empty($x['disabled'])) { $u = $x; break; } // empty file = first Global Admin
+        $log = date('j M Y H:i') . ' – found ' . $rf . "\nRead: \"" . ($lines[0] ?? '') . "\"\n";
+        if ($fresh && $u) {
+            $log .= 'OK – opened the new password form for username "' . $u['username'] . "\".\n";
+            @file_put_contents($site . '/recover-result.log', $log);
             audit($u['username'], 'password.recovery_file', 'Password reset started with recover.txt from cPanel (IP ' . client_ip() . ')');
             redirect('/set-password?' . parse_url(make_setpw_token($u['id'], 0, 'reset', 1), PHP_URL_QUERY));
         }
-        audit($who, 'password.recovery_file_rejected', $fresh ? 'No active account with that username' : 'recover.txt was more than an hour old');
+        $log .= !$fresh ? "Not used – the file was more than an hour old. Make a new one.\n"
+            : "Not used – no active account matches that. Global Admin usernames: " . implode(', ', array_map(function ($x) { return $x['username']; }, array_filter(users(), function ($x) { return ($x['role'] ?? '') === 'admin'; }))) . "\nTip: leave recover.txt empty to reset the first Global Admin.\n";
+        @file_put_contents($site . '/recover-result.log', $log);
+        audit($who, 'password.recovery_file_rejected', $fresh ? 'No active account matches' : 'recover.txt was more than an hour old');
+        break;
     }
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') $form();
     $who = strtolower(trim(mb_substr((string)($_POST['who'] ?? ''), 0, 200)));
