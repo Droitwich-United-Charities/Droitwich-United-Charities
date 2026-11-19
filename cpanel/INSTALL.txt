@@ -134,3 +134,14 @@ C) In the portal: Portal settings > AI for meeting notes
    Press "Save & test AI". Both lines should show a tick.
    Saltway AI jobs run in the background (cron) – make sure the cron
    job from the main instructions is set up.
+
+============================================================
+LOCKED OUT? (forgotten password, no email on the account)
+============================================================
+1. cPanel > File Manager > open your data folder
+   (duc-data.trustees.droitwichunitedcharities.org.uk, next to public_html).
+2. + File > name it  recover.txt  > open it and type your username
+   (for example  matthew ) > Save.
+3. Within an hour, go to https://trustees.droitwichunitedcharities.org.uk/forgot-password
+   – it opens "Choose a new password" straight away.
+The file deletes itself after one use, and is ignored if it's over an hour old.

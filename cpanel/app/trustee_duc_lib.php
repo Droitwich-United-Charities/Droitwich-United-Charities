@@ -270,6 +270,20 @@ function handle_forgot_password(): void {
             . '<button type="submit">Send reset link</button></form><p class="small"><a href="/login">Back to sign in</a></p>';
         render_page(200, 'Forgotten password', $b);
     };
+    // Locked out with no email? Anyone with cPanel access can put a file called recover.txt in the data
+    // folder containing a username. The next visit to this page opens the password form for that user.
+    $rf = data_dir() . '/recover.txt';
+    if (is_file($rf)) {
+        $who = strtolower(trim((string)file_get_contents($rf)));
+        $fresh = filemtime($rf) > time() - 3600;
+        @unlink($rf);
+        $u = null; foreach (users() as $x) if (strtolower($x['username']) === $who) $u = $x;
+        if ($fresh && $u && empty($u['disabled'])) {
+            audit($u['username'], 'password.recovery_file', 'Password reset started with recover.txt from cPanel (IP ' . client_ip() . ')');
+            redirect('/set-password?' . parse_url(make_setpw_token($u['id'], 0, 'reset', 1), PHP_URL_QUERY));
+        }
+        audit($who, 'password.recovery_file_rejected', $fresh ? 'No active account with that username' : 'recover.txt was more than an hour old');
+    }
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') $form();
     $who = strtolower(trim(mb_substr((string)($_POST['who'] ?? ''), 0, 200)));
     if ($who === '') $form('Enter your username or email address.');
