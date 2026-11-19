@@ -798,6 +798,8 @@ function api_p_settings(): void {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $s['smtp']['pass'] = $s['smtp']['pass'] !== '' ? '••••••••' : '';
         $s['gemini']['key'] = $s['gemini']['key'] !== '' ? '••••' . substr($s['gemini']['key'], -4) : '';
+        $rf = recovery_files(); $site = dirname(APP_DIR);
+        $s['recovery'] = ['files' => array_map('basename', $rf), 'log' => is_file($site . '/recover-result.log') ? mb_substr((string)file_get_contents($site . '/recover-result.log'), 0, 2000) : ''];
         $s['ai'] = ai_settings();
         foreach (['whisper', 'ollama'] as $k) $s['ai'][$k]['key'] = $s['ai'][$k]['key'] !== '' ? '••••' . substr($s['ai'][$k]['key'], -4) : '';
         $s['agreement'] = agreement();
@@ -859,6 +861,15 @@ function api_p_test_email(): void {
     audit($u['username'], 'email.test', $to . ': ' . ($err ?? 'sent'));
     if ($err) api_err(502, $err);
     json_out(200, ['ok' => true]);
+}
+function api_p_recovery_clear(): void {
+    $u = pguard('admin');
+    $gone = [];
+    foreach (recovery_files() as $f) if (@unlink($f)) $gone[] = basename($f);
+    $left = array_map('basename', recovery_files());
+    audit($u['username'], 'password.recovery_files_deleted', $gone ? implode(', ', $gone) : 'nothing to delete');
+    if ($left) api_err(500, 'Could not delete ' . implode(', ', $left) . ' – delete it in cPanel File Manager');
+    json_out(200, ['ok' => true, 'deleted' => $gone]);
 }
 function api_p_test_gemini(): void {
     $u = pguard('admin');
@@ -922,7 +933,7 @@ function portal_route(string $path, string $method): bool {
         ['*', '/api/p/docs', 'api_p_docs'], ['*', "/api/p/docs/$id", 'api_p_doc'], ['GET', "/api/p/docs/$id/file", 'api_p_doc_file'], ['POST', "/api/p/docs/$id/confirm", 'api_p_doc_confirm'],
         ['*', '/api/p/cases', 'api_p_cases'], ['POST', "/api/p/cases/$id/vote", 'api_p_case_vote'], ['POST', "/api/p/cases/$id/close", 'api_p_case_close'],
         ['*', '/api/p/calendar', 'api_p_calendar'], ['GET', '/api/p/search', 'api_p_search'], ['POST', '/api/p/ask', 'api_p_ask'],
-        ['*', '/api/p/settings', 'api_p_settings'], ['POST', '/api/p/settings/test-email', 'api_p_test_email'], ['POST', '/api/p/settings/test-gemini', 'api_p_test_gemini'],
+        ['*', '/api/p/settings', 'api_p_settings'], ['POST', '/api/p/settings/test-email', 'api_p_test_email'], ['POST', '/api/p/settings/test-gemini', 'api_p_test_gemini'], ['POST', '/api/p/settings/recovery-clear', 'api_p_recovery_clear'],
         ['*', '/api/p/board-users', 'api_p_board_users'], ['*', '/api/p/claude', 'api_p_claude'],
     ];
     $routes = array_merge($routes, partner_routes($id), letter_routes($id), gdpr_routes($id));

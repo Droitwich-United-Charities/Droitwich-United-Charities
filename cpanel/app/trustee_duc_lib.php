@@ -315,6 +315,12 @@ function handle_forgot_password(): void {
     render_page(200, 'Check your email', $done);
 }
 
+/** Recovery files left on the server (recover.txt in the site or data folder, and recover-result.log). */
+function recovery_files(): array {
+    $site = dirname(APP_DIR);
+    return array_values(array_filter([$site . '/recover.txt', data_dir() . '/recover.txt', $site . '/recover-result.log'], 'is_file'));
+}
+
 /** Create a user (used for partner and trustee invites). Returns [user, setPasswordLink]. */
 function create_invited_user(array $by, string $name, string $email, string $role, array $extra = []): array {
     $email = strtolower(trim($email));
